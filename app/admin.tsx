@@ -4,9 +4,6 @@ import { ScrollView } from "react-native";
 import { Image } from "expo-image";
 import Feather from "@expo/vector-icons/Feather";
 
-const blurhash =
-  "|rF?hV%2WCj[ayj[a|j[az_NaeWBj@ayfRayfQfQM{M|azj[azf6fQfQfQIpWXofj[ayj[j[fQayWCoeoeaya}j[ayfQa{oLj?j[WVj[ayayj[fQoff7azayj[ayj[j[ayofayayayj[fQj[ayayj[ayfjj[j[ayjuayj[";
-
 const userName = "user_name";
 
 export default function AdminDashboard() {
@@ -14,13 +11,12 @@ export default function AdminDashboard() {
     <>
       <ScrollView>
         <View style={styles.container}>
+        <View style={styles.profile}>
           <Image
             style={styles.image}
-            source="https://picsum.photos/seed/696/3000/2000"
-            placeholder={{ blurhash }}
-            contentFit="cover"
-            transition={1000}
+            source="../assets/images/profileImg.jpg"
           />
+        </View>
           <View><Text>Hi!, {userName}!</Text></View>
         </View>
         <View style={styles.border}>
@@ -59,7 +55,19 @@ const styles = StyleSheet.create({
     flex: 1,
     justifyContent: "center",
     alignItems: "center",
-    marginTop: 200,
+  },
+  profile: {
+    width: 100,
+    height: 100,
+    borderRadius: 50,
+    overflow: "hidden",
+    marginBottom: 10, 
+    justifyContent: "center",
+    alignItems: "center",
+  },
+  image: {
+    width: "100%",
+    height: "100%",
   },
   border: {
     borderColor: "#80808",
@@ -80,10 +88,6 @@ const styles = StyleSheet.create({
   },
   txt: {
     justifyContent: "space-around"
-  },
-  image: {
-    width: "100%",
-    backgroundColor: "#0553",
   },
   buttonCont: {
     marginTop: 200,
