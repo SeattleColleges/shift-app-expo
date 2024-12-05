@@ -1,7 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { Image, StyleSheet, Platform, View, Text, Button } from 'react-native';
 
-import { HelloWave } from '@/components/HelloWave';
 import ParallaxScrollView from '@/components/ParallaxScrollView';
 import { ThemedText } from '@/components/ThemedText';
 import { ThemedView } from '@/components/ThemedView';
@@ -19,7 +18,6 @@ export default function HelpPage() {
       }>
       <ThemedView style={styles.stepContainer}>
         <ThemedText type="subtitle">Help page placeholder</ThemedText>
-        <HelloWave />
         <Text style={styles.message}></Text>
       </ThemedView>
     </ParallaxScrollView>
