@@ -1,14 +1,11 @@
 import React, { useEffect, useState } from 'react';
 import { Image, StyleSheet, Platform, View, Text, Button } from 'react-native';
 
-import { HelloWave } from '@/components/HelloWave';
 import ParallaxScrollView from '@/components/ParallaxScrollView';
 import { ThemedText } from '@/components/ThemedText';
 import { ThemedView } from '@/components/ThemedView';
-import { supabase } from '@/supabaseClient';
-import { Link } from 'expo-router';
 
-export default function HomeScreen() {
+export default function HelpPage() {
 
   return (
     <ParallaxScrollView
@@ -19,11 +16,9 @@ export default function HomeScreen() {
           style={styles.reactLogo}
         />
       }>
-
       <ThemedView style={styles.stepContainer}>
-        <ThemedText type="subtitle">Database Message:</ThemedText>
-        <HelloWave />
-        <Link href="/help">Help Page</Link>
+        <ThemedText type="subtitle">Help page placeholder</ThemedText>
+        <Text style={styles.message}></Text>
       </ThemedView>
     </ParallaxScrollView>
   );
