@@ -1,8 +1,10 @@
-import Footer from "@/components/Footer";
+import React from "react";
+import Footer from "../components/Footer";
 import { Pressable, StyleSheet, Text, View } from "react-native";
 import { ScrollView } from "react-native";
 import { Image } from "expo-image";
 import Feather from "@expo/vector-icons/Feather";
+
 
 const userName = "user_name";
 
