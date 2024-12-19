@@ -31,12 +31,14 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     gap: 8,
   },
+
   stepContainer: {
     gap: 8,
     marginBottom: 8,
     paddingHorizontal: 16,
     paddingTop: 16,
   },
+
   reactLogo: {
     height: 178,
     width: 290,
@@ -44,10 +46,12 @@ const styles = StyleSheet.create({
     left: 0,
     position: 'absolute',
   },
+
   message: {
     fontSize: 24,
     marginBottom: 20,
     color: '#333',
     textAlign: 'center',
   },
+  
 });
