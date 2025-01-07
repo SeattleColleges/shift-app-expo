@@ -58,6 +58,7 @@ export default function HomeScreen() {
         </Link>
         
         <Link href="/help">Help Page</Link>
+
       
       </ThemedView>
     </ParallaxScrollView>
