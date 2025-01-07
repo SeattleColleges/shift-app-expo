@@ -56,6 +56,9 @@ export default function HomeScreen() {
         >
           Forgot Password Page
         </Link>
+        
+        <Link href="/help">Help Page</Link>
+      
       </ThemedView>
     </ParallaxScrollView>
   );
