@@ -57,7 +57,8 @@ export default function HomeScreen() {
           Forgot Password Page
         </Link>
         
-        <Link href="/help">Help Page</Link>
+        {/* Having typescript mismatch error with this line below, commented out for now (maybe safe to delete) */}
+        {/*<Link href="/help">Help Page</Link>*/}
 
       
       </ThemedView>
