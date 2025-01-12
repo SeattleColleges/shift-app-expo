@@ -5,28 +5,28 @@ import { HelloWave } from '@/components/HelloWave';
 import ParallaxScrollView from '@/components/ParallaxScrollView';
 import { ThemedText } from '@/components/ThemedText';
 import { ThemedView } from '@/components/ThemedView';
-import { supabase } from '@/supabaseClient';
+// import { supabase } from '@/supabaseClient';
 
 export default function HomeScreen() {
   const [message, setMessage] = useState('Fetching...');
 
-  const fetchMessage = async () => {
-    const { data, error } = await supabase
-      .from('messages')
-      .select('text')
-      .eq('id', 1) 
-      .single();
-    if (error) {
-      console.error(error);
-      setMessage('Error fetching message');
-    } else {
-      setMessage(data.text);
-    }
-  };
+  // const fetchMessage = async () => {
+  //   const { data, error } = await supabase
+  //     .from('messages')
+  //     .select('text')
+  //     .eq('id', 1) 
+  //     .single();
+  //   if (error) {
+  //     console.error(error);
+  //     setMessage('Error fetching message');
+  //   } else {
+  //     setMessage(data.text);
+  //   }
+  // };
 
-  useEffect(() => {
-    fetchMessage();
-  }, []);
+  // useEffect(() => {
+  //   fetchMessage();
+  // }, []);
 
   return (
     <ParallaxScrollView
@@ -43,6 +43,7 @@ export default function HomeScreen() {
         <HelloWave />
         <Text style={styles.message}>{message}</Text>
       </ThemedView>
+
     </ParallaxScrollView>
   );
 }
