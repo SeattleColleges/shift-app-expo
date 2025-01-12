@@ -3,7 +3,7 @@ import { type IconProps } from "@expo/vector-icons/build/createIconSet";
 import { type ComponentProps } from "react";
 import { View, Text, StyleSheet, Button } from "react-native";
 
-const ShiftDetailPage = () => {
+export default function ShiftDetailsComp() {
     return (
         <View style={styles.container}>
             {/* Title */}
@@ -71,5 +71,3 @@ const styles = StyleSheet.create({
         marginHorizontal: 5,
     },
 });
-
-export default ShiftDetailPage;
