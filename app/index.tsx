@@ -1,17 +1,14 @@
-import React, { useEffect, useState } from 'react';
-import { Image, StyleSheet, Platform, View, Text, Button } from 'react-native';
-
+import React, { ReactElement, useEffect, useState } from 'react';
+import { Image, StyleSheet} from 'react-native';
 import { HelloWave } from '@/components/HelloWave';
 import ParallaxScrollView from '@/components/ParallaxScrollView';
 import { ThemedText } from '@/components/ThemedText';
 import { ThemedView } from '@/components/ThemedView';
 import { Link } from 'expo-router';
 import { useColorScheme } from 'react-native';  // Import useColorScheme hook
+import { supabase } from '@/supabaseClient';
 
-// import { supabase } from '@/supabaseClient';
-
-export default function HomeScreen() {
-  const [message, setMessage] = useState('Fetching...');
+export default function HomeScreen(): ReactElement {
 
   // const fetchMessage = async () => {
   //   const { data, error } = await supabase
@@ -21,37 +18,13 @@ export default function HomeScreen() {
   //     .single();
   //   if (error) {
   //     console.error(error);
-  //     setMessage('Error fetching message');
   //   } else {
-  //     setMessage(data.text);
+  //     console.log(data)
   //   }
   // };
+  // fetchMessage()
 
-  // useEffect(() => {
-  //   fetchMessage();
-  // }, []);
   const colorScheme = useColorScheme(); // Get the current color scheme (light/dark)
-
-// Commented out to bypass supabase error
-/* const [message, setMessage] = useState('Fetching...');
-
-  const fetchMessage = async () => {
-    const { data, error } = await supabase
-      .from('messages')
-      .select('text')
-      .eq('id', 1) 
-      .single();
-    if (error) {
-      console.error(error);
-      setMessage('Error fetching message');
-    } else {
-      setMessage(data.text);
-    }
-  };
-
-  useEffect(() => {
-    fetchMessage();
-  }, []); */
 
   return (
     <ParallaxScrollView
@@ -66,7 +39,6 @@ export default function HomeScreen() {
       <ThemedView style={styles.stepContainer}>
         <ThemedText type="subtitle">Database Message:</ThemedText>
         <HelloWave />
-         {/* Apply conditional styling based on dark or light mode */}
          <Link
           href="/forgot-password"
           style={[
@@ -77,8 +49,9 @@ export default function HomeScreen() {
           Forgot Password Page
         </Link>
         
-        {/* Having typescript mismatch error with this line below, commented out for now (maybe safe to delete) */}
-        {/*<Link href="/help">Help Page</Link>*/}
+        <Link     
+        style={[styles.link, { color: colorScheme === 'dark' ? '#ddd' : '#007bff' }]}
+        href="/help">Help Page</Link>
 
       
       </ThemedView>
