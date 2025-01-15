@@ -5,11 +5,31 @@ import { HelloWave } from '@/components/HelloWave';
 import ParallaxScrollView from '@/components/ParallaxScrollView';
 import { ThemedText } from '@/components/ThemedText';
 import { ThemedView } from '@/components/ThemedView';
-import { supabase } from '@/supabaseClient';
 import { Link } from 'expo-router';
 import { useColorScheme } from 'react-native';  // Import useColorScheme hook
 
+// import { supabase } from '@/supabaseClient';
+
 export default function HomeScreen() {
+  const [message, setMessage] = useState('Fetching...');
+
+  // const fetchMessage = async () => {
+  //   const { data, error } = await supabase
+  //     .from('messages')
+  //     .select('text')
+  //     .eq('id', 1) 
+  //     .single();
+  //   if (error) {
+  //     console.error(error);
+  //     setMessage('Error fetching message');
+  //   } else {
+  //     setMessage(data.text);
+  //   }
+  // };
+
+  // useEffect(() => {
+  //   fetchMessage();
+  // }, []);
   const colorScheme = useColorScheme(); // Get the current color scheme (light/dark)
 
 // Commented out to bypass supabase error
@@ -62,6 +82,7 @@ export default function HomeScreen() {
 
       
       </ThemedView>
+
     </ParallaxScrollView>
   );
 }
