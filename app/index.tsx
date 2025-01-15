@@ -1,16 +1,14 @@
-import React, { useEffect, useState } from 'react';
-import { Image, StyleSheet, Platform, View, Text, Button } from 'react-native';
-
+import React, { ReactElement, useEffect, useState } from 'react';
+import { Image, StyleSheet} from 'react-native';
 import { HelloWave } from '@/components/HelloWave';
 import ParallaxScrollView from '@/components/ParallaxScrollView';
 import { ThemedText } from '@/components/ThemedText';
 import { ThemedView } from '@/components/ThemedView';
 import { Link } from 'expo-router';
+import { useColorScheme } from 'react-native';  // Import useColorScheme hook
+import { supabase } from '@/supabaseClient';
 
-// import { supabase } from '@/supabaseClient';
-
-export default function HomeScreen() {
-  const [message, setMessage] = useState('Fetching...');
+export default function HomeScreen(): ReactElement {
 
   // const fetchMessage = async () => {
   //   const { data, error } = await supabase
@@ -20,15 +18,13 @@ export default function HomeScreen() {
   //     .single();
   //   if (error) {
   //     console.error(error);
-  //     setMessage('Error fetching message');
   //   } else {
-  //     setMessage(data.text);
+  //     console.log(data)
   //   }
   // };
+  // fetchMessage()
 
-  // useEffect(() => {
-  //   fetchMessage();
-  // }, []);
+  const colorScheme = useColorScheme(); // Get the current color scheme (light/dark)
 
   return (
     <ParallaxScrollView
@@ -43,7 +39,21 @@ export default function HomeScreen() {
       <ThemedView style={styles.stepContainer}>
         <ThemedText type="subtitle">Database Message:</ThemedText>
         <HelloWave />
-        <Link href="/help">Help Page</Link>
+         <Link
+          href="/forgot-password"
+          style={[
+            styles.link,
+            { color: colorScheme === 'dark' ? '#ddd' : '#007bff' } // Dark mode: light color, light mode: blue
+          ]}
+        >
+          Forgot Password Page
+        </Link>
+        
+        <Link     
+        style={[styles.link, { color: colorScheme === 'dark' ? '#ddd' : '#007bff' }]}
+        href="/help">Help Page</Link>
+
+      
       </ThemedView>
 
     </ParallaxScrollView>
@@ -70,5 +80,11 @@ const styles = StyleSheet.create({
   message: {
     fontSize: 24,
     marginBottom: 20,
+  },
+  link: {
+    fontSize: 16,
+    textDecorationLine: 'underline',
+    textAlign: 'left',
+    marginTop: 20, // Adjust as needed
   },
 });
