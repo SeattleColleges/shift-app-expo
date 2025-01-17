@@ -25,6 +25,7 @@ export default function CoworkersList() {
                 data={coworkersDummyData}
                 renderItem={renderCoworker}
                 ItemSeparatorComponent={() => <ItemSeparator height={30}/>}
+                contentContainerStyle={{paddingBottom: 80}}
             />
         </View>
     )
@@ -34,6 +35,5 @@ const styles = StyleSheet.create({
     coworkersList: {
         flex: 1,
         width: '100%',
-        paddingBottom: 20
     }
 });
