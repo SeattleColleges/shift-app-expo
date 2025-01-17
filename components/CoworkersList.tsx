@@ -1,4 +1,4 @@
-import {FlatList, ListRenderItem, SafeAreaView, StyleSheet, View} from "react-native";
+import {FlatList, ListRenderItem, StyleSheet, View} from "react-native";
 import {coworkersDummyData} from "@/data/dummyCoworkerData";
 import {CoworkerListItem, CoworkerProps} from "@/components/CoworkerListItem";
 import React from "react";
