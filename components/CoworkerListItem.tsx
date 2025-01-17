@@ -27,7 +27,7 @@ export const CoworkerListItem: FC<CoworkerProps> = ({ name, role, profileImageUr
                     {name}
                 </ThemedText>
                 <ThemedText type={'role'}>
-                    {role}
+                    {role || "User"}
                 </ThemedText>
             </View>
         </View>
