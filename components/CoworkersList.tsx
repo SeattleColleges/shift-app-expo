@@ -26,6 +26,8 @@ export default function CoworkersList() {
                 renderItem={renderCoworker}
                 ItemSeparatorComponent={() => <ItemSeparator height={30}/>}
                 contentContainerStyle={{paddingBottom: 80}}
+                maxToRenderPerBatch={3}
+                windowSize={2}
             />
         </View>
     )
