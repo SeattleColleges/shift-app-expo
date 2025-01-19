@@ -53,6 +53,14 @@ export default function HomeScreen(): ReactElement {
         style={[styles.link, { color: colorScheme === 'dark' ? '#ddd' : '#007bff' }]}
         href="/help">Help Page</Link>
 
+        <Link
+            style={styles.link}
+            href="/co-workers">Coworkers page</Link>
+
+        <Link
+            style={[styles.link, { color: colorScheme === 'dark' ? '#ddd' : '#007bff' }]}
+            href="/shift-detail">Shift Detail</Link>
+
       
       </ThemedView>
 

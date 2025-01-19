@@ -4,14 +4,13 @@ import { ThemedText } from '@/components/ThemedText';
 import { ThemedView } from '@/components/ThemedView';
 import ShiftDetailsComp from '@/components/ShiftDetailsComp';
 
-export default function CoWorkersPage() {
+export default function ShiftDetailPage() {
   return (
       <ThemedView style={[styles.container]}>
         <ThemedText
             style={styles.title}
             type="title"
         >
-          Coworkers
         </ThemedText>
         <ShiftDetailsComp
          />

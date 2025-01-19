@@ -1,46 +1,37 @@
 import React from "react";
-import Ionicons from "@expo/vector-icons/Ionicons";
-import { type IconProps } from "@expo/vector-icons/build/createIconSet";
-import { View, Text, StyleSheet, Button } from "react-native";
+import { View, Text, StyleSheet, TouchableOpacity, FlatList } from "react-native";
 import { SHIFT_DETAIL_DATA } from "../data/shiftDetailData";
 
 export default function ShiftDetailsComp() {
-  // For demonstration, we’ll use the first shift as an example.
-  const shift = SHIFT_DETAIL_DATA[0];
+  const renderItem = ({ item }) => (
+    <View style={styles.detailsCard}>
+      <Text style={styles.date}>{item.date}</Text>
+      <Text style={styles.detailText}>Time: {item.time}</Text>
+      <Text style={styles.detailText}>Hours scheduled: {item.hoursScheduled}</Text>
+      <Text style={styles.detailText}>Name: {item.name}</Text>
+      <Text style={styles.detailText}>Role: {item.role}</Text>
+      <Text style={styles.detailText}>Supervisor: {item.supervisor}</Text>
+      <Text style={styles.detailText}>
+        Coworkers: {item.coworkers.join(", ")}
+      </Text>
+      <View style={styles.buttonContainer}>
+        <TouchableOpacity style={styles.giveUpButton}>
+          <Text style={styles.giveUpButtonText}>Give up shift</Text>
+        </TouchableOpacity>
+        <TouchableOpacity style={styles.takeShiftButton}>
+          <Text style={styles.takeShiftButtonText}>Take shift</Text>
+        </TouchableOpacity>
+      </View>
+    </View>
+  );
 
   return (
     <View style={styles.container}>
-      {/* Title */}
-      <Text style={styles.title}>Shift Details</Text>
-
-      {/* Shift Information */}
-      <View style={styles.shiftDetails}>
-        <Text style={styles.detailText}>Date: {shift.date}</Text>
-        <Text style={styles.detailText}>Time: {shift.time}</Text>
-        <Text style={styles.detailText}>Hours Scheduled: {shift.hoursScheduled}</Text>
-        <Text style={styles.detailText}>Name: {shift.name}</Text>
-        <Text style={styles.detailText}>Role: {shift.role}</Text>
-        <Text style={styles.detailText}>Supervisor: {shift.supervisor}</Text>
-        <Text style={styles.detailText}>
-          Coworkers: {shift.coworkers.join(", ")}
-        </Text>
-      </View>
-
-      {/* Buttons */}
-      <View style={styles.buttonContainer}>
-        <View style={styles.button}>
-          <Button
-            title="Give Up Shift"
-            onPress={() => alert("Give Up Shift clicked")}
-          />
-        </View>
-        <View style={styles.button}>
-          <Button
-            title="Take Shift"
-            onPress={() => alert("Take Shift clicked")}
-          />
-        </View>
-      </View>
+      <FlatList
+        data={SHIFT_DETAIL_DATA}
+        keyExtractor={(item, index) => index.toString()}
+        renderItem={renderItem}
+      />
     </View>
   );
 }
@@ -48,36 +39,54 @@ export default function ShiftDetailsComp() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    padding: 20,
     backgroundColor: "#f9f9f9",
+    padding: 20,
   },
-  title: {
-    fontSize: 24,
+  detailsCard: {
+    backgroundColor: "#f2f2f2",
+    borderRadius: 12,
+    padding: 20,
+    marginBottom: 20,
+  },
+  date: {
+    fontSize: 18,
     fontWeight: "bold",
-    marginBottom: 20,
     textAlign: "center",
-  },
-  shiftDetails: {
-    flex: 1,
-    borderWidth: 1,
-    borderColor: "#cccccc",
-    borderRadius: 8,
-    padding: 15,
-    backgroundColor: "#ffffff",
-    marginBottom: 20,
+    marginBottom: 10,
+    color: "#000",
   },
   detailText: {
     fontSize: 16,
-    marginBottom: 8,
-    color: "#333333",
+    color: "#555",
+    marginBottom: 5,
   },
   buttonContainer: {
     flexDirection: "row",
     justifyContent: "space-between",
-    marginBottom: 20,
+    marginTop: 10,
   },
-  button: {
-    flex: 1,
-    marginHorizontal: 5,
+  giveUpButton: {
+    backgroundColor: "#000",
+    paddingVertical: 10,
+    paddingHorizontal: 20,
+    borderRadius: 8,
+  },
+  giveUpButtonText: {
+    color: "#fff",
+    fontSize: 16,
+    fontWeight: "bold",
+    textAlign: "center",
+  },
+  takeShiftButton: {
+    backgroundColor: "#e0e0e0",
+    paddingVertical: 10,
+    paddingHorizontal: 20,
+    borderRadius: 8,
+  },
+  takeShiftButtonText: {
+    color: "#555",
+    fontSize: 16,
+    fontWeight: "bold",
+    textAlign: "center",
   },
 });

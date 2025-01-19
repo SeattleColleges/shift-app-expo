@@ -1,4 +1,16 @@
-export const SHIFT_DETAIL_DATA =  [
+export interface ShiftDetail {
+  date: string;
+  time: string;
+  hoursScheduled: string; 
+  name: string;
+  role: string;
+  supervisor: string;
+  coworkers: string[];
+}
+
+
+
+export const SHIFT_DETAIL_DATA: ShiftDetail[] =  [
     {
       "date": "August 4",
       "time": "8:00AM - 4:00PM",
