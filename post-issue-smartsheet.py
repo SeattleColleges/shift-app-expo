@@ -15,10 +15,15 @@ smart.errors_as_exceptions(True)
 # Log all calls
 logging.basicConfig(filename='rwsheet.log', level=logging.INFO)
 
-while True:  # Retry until a valid issue is found
+while True:  # Keep looping until a valid issue is found
+    print(f"Attempting to process ISSUE_NUM: {ISSUE_NUM}")
+
+    # Ensure ISSUE_NUM is an integer for arithmetic operations
+    issue_num_int = int(ISSUE_NUM)
+
     # Fetch issue or PR details
     response = requests.get(
-        f'https://api.github.com/repos/SeattleColleges/shift-app-expo/issues/{ISSUE_NUM}',
+        f'https://api.github.com/repos/SeattleColleges/shift-app-expo/issues/{issue_num_int}',
         headers={
             'Authorization': f'Bearer {GITHUB_ACCESS_TOKEN}',
             'Content-Type': 'application/vnd.github+json',
@@ -27,15 +32,16 @@ while True:  # Retry until a valid issue is found
     )
 
     if response.status_code != 200:
-        print(f"Error fetching issue #{ISSUE_NUM}: {response.json()}")
-        exit(1)  # Stop if the API fails
+        print(f"Error fetching issue #{issue_num_int}: {response.json()}")
+        exit(1)  # Exit if the API fails
 
     data = response.json()
 
     # Check if the item is a PR
     if 'pull_request' in data:
-        print(f"Skipping PR #{ISSUE_NUM}. Incrementing to the next number...")
-        ISSUE_NUM += 1  # Increment and retry
+        print(f"Skipping PR #{issue_num_int}. Incrementing to the next number...")
+        issue_num_int += 1  # Increment the number
+        ISSUE_NUM = str(issue_num_int)  # Convert back to string
         continue
 
     # Process the valid issue
