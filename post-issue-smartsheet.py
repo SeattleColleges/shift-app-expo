@@ -5,7 +5,7 @@ import os
 
 SMART_ACCESS_TOKEN = os.environ['SMART_ACCESS_TOKEN']
 GITHUB_ACCESS_TOKEN = os.environ['GH_ACCESS_TOKEN']
-ISSUE_NUM = int(os.environ['ISSUE_NUM']) 
+ISSUE_NUM = os.environ['ISSUE_NUM'] 
 
 # Initialize client. Uses the API token in the environment variable 'SMARTSHEET_ACCESS_TOKEN'
 smart = smartsheet.Smartsheet(SMART_ACCESS_TOKEN)
