@@ -13,7 +13,8 @@ export default function CoWorkersPage() {
         >
           Coworkers
         </ThemedText>
-        <ShiftDetailsComp />
+        <ShiftDetailsComp
+         />
       </ThemedView>
   );
 }
