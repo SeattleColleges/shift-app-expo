@@ -3,7 +3,7 @@ import { View, Text, StyleSheet, TouchableOpacity, FlatList } from "react-native
 import { SHIFT_DETAIL_DATA } from "../data/shiftDetailData";
 
 export default function ShiftDetailsComp() {
-  const renderItem = ({ item }) => (
+  const renderItem = ({ item }: { item: typeof SHIFT_DETAIL_DATA[0] }) => (
     <View style={styles.detailsCard}>
       <Text style={styles.date}>{item.date}</Text>
       <Text style={styles.detailText}>Time: {item.time}</Text>
