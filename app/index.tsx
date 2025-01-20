@@ -25,7 +25,10 @@ export default function HomeScreen(): ReactElement {
   // fetchMessage()
 
   const colorScheme = useColorScheme(); // Get the current color scheme (light/dark)
-
+    const linkStyle = [
+        styles.link,
+        { color: colorScheme === 'dark' ? '#ddd' : '#007bff' } // Dark mode: light color, light mode: blue
+    ];
   return (
     <ParallaxScrollView
       headerBackgroundColor={{ light: '#A1CEDC', dark: '#1D3D47' }}
@@ -41,18 +44,18 @@ export default function HomeScreen(): ReactElement {
         <HelloWave />
          <Link
           href="/forgot-password"
-          style={[
-            styles.link,
-            { color: colorScheme === 'dark' ? '#ddd' : '#007bff' } // Dark mode: light color, light mode: blue
-          ]}
+          style={linkStyle}
         >
           Forgot Password Page
         </Link>
         
         <Link     
-        style={[styles.link, { color: colorScheme === 'dark' ? '#ddd' : '#007bff' }]}
+        style={linkStyle}
         href="/help">Help Page</Link>
 
+        <Link
+            style={linkStyle}
+            href="/co-workers">Coworkers page</Link>
       
       </ThemedView>
 
