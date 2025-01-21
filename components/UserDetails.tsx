@@ -14,14 +14,14 @@ export const UserDetails = () => {
         <View style={styles.container}>
             <View>
                 <View>
-                    <Text>User Deets</Text>
-                    <Text>First Name: {firstName}</Text>
-                    <Text>Last Name: {lastName}</Text>
-                    <Text>Date Hired: {dateHired}</Text>
-                    <Text>Department: {dept}</Text>
-                    <Text>Supervisor: {supervisor}</Text>
-                    <Text>Email: {email}</Text>
-                    <Text>Phone Number: {phoneNumber}</Text>
+                    <Text style={styles.heading}>User Details</Text>
+                    <Text style={styles.text}>First Name: {firstName}</Text>
+                    <Text style={styles.text}>Last Name: {lastName}</Text>
+                    <Text style={styles.text}>Date Hired: {dateHired}</Text>
+                    <Text style={styles.text}>Department: {dept}</Text>
+                    <Text style={styles.text}>Supervisor: {supervisor}</Text>
+                    <Text style={styles.text}>Email: {email}</Text>
+                    <Text style={styles.text}>Phone Number: {phoneNumber}</Text>
                 </View>
             </View>
         </View>
@@ -34,6 +34,16 @@ const styles = StyleSheet.create({
         flex: 1,
         justifyContent: "center",
         alignItems: "center",
+        paddingBottom: 20,
+        backgroundColor: "#eee",
+        padding: 10
+    },
+    heading: {
+        textAlign: "center",
+        paddingBottom: 20,
+    },
+    text: {
+        paddingBottom: 10,
     },
 
 })
