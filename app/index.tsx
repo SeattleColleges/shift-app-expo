@@ -56,7 +56,15 @@ export default function HomeScreen(): ReactElement {
         <Link
             style={linkStyle}
             href="/co-workers">Coworkers page</Link>
-      
+
+        <Link 
+          href="/notifications"
+          style={linkStyle}
+        >
+          Notifications Page
+        </Link>
+
+
       </ThemedView>
 
     </ParallaxScrollView>
