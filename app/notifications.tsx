@@ -1,54 +1,52 @@
 import React from "react";
-import { Image, StyleSheet, Platform, View, Text, Button } from "react-native";
+import { useRef } from "react";
+import { ThemedText } from '@/components/ThemedText';
+import { notificationDummyData } from "@/data/dummyNotificationData";
+import { Image, StyleSheet, Animated, Platform, View, Text, Button, Dimensions } from "react-native";
 
-import ParallaxScrollView from "@/components/ParallaxScrollView";
-import { ThemedText } from "@/components/ThemedText";
-import { ThemedView } from "@/components/ThemedView";
+import { NotificationTile } from "@/components/NotificationTile"
+const { height } = Dimensions.get("window")
 
 export default function NotificationsPage() {
+
+  const scrollAnim = useRef(new Animated.Value(0)).current;
+
   return (
-    <ParallaxScrollView
-      headerBackgroundColor={{ light: "#A1CEDC", dark: "#1D3D47" }}
-      headerImage={
-        <Image
-          source={require("@/assets/images/partial-react-logo.png")}
-          style={styles.reactLogo}
-        />
-      }
-    >
-      <ThemedView style={styles.stepContainer}>
-        <ThemedText type="subtitle">Notifications Page Placeholder</ThemedText>
-        <Text style={styles.message}>
-          This is a placeholder for the Notifications page.
-        </Text>
-      </ThemedView>
-    </ParallaxScrollView>
+    <View style={styles.pageContainer}>
+      <ThemedText
+            style={styles.title}
+            type="title"
+        >
+          Notifications
+      </ThemedText>
+
+      <Animated.FlatList
+        style={styles.notificationList}
+        data={notificationDummyData}
+        onScroll={Animated.event(
+          [{ nativeEvent: { contentOffset: {y: scrollAnim } } }],
+          {
+            useNativeDriver: true,
+          },
+        )}
+        renderItem={({ index, item}) => (
+          <NotificationTile notification={item} index={index} scrollSet={scrollAnim}/>
+        )}
+      />
+    </View>
+    
   );
 }
 
 const styles = StyleSheet.create({
-  titleContainer: {
-    flexDirection: "row",
-    alignItems: "center",
-    gap: 8,
+  pageContainer: {
+    flex: 1,
   },
-  stepContainer: {
-    gap: 8,
-    marginBottom: 8,
-    paddingHorizontal: 16,
-    paddingTop: 16,
+  title: {
+    marginVertical: 16,
+    marginHorizontal: "auto",
   },
-  reactLogo: {
-    height: 178,
-    width: 290,
-    bottom: 0,
-    left: 0,
-    position: "absolute",
-  },
-  message: {
-    fontSize: 24,
-    marginBottom: 20,
-    color: "#333",
-    textAlign: "center",
-  },
+  notificationList: {
+    maxHeight: height * 0.8,
+  }
 });
