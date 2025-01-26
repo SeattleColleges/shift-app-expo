@@ -43,26 +43,28 @@ export default function HomeScreen(): ReactElement {
         <ThemedText type="subtitle">Database Message:</ThemedText>
         <HelloWave />
          <Link
-          href="/forgot-password"
-          style={linkStyle}
-        >
-          Forgot Password Page
-        </Link>
-        
+            href="/forgot-password"
+            style={linkStyle}>Forgot Password Page</Link>
+
         <Link     
-        style={linkStyle}
-        href="/help">Help Page</Link>
+            style={linkStyle}
+            href="/help">Help Page</Link>
 
         <Link
             style={linkStyle}
             href="/co-workers">Coworkers page</Link>
 
+        <Link
+            style={linkStyle}
+            href="/loginpage">Login</Link>
+        
+        <Link
+            style={linkStyle}
+            href="/signuppage">Signup</Link>
+        
         <Link 
-          href="/notifications"
           style={linkStyle}
-        >
-          Notifications Page
-        </Link>
+          href="/notifications">Notifications Page</Link>
 
 
       </ThemedView>
