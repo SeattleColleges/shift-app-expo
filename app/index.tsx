@@ -1,33 +1,34 @@
-import React, { useEffect, useState } from 'react';
-import { Image, StyleSheet, Platform, View, Text, Button } from 'react-native';
-
+import React, { ReactElement, useEffect, useState } from 'react';
+import { Image, StyleSheet} from 'react-native';
 import { HelloWave } from '@/components/HelloWave';
 import ParallaxScrollView from '@/components/ParallaxScrollView';
 import { ThemedText } from '@/components/ThemedText';
 import { ThemedView } from '@/components/ThemedView';
+import { Link } from 'expo-router';
+import { useColorScheme } from 'react-native';  // Import useColorScheme hook
 import { supabase } from '@/supabaseClient';
 
-export default function HomeScreen() {
-  const [message, setMessage] = useState('Fetching...');
+export default function HomeScreen(): ReactElement {
 
-  const fetchMessage = async () => {
-    const { data, error } = await supabase
-      .from('messages')
-      .select('text')
-      .eq('id', 1) 
-      .single();
-    if (error) {
-      console.error(error);
-      setMessage('Error fetching message');
-    } else {
-      setMessage(data.text);
-    }
-  };
+  // const fetchMessage = async () => {
+  //   const { data, error } = await supabase
+  //     .from('messages')
+  //     .select('text')
+  //     .eq('id', 1) 
+  //     .single();
+  //   if (error) {
+  //     console.error(error);
+  //   } else {
+  //     console.log(data)
+  //   }
+  // };
+  // fetchMessage()
 
-  useEffect(() => {
-    fetchMessage();
-  }, []);
-
+  const colorScheme = useColorScheme(); // Get the current color scheme (light/dark)
+    const linkStyle = [
+        styles.link,
+        { color: colorScheme === 'dark' ? '#ddd' : '#007bff' } // Dark mode: light color, light mode: blue
+    ];
   return (
     <ParallaxScrollView
       headerBackgroundColor={{ light: '#A1CEDC', dark: '#1D3D47' }}
@@ -41,8 +42,33 @@ export default function HomeScreen() {
       <ThemedView style={styles.stepContainer}>
         <ThemedText type="subtitle">Database Message:</ThemedText>
         <HelloWave />
-        <Text style={styles.message}>{message}</Text>
+         <Link
+            href="/forgot-password"
+            style={linkStyle}>Forgot Password Page</Link>
+
+        <Link     
+            style={linkStyle}
+            href="/help">Help Page</Link>
+
+        <Link
+            style={linkStyle}
+            href="/co-workers">Coworkers page</Link>
+
+        <Link
+            style={linkStyle}
+            href="/loginpage">Login</Link>
+        
+        <Link
+            style={linkStyle}
+            href="/signuppage">Signup</Link>
+        
+        <Link 
+          style={linkStyle}
+          href="/notifications">Notifications Page</Link>
+
+
       </ThemedView>
+
     </ParallaxScrollView>
   );
 }
@@ -67,5 +93,11 @@ const styles = StyleSheet.create({
   message: {
     fontSize: 24,
     marginBottom: 20,
+  },
+  link: {
+    fontSize: 16,
+    textDecorationLine: 'underline',
+    textAlign: 'left',
+    marginTop: 20, // Adjust as needed
   },
 });
