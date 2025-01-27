@@ -61,6 +61,11 @@ export default function HomeScreen(): ReactElement {
         <Link
             style={linkStyle}
             href="/signuppage">Signup</Link>
+        
+        <Link 
+          style={linkStyle}
+          href="/notifications">Notifications Page</Link>
+
 
       </ThemedView>
 
