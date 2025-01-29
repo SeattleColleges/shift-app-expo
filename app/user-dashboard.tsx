@@ -1,4 +1,4 @@
-import React from 'react';
+import React, {useEffect} from 'react';
 import { Image, StyleSheet, View, Text, TouchableOpacity } from 'react-native';
 
 import ParallaxScrollView from '@/components/ParallaxScrollView';
@@ -6,6 +6,15 @@ import { supabase } from '@/supabaseClient';
 import {OptionToggle} from "@/components/dashboard/OptionToggle";
 
 export default function UserDashboard() {
+  const [selectedTimeframe, setSelectedTimeframe] = React.useState<string>('');
+  const [selectedApprovalStatus, setSelectedApprovalStatus] = React.useState<string>('');
+
+  useEffect(() => {
+    console.log(selectedApprovalStatus);
+  }, [selectedApprovalStatus]);
+  useEffect(() => {
+    console.log(selectedTimeframe);
+  }, [selectedTimeframe]);
   return (
     <ParallaxScrollView
       headerBackgroundColor={{ light: '#A1CEDC', dark: '#1D3D47' }}
@@ -19,8 +28,16 @@ export default function UserDashboard() {
       {/* Schedule Title*/}
       <View style={styles.scheduleContainer}>
         <Text style={styles.scheduleTitle}>Schedule</Text>
-        <OptionToggle options={['Week', 'Month']} gap={8}/>
-        <OptionToggle options={['Pending', 'Approved', 'Denied']} gap={4}/>
+        <OptionToggle
+            options={['Week', 'Month']}
+            gap={8}
+            setSelectedOption={setSelectedTimeframe}
+        />
+        <OptionToggle
+            options={['Pending', 'Approved', 'Denied']}
+            gap={4}
+            setSelectedOption={setSelectedApprovalStatus}
+        />
       </View>
 
       {/* Placeholder Box */}
