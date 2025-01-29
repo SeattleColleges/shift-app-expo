@@ -14,34 +14,7 @@ export function OptionToggle({options = ['Option1', 'Option2'], gap = 0, setSele
             setSelectedOption(button)
         }
     }
-    const styles = StyleSheet.create({
-        buttonRow: {
-            flexDirection: 'row',
-            justifyContent: 'space-between',
-            marginBottom: 14,
-            gap: gap,
-            width: '100%',
-        },
-        button: {
-            flex: 1,
-            backgroundColor: '#CFD8DC',
-            paddingVertical: 12,
-            borderRadius: 8,
-            alignItems: 'center',
-        },
-        buttonActive: {
-            backgroundColor: 'black',
-        },
-        buttonText: {
-            color: 'black',
-            fontSize: 12,
-        },
-        buttonTextActive: {
-            color: 'white',
-            fontSize: 12,
-        },
-    });
-    return <View style={styles.buttonRow}>
+    return <View style={[styles.buttonRow, {gap}]}>
         {
             options.map((option, index) => {
             return (
@@ -62,9 +35,35 @@ export function OptionToggle({options = ['Option1', 'Option2'], gap = 0, setSele
                         {option}
                     </Text>
                 </TouchableOpacity>
-            )
+            );
             })
         }
     </View>
 }
 
+const styles = StyleSheet.create({
+    buttonRow: {
+        flexDirection: 'row',
+        justifyContent: 'space-between',
+        marginBottom: 14,
+        width: '100%',
+    },
+    button: {
+        flex: 1,
+        backgroundColor: '#CFD8DC',
+        paddingVertical: 12,
+        borderRadius: 8,
+        alignItems: 'center',
+    },
+    buttonActive: {
+        backgroundColor: 'black',
+    },
+    buttonText: {
+        color: 'black',
+        fontSize: 12,
+    },
+    buttonTextActive: {
+        color: 'white',
+        fontSize: 12,
+    },
+});
