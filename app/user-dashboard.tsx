@@ -1,13 +1,13 @@
 import React, {useEffect} from 'react';
-import { Image, StyleSheet, View, Text, TouchableOpacity } from 'react-native';
+import { Image, StyleSheet, View, Text } from 'react-native';
 
 import ParallaxScrollView from '@/components/ParallaxScrollView';
 import { supabase } from '@/supabaseClient';
 import {OptionToggle} from "@/components/dashboard/OptionToggle";
 
 export default function UserDashboard() {
-  const [selectedTimeframe, setSelectedTimeframe] = React.useState<string>('');
-  const [selectedApprovalStatus, setSelectedApprovalStatus] = React.useState<string>('');
+  const [selectedTimeframe, setSelectedTimeframe] = React.useState<string | undefined>();
+  const [selectedApprovalStatus, setSelectedApprovalStatus] = React.useState<string | undefined>();
 
   useEffect(() => {
     console.log(selectedApprovalStatus);
