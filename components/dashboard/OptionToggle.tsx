@@ -7,7 +7,7 @@ interface OptionToggleProps {
     handleToggledOption?: (value: string) => void
 }
 export function OptionToggle({options = ['Option1', 'Option2'], gap = 0, handleToggledOption}: OptionToggleProps) {
-    const [activeButton, setActiveButton] = useState(options[0]);
+    const [activeButton, setActiveButton] = useState(options[0] || "");
     const handleOptionSelected = (button: string) => {
         setActiveButton(button);
         if (handleToggledOption) {
