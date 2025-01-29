@@ -4,14 +4,14 @@ import React, {useState} from "react";
 interface OptionToggleProps {
     options?: string[],
     gap?: number
-    setSelectedOption?: (value: string) => void
+    handleToggledOption?: (value: string) => void
 }
-export function OptionToggle({options = ['Option1', 'Option2'], gap = 0, setSelectedOption}: OptionToggleProps) {
+export function OptionToggle({options = ['Option1', 'Option2'], gap = 0, handleToggledOption}: OptionToggleProps) {
     const [activeButton, setActiveButton] = useState(options[0]);
     const handleOptionSelected = (button: string) => {
         setActiveButton(button);
-        if (setSelectedOption) {
-            setSelectedOption(button)
+        if (handleToggledOption) {
+            handleToggledOption(button)
         }
     }
     return <View style={[styles.buttonRow, {gap}]}>

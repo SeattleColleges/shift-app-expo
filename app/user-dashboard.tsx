@@ -31,12 +31,12 @@ export default function UserDashboard() {
         <OptionToggle
             options={['Week', 'Month']}
             gap={8}
-            setSelectedOption={setSelectedTimeframe}
+            handleToggledOption={setSelectedTimeframe}
         />
         <OptionToggle
             options={['Pending', 'Approved', 'Denied']}
             gap={4}
-            setSelectedOption={setSelectedApprovalStatus}
+            handleToggledOption={setSelectedApprovalStatus}
         />
       </View>
 
