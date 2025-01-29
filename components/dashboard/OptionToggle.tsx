@@ -2,50 +2,37 @@ import {StyleSheet, Text, TouchableOpacity, View} from "react-native";
 import React, {useState} from "react";
 
 interface OptionToggleProps {
-    option1: string,
-    option2: string,
+    options?: string[],
 }
-export function OptionToggle({option1, option2}: OptionToggleProps) {
-    const [activeButton, setActiveButton] = useState(option1);
-
+export function OptionToggle({options = ['Option1', 'Option2']}: OptionToggleProps) {
+    const [activeButton, setActiveButton] = useState(options[0]);
     const handleOptionSelected = (button: string) => {
         setActiveButton(button);
     }
-    return  <View style={styles.buttonRow}>
-        {/* Option 1 */}
-        <TouchableOpacity
-            style={[
-                styles.button,
-                activeButton === option1 && styles.buttonActive,
-            ]}
-            onPress={() => handleOptionSelected(option1)}
-        >
-            <Text
-                style={[
-                    styles.buttonText,
-                    activeButton === option1 && styles.buttonTextActive,
-                ]}
-            >
-                {option1}
-            </Text>
-        </TouchableOpacity>
-        {/* Option 2 */}
-        <TouchableOpacity
-            style={[
-                styles.button,
-                activeButton === option2 && styles.buttonActive,
-            ]}
-            onPress={() => handleOptionSelected(option2)}
-        >
-            <Text
-                style={[
-                    styles.buttonText,
-                    activeButton === option2 && styles.buttonTextActive,
-                ]}
-            >
-                {option2}
-            </Text>
-        </TouchableOpacity>
+    return <View style={styles.buttonRow}>
+        {
+            options.map((option, index) => {
+            return (
+                <TouchableOpacity
+                    key={index}
+                    style={[
+                        styles.button,
+                        activeButton === option && styles.buttonActive,
+                    ]}
+                    onPress={() => handleOptionSelected(option)}
+                >
+                    <Text
+                        style={[
+                            styles.buttonText,
+                            activeButton === option && styles.buttonTextActive,
+                        ]}
+                    >
+                        {option}
+                    </Text>
+                </TouchableOpacity>
+            )
+            })
+        }
     </View>
 }
 

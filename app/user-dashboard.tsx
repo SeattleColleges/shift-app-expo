@@ -19,8 +19,8 @@ export default function UserDashboard() {
       {/* Schedule Title*/}
       <View style={styles.scheduleContainer}>
         <Text style={styles.scheduleTitle}>Schedule</Text>
-        <OptionToggle option1={'Week'} option2={'Month'}/>
-        <OptionToggle option1={'Pending'} option2={'Approved'}/>
+        <OptionToggle options={['Week', 'Month']}/>
+        <OptionToggle options={['Pending', 'Approved', 'Denied']}/>
       </View>
 
       {/* Placeholder Box */}
