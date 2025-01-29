@@ -19,8 +19,8 @@ export default function UserDashboard() {
       {/* Schedule Title*/}
       <View style={styles.scheduleContainer}>
         <Text style={styles.scheduleTitle}>Schedule</Text>
-        <OptionToggle options={['Week', 'Month']}/>
-        <OptionToggle options={['Pending', 'Approved', 'Denied']}/>
+        <OptionToggle options={['Week', 'Month']} gap={8}/>
+        <OptionToggle options={['Pending', 'Approved', 'Denied']} gap={4}/>
       </View>
 
       {/* Placeholder Box */}
