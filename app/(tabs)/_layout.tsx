@@ -26,10 +26,10 @@ export default function TabLayout() {
                 }}
             />
             <Tabs.Screen
-                name="help"
+                name="notifications"
                 options={{
-                    title: 'Help',
-                    tabBarIcon: ({ color }) => <FontAwesome size={28} name="question-circle" color={color} />,
+                    title: 'Notifications',
+                    tabBarIcon: ({ color }) => <FontAwesome size={28} name="bell" color={color} />,
                 }}
             />
             <Tabs.Screen
@@ -41,6 +41,12 @@ export default function TabLayout() {
             />
             <Tabs.Screen
                 name="department-org"
+                options={{
+                    href: null
+                }}
+            />
+            <Tabs.Screen
+                name="help"
                 options={{
                     href: null
                 }}

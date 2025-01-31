@@ -56,7 +56,7 @@ export default function HomeScreen(): ReactElement {
             href="/(auth)/signuppage">Signup</Link>
         <Link 
           style={linkStyle}
-          href="/notifications">Notifications Page</Link>
+          href="/(tabs)/notifications">Notifications Page</Link>
 
       </ThemedView>
 
