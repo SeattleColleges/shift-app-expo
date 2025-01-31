@@ -12,7 +12,7 @@ export default function CoWorkersPage() {
         >
           Coworkers
         </ThemedText>
-        {/*<CoworkersList />*/}
+        <CoworkersList />
       </ThemedView>
   );
 }

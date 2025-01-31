@@ -44,32 +44,19 @@ export default function HomeScreen(): ReactElement {
         <HelloWave />
 
         <Link href="/(tabs)"
-              style={linkStyle}>Go to Temp Week View</Link>
-
+              style={linkStyle}>Go to main app features after login</Link>
         <Link
             href="/(auth)/forgot-password"
             style={linkStyle}>Forgot Password Page</Link>
-
-        <Link     
-            style={linkStyle}
-            href="/(tabs)/help">Help Page</Link>
-
-        <Link
-            style={linkStyle}
-            href="/(tabs)/coworkers">Coworkers page</Link>
-
         <Link
             style={linkStyle}
             href="/(auth)/loginpage">Login</Link>
-        
         <Link
             style={linkStyle}
             href="/(auth)/signuppage">Signup</Link>
-        
         <Link 
           style={linkStyle}
           href="/notifications">Notifications Page</Link>
-
 
       </ThemedView>
 
