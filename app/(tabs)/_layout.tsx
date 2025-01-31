@@ -3,25 +3,25 @@ import { Tabs } from 'expo-router';
 
 export default function TabLayout() {
     return (
-        <Tabs screenOptions={{ tabBarActiveTintColor: 'blue' }}>
+        <Tabs screenOptions={{ tabBarActiveTintColor: 'blue', tabBarStyle: { display: 'flex' },  }}>
             <Tabs.Screen
                 name="index"
                 options={{
-                    title: 'Home',
-                    tabBarIcon: ({ color }) => <FontAwesome size={28} name="home" color={color} />,
+                    title: 'Schedule',
+                    tabBarIcon: ({ color }) => <FontAwesome size={28} name="calendar-check-o" color={color} />,
                 }}
             />
             <Tabs.Screen
-                name="add-shift"
+                name="addShift"
                 options={{
                     title: 'Add shift',
-                    tabBarIcon: ({ color }) => <FontAwesome size={28} name="plus" color={color} />,
+                    tabBarIcon: ({ color }) => <FontAwesome size={28} name="calendar-plus-o" color={color} />,
                 }}
             />
             <Tabs.Screen
-                name="co-workers"
+                name="coworkers"
                 options={{
-                    title: 'Co-workers',
+                    title: 'Corworkers',
                     tabBarIcon: ({ color }) => <FontAwesome size={28} name="users" color={color} />,
                 }}
             />
@@ -33,10 +33,16 @@ export default function TabLayout() {
                 }}
             />
             <Tabs.Screen
-                name="profile-view"
+                name="profileView"
                 options={{
                     title: 'Profile',
                     tabBarIcon: ({ color }) => <FontAwesome size={28} name="user" color={color} />,
+                }}
+            />
+            <Tabs.Screen
+                name="department-org"
+                options={{
+                    href: null
                 }}
             />
         </Tabs>

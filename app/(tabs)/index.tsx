@@ -1,9 +1,9 @@
 import {View,Text} from "react-native";
 
-export default function index() {
+export default function Index() {
     return (
         <View>
-            <Text>Week calendar view placeholder</Text>
+            <Text>Calendar view placeholder. Weekly Default</Text>
         </View>
     )
 }

@@ -47,7 +47,7 @@ export default function HomeScreen(): ReactElement {
               style={linkStyle}>Go to Temp Week View</Link>
 
         <Link
-            href="/forgot-password"
+            href="/(auth)/forgot-password"
             style={linkStyle}>Forgot Password Page</Link>
 
         <Link     
@@ -56,15 +56,15 @@ export default function HomeScreen(): ReactElement {
 
         <Link
             style={linkStyle}
-            href="/(tabs)/co-workers">Coworkers page</Link>
+            href="/(tabs)/coworkers">Coworkers page</Link>
 
         <Link
             style={linkStyle}
-            href="/loginpage">Login</Link>
+            href="/(auth)/loginpage">Login</Link>
         
         <Link
             style={linkStyle}
-            href="/signuppage">Signup</Link>
+            href="/(auth)/signuppage">Signup</Link>
         
         <Link 
           style={linkStyle}
