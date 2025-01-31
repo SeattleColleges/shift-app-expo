@@ -15,28 +15,28 @@ export default function TabLayout() {
                 name="add-shift"
                 options={{
                     title: 'Add shift',
-                    tabBarIcon: ({ color }) => <FontAwesome size={28} name="cog" color={color} />,
+                    tabBarIcon: ({ color }) => <FontAwesome size={28} name="plus" color={color} />,
                 }}
             />
             <Tabs.Screen
                 name="co-workers"
                 options={{
                     title: 'Co-workers',
-                    tabBarIcon: ({ color }) => <FontAwesome size={28} name="home" color={color} />,
+                    tabBarIcon: ({ color }) => <FontAwesome size={28} name="users" color={color} />,
                 }}
             />
             <Tabs.Screen
                 name="help"
                 options={{
                     title: 'Help',
-                    tabBarIcon: ({ color }) => <FontAwesome size={28} name="home" color={color} />,
+                    tabBarIcon: ({ color }) => <FontAwesome size={28} name="question-circle" color={color} />,
                 }}
             />
             <Tabs.Screen
                 name="profile-view"
                 options={{
                     title: 'Profile',
-                    tabBarIcon: ({ color }) => <FontAwesome size={28} name="home" color={color} />,
+                    tabBarIcon: ({ color }) => <FontAwesome size={28} name="user" color={color} />,
                 }}
             />
         </Tabs>
