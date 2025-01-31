@@ -42,6 +42,10 @@ export default function HomeScreen(): ReactElement {
       <ThemedView style={styles.stepContainer}>
         <ThemedText type="subtitle">Database Message:</ThemedText>
         <HelloWave />
+        <Link
+            href="/user-dashboard"
+            style={linkStyle}>User Dashboard</Link>
+
          <Link
             href="/forgot-password"
             style={linkStyle}>Forgot Password Page</Link>
@@ -66,9 +70,7 @@ export default function HomeScreen(): ReactElement {
           style={linkStyle}
           href="/notifications">Notifications Page</Link>
 
-
       </ThemedView>
-
     </ParallaxScrollView>
   );
 }
