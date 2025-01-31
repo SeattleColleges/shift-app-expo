@@ -42,17 +42,21 @@ export default function HomeScreen(): ReactElement {
       <ThemedView style={styles.stepContainer}>
         <ThemedText type="subtitle">Database Message:</ThemedText>
         <HelloWave />
-         <Link
+
+        <Link href="/(tabs)"
+              style={linkStyle}>Go to Temp Week View</Link>
+
+        <Link
             href="/forgot-password"
             style={linkStyle}>Forgot Password Page</Link>
 
         <Link     
             style={linkStyle}
-            href="/help">Help Page</Link>
+            href="/(tabs)/help">Help Page</Link>
 
         <Link
             style={linkStyle}
-            href="/co-workers">Coworkers page</Link>
+            href="/(tabs)/co-workers">Coworkers page</Link>
 
         <Link
             style={linkStyle}
