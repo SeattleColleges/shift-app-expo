@@ -80,29 +80,29 @@ export default function SignUpPage() {
         />
       </View>
 
-      {/* Department Input */}
-      <View style={styles.inputContainer}>
-        <Text style={styles.label}>Department</Text>
-        <TextInput
-          style={styles.input}
-          placeholder="value"
-          placeholderTextColor="#888"
-          value={department}
-          onChangeText={setDepartment}
-        />
-      </View>
+      {/* Department Input: commented out for now */}
+      {/*<View style={styles.inputContainer}>*/}
+      {/*  <Text style={styles.label}>Department</Text>*/}
+      {/*  <TextInput*/}
+      {/*    style={styles.input}*/}
+      {/*    placeholder="value"*/}
+      {/*    placeholderTextColor="#888"*/}
+      {/*    value={department}*/}
+      {/*    onChangeText={setDepartment}*/}
+      {/*  />*/}
+      {/*</View>*/}
 
-      {/* Supervisor Input */}
-      <View style={styles.inputContainer}>
-        <Text style={styles.label}>Supervisor</Text>
-        <TextInput
-          style={styles.input}
-          placeholder="value"
-          placeholderTextColor="#888"
-          value={supervisor}
-          onChangeText={setSupervisor}
-        />
-      </View>
+      {/* Supervisor Input: commented out for now  */}
+      {/*<View style={styles.inputContainer}>*/}
+      {/*  <Text style={styles.label}>Supervisor</Text>*/}
+      {/*  <TextInput*/}
+      {/*    style={styles.input}*/}
+      {/*    placeholder="value"*/}
+      {/*    placeholderTextColor="#888"*/}
+      {/*    value={supervisor}*/}
+      {/*    onChangeText={setSupervisor}*/}
+      {/*  />*/}
+      {/*</View>*/}
 
       {/* Sign Up Button */}
       <TouchableOpacity style={styles.signUpButton} onPress={handleSignUp}>
