@@ -8,10 +8,11 @@ import {
   Dimensions,
   Alert,
 } from 'react-native';
+import {router} from "expo-router";
 
 const { width } = Dimensions.get('window'); // Get the current screen width
 
-export default function LoginPage() {
+export default function Index() {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
 
@@ -56,14 +57,14 @@ export default function LoginPage() {
       </TouchableOpacity>
 
       {/* Forgot Password Link */}
-      <TouchableOpacity>
+      <TouchableOpacity onPress={() => router.push('/forgot-password')}>
         <Text style={styles.link}>Forgot Password?</Text>
       </TouchableOpacity>
 
       {/* Sign-Up Section */}
       <View style={styles.signUpContainer}>
         <Text style={styles.text}>Don't have an account? </Text>
-        <TouchableOpacity>
+        <TouchableOpacity onPress={()=> router.push('/signuppage')}>
           <Text style={styles.link}>Sign Up</Text>
         </TouchableOpacity>
       </View>

@@ -5,6 +5,7 @@ import ParallaxScrollView from '@/components/ParallaxScrollView';
 import { ThemedText } from '@/components/ThemedText';
 import { ThemedView } from '@/components/ThemedView';
 import { useColorScheme } from 'react-native';
+import {router} from "expo-router";
 
 export default function ForgotPasswordPage() {
   const [email, setEmail] = useState('');
@@ -63,7 +64,7 @@ export default function ForgotPasswordPage() {
             disabled={isSubmitting}
           />
         {message !== '' && <Text style={styles.feedback}>{message}</Text>}
-          <Text style={styles.link} onPress={() => console.log('Navigate to Login')}>
+          <Text style={styles.link} onPress={() => router.back()}>
             Back to Login
           </Text>
       </ThemedView>

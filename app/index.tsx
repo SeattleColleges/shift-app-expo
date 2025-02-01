@@ -50,7 +50,7 @@ export default function HomeScreen(): ReactElement {
             style={linkStyle}>Forgot Password Page</Link>
         <Link
             style={linkStyle}
-            href="/(auth)/loginpage">Login</Link>
+            href="/(auth)">Login</Link>
         <Link
             style={linkStyle}
             href="/(auth)/signuppage">Signup</Link>
