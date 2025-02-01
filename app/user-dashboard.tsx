@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { Image, StyleSheet, View, Text, TouchableOpacity } from 'react-native';
 
 import ParallaxScrollView from '@/components/ParallaxScrollView';
-import { supabase } from '@/supabaseClient';
+import { supabase } from '@/lib/supabaseClient';
 
 export default function UserDashboard() {
   const [activeButtonTopRow, setActiveButtonTopRow] = useState('Pending');
