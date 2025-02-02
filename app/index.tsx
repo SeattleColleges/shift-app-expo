@@ -61,6 +61,7 @@ export default function HomeScreen(): ReactElement {
         <Link
             style={linkStyle}
             href="/loginpage">Login</Link>
+            
         
         <Link
             style={linkStyle}
@@ -69,6 +70,10 @@ export default function HomeScreen(): ReactElement {
         <Link 
           style={linkStyle}
           href="/notifications">Notifications Page</Link>
+        
+        <Link
+          style={linkStyle}
+          href="/add-schedule">Add Schedule</Link>
 
       </ThemedView>
     </ParallaxScrollView>

@@ -1,79 +1,120 @@
 import React, { useState } from "react";
-import { View, Text, TextInput, Button, StyleSheet, Platform, TouchableOpacity } from "react-native";
+import { View, Text, TextInput, StyleSheet, Platform, TouchableOpacity } from "react-native";
 import DateTimePicker from "@react-native-community/datetimepicker";
 
+const INITIAL_STATE = {
+  role: "AD Tutor",
+  date: new Date(),
+  startTime: "12:00 pm",
+  endTime: "4:00 pm",
+  location: "BE 101",
+  notes: "",
+};
+
 const AddSchedule: React.FC = () => {
-  const [role, setRole] = useState("AD Tutor");
-  const [date, setDate] = useState(new Date());
+  const [state, setState] = useState(INITIAL_STATE);
   const [showDatePicker, setShowDatePicker] = useState(false);
-  const [startTime, setStartTime] = useState("12:00 pm");
-  const [endTime, setEndTime] = useState("4:00 pm");
-  const [location, setLocation] = useState("BE 101");
-  const [notes, setNotes] = useState("");
 
   const handleDateChange = (event: any, selectedDate?: Date) => {
     setShowDatePicker(false);
     if (selectedDate) {
-      setDate(selectedDate);
+      setState({ ...state, date: selectedDate });
     }
   };
 
+  const handleInputChange = (name: string, value: string) => {
+    setState({ ...state, [name]: value });
+  };
+
   const handleAddShift = () => {
-    // Add your logic here
-    console.log({ role, date, startTime, endTime, location, notes });
+    console.log(state);
   };
 
   return (
-    <View style={styles.container}>
-      <Text style={styles.title}>Add Schedule</Text>
+    <View style={styles.outerContainer}>
+      <View style={styles.innerContainer}>
+        <Text style={styles.title}>Add Schedule</Text>
 
-      <Text style={styles.label}>Role</Text>
-      <TextInput style={styles.input} value={role} onChangeText={setRole} />
-
-      <Text style={styles.label}>Date</Text>
-      <TouchableOpacity onPress={() => setShowDatePicker(true)}>
+        <Text style={styles.label}>Role</Text>
         <TextInput
           style={styles.input}
-          value={date.toLocaleDateString()}
-          editable={false}
+          value={state.role}
+          onChangeText={(value) => handleInputChange("role", value)}
         />
-      </TouchableOpacity>
-      {showDatePicker && (
-        <DateTimePicker
-          value={date}
-          mode="date"
-          display={Platform.OS === "ios" ? "spinner" : "default"}
-          onChange={handleDateChange}
+
+        <Text style={styles.label}>Date</Text>
+        <TouchableOpacity onPress={() => setShowDatePicker(true)}>
+          <TextInput
+            style={styles.input}
+            value={state.date.toLocaleDateString()}
+            editable={false}
+          />
+        </TouchableOpacity>
+        {showDatePicker && (
+          <DateTimePicker
+            value={state.date}
+            mode="date"
+            display={Platform.OS === "ios" ? "spinner" : "default"}
+            onChange={handleDateChange}
+          />
+        )}
+
+        <Text style={styles.label}>Start time</Text>
+        <TextInput
+          style={styles.input}
+          value={state.startTime}
+          onChangeText={(value) => handleInputChange("startTime", value)}
         />
-      )}
 
-      <Text style={styles.label}>Start time</Text>
-      <TextInput style={styles.input} value={startTime} onChangeText={setStartTime} />
+        <Text style={styles.label}>End time</Text>
+        <TextInput
+          style={styles.input}
+          value={state.endTime}
+          onChangeText={(value) => handleInputChange("endTime", value)}
+        />
 
-      <Text style={styles.label}>End time</Text>
-      <TextInput style={styles.input} value={endTime} onChangeText={setEndTime} />
+        <Text style={styles.label}>Location</Text>
+        <TextInput
+          style={styles.input}
+          value={state.location}
+          onChangeText={(value) => handleInputChange("location", value)}
+        />
 
-      <Text style={styles.label}>Location</Text>
-      <TextInput style={styles.input} value={location} onChangeText={setLocation} />
+        <Text style={styles.label}>Notes</Text>
+        <TextInput
+          style={[styles.input, styles.textArea]}
+          value={state.notes}
+          onChangeText={(value) => handleInputChange("notes", value)}
+          multiline
+        />
 
-      <Text style={styles.label}>Notes</Text>
-      <TextInput
-        style={[styles.input, styles.textArea]}
-        value={notes}
-        onChangeText={setNotes}
-        multiline
-      />
-
-      <Button title="Add Shift" onPress={handleAddShift} />
+        <TouchableOpacity style={styles.button} onPress={handleAddShift}>
+          <Text style={styles.buttonText}>Add Shift</Text>
+        </TouchableOpacity>
+      </View>
     </View>
   );
 };
 
 const styles = StyleSheet.create({
-  container: {
+  outerContainer: {
     flex: 1,
+    justifyContent: "center",
+    alignItems: "center",
+    padding: 16,
+    backgroundColor: "#f9f9f9",
+  },
+  innerContainer: {
+    width: 400,
+    maxWidth: "100%",
     padding: 20,
+    borderRadius: 12,
     backgroundColor: "#fff",
+    shadowColor: "#000",
+    shadowOpacity: 0.1,
+    shadowRadius: 8,
+    shadowOffset: { width: 0, height: 2 },
+    elevation: 3,
   },
   title: {
     fontSize: 24,
@@ -96,6 +137,18 @@ const styles = StyleSheet.create({
   textArea: {
     height: 80,
     textAlignVertical: "top",
+  },
+  button: {
+    marginTop: 20,
+    paddingVertical: 12,
+    borderRadius: 8,
+    backgroundColor: "#000", // Black background
+    alignItems: "center",
+  },
+  buttonText: {
+    color: "#fff", // White text
+    fontSize: 16,
+    fontWeight: "bold",
   },
 });
 
