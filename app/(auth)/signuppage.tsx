@@ -8,6 +8,7 @@ import {
   Dimensions,
   Alert,
 } from 'react-native';
+import {supabase} from "@/lib/supabaseClient";
 
 const { width } = Dimensions.get('window'); // Get the current screen width
 
@@ -18,10 +19,28 @@ export default function SignUpPage() {
   const [confirmPassword, setConfirmPassword] = useState('');
   const [department, setDepartment] = useState('');
   const [supervisor, setSupervisor] = useState('');
+  const [loading, setLoading] = useState(false);
 
-  const handleSignUp = () => {
-    Alert.alert('Sign Up', `Name: ${name}\nEmail: ${email}`);
-    // Add sign-up logic here
+  const handleSignUp = ():void => {
+    async function signUpWithEmail():Promise<void> {
+      setLoading(true)
+      const { error } = await supabase?.auth.signUp({
+        email: email,
+        password: password,
+        options: {
+          data: {
+            name: name,
+          },
+        },
+      });
+
+      if (error) {
+        Alert.alert(error.message)
+      }
+      setLoading(false)
+      console.log(`{name: ${name}, email: ${email}, password: ${password}}`)
+    }
+    signUpWithEmail();
   };
 
   return (
@@ -67,18 +86,18 @@ export default function SignUpPage() {
         />
       </View>
 
-      {/* Confirm Password Input */}
-      <View style={styles.inputContainer}>
-        <Text style={styles.label}>Confirm Password</Text>
-        <TextInput
-          style={styles.input}
-          placeholder="value"
-          placeholderTextColor="#888"
-          value={confirmPassword}
-          onChangeText={setConfirmPassword}
-          secureTextEntry
-        />
-      </View>
+      {/* Confirm Password Input: commented out for now */}
+      {/*<View style={styles.inputContainer}>*/}
+      {/*  <Text style={styles.label}>Confirm Password</Text>*/}
+      {/*  <TextInput*/}
+      {/*    style={styles.input}*/}
+      {/*    placeholder="value"*/}
+      {/*    placeholderTextColor="#888"*/}
+      {/*    value={confirmPassword}*/}
+      {/*    onChangeText={setConfirmPassword}*/}
+      {/*    secureTextEntry*/}
+      {/*  />*/}
+      {/*</View>*/}
 
       {/* Department Input: commented out for now */}
       {/*<View style={styles.inputContainer}>*/}
