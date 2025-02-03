@@ -13,23 +13,20 @@ import {supabase} from "@/lib/supabaseClient";
 const { width } = Dimensions.get('window'); // Get the current screen width
 
 export default function SignUpPage() {
-  const [name, setName] = useState('');
-  const [email, setEmail] = useState('');
-  const [password, setPassword] = useState('');
-  const [confirmPassword, setConfirmPassword] = useState('');
-  const [department, setDepartment] = useState('');
-  const [supervisor, setSupervisor] = useState('');
-  const [loading, setLoading] = useState(false);
+  const [signUpObj, setSignUpObj] = React.useState({
+    name:'', email:'', password:''
+  });
+  const [loading, setLoading] = React.useState(false);
 
   const handleSignUp = ():void => {
     async function signUpWithEmail():Promise<void> {
       setLoading(true)
       const { error } = await supabase?.auth.signUp({
-        email: email,
-        password: password,
+        email: signUpObj.email,
+        password: signUpObj.password,
         options: {
           data: {
-            name: name,
+            name: signUpObj.name,
           },
         },
       });
@@ -38,7 +35,7 @@ export default function SignUpPage() {
         Alert.alert(error.message)
       }
       setLoading(false)
-      console.log(`{name: ${name}, email: ${email}, password: ${password}}`)
+      console.log(`{name: ${signUpObj.name}, email: ${signUpObj.email}, password: ${signUpObj.password}}`)
     }
     signUpWithEmail();
   };
@@ -55,8 +52,8 @@ export default function SignUpPage() {
           style={styles.input}
           placeholder="value"
           placeholderTextColor="#888"
-          value={name}
-          onChangeText={setName}
+          value={signUpObj.name}
+          onChangeText={(value)=> setSignUpObj({...signUpObj, name: value}) }
         />
       </View>
 
@@ -67,8 +64,8 @@ export default function SignUpPage() {
           style={styles.input}
           placeholder="value"
           placeholderTextColor="#888"
-          value={email}
-          onChangeText={setEmail}
+          value={signUpObj.email}
+          onChangeText={(value)=> setSignUpObj({...signUpObj, email: value}) }
           keyboardType="email-address"
         />
       </View>
@@ -80,8 +77,8 @@ export default function SignUpPage() {
           style={styles.input}
           placeholder="value"
           placeholderTextColor="#888"
-          value={password}
-          onChangeText={setPassword}
+          value={signUpObj.password}
+          onChangeText={(value)=> setSignUpObj({...signUpObj, password: value}) }
           secureTextEntry
         />
       </View>
