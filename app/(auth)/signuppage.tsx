@@ -9,6 +9,7 @@ import {
   Alert,
 } from 'react-native';
 import {supabase} from "@/lib/supabaseClient";
+import {router} from "expo-router";
 
 const { width } = Dimensions.get('window'); // Get the current screen width
 
@@ -128,7 +129,7 @@ export default function SignUpPage() {
       {/* Sign In Link */}
       <View style={styles.signInContainer}>
         <Text style={styles.text}>Already have an account? </Text>
-        <TouchableOpacity>
+        <TouchableOpacity onPress={()=> router.back()}>
           <Text style={styles.link}>Sign In</Text>
         </TouchableOpacity>
       </View>
