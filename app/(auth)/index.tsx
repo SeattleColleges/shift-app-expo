@@ -8,17 +8,29 @@ import {
   Dimensions,
   Alert,
 } from 'react-native';
-import {router} from "expo-router";
+import {useRouter} from "expo-router";
+import {supabase} from "@/lib/supabaseClient";
 
 const { width } = Dimensions.get('window'); // Get the current screen width
+
 
 export default function Index() {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
+  const router = useRouter()
 
-  const handleLogin = () => {
-    Alert.alert('Login', `Email: ${email}\nPassword: ${password}`);
-  };
+  async function signInWithEmail() {
+    const { error } = await supabase?.auth.signInWithPassword({
+      email: email,
+      password: password,
+    })
+
+    if (error) {
+      Alert.alert(error.message)
+    } else {
+      router.replace('/(tabs)')
+    }
+  }
 
   return (
     <View style={styles.container}>
@@ -52,7 +64,7 @@ export default function Index() {
       </View>
 
       {/* Login Button */}
-      <TouchableOpacity style={styles.loginButton} onPress={handleLogin}>
+      <TouchableOpacity style={styles.loginButton} onPress={signInWithEmail}>
         <Text style={styles.loginButtonText}>Login</Text>
       </TouchableOpacity>
 
