@@ -1,21 +1,20 @@
-import React, { useState } from 'react';
-import { Image, StyleSheet, View, Text, TouchableOpacity } from 'react-native';
+import React, {useEffect} from 'react';
+import { Image, StyleSheet, View, Text } from 'react-native';
 
 import ParallaxScrollView from '@/components/ParallaxScrollView';
 import { supabase } from '@/supabaseClient';
+import {OptionToggle} from "@/components/dashboard/OptionToggle";
 
 export default function UserDashboard() {
-  const [activeButtonTopRow, setActiveButtonTopRow] = useState('Pending');
-  const [activeButtonBottomRow, setActiveButtonBottomRow] = useState('Week');
+  const [selectedTimeframe, setSelectedTimeframe] = React.useState<string | undefined>();
+  const [selectedApprovalStatus, setSelectedApprovalStatus] = React.useState<string | undefined>();
 
-  const handlePressTopRow = (button: string) => {
-    setActiveButtonTopRow(button);
-  };
-
-  const handlePressBottomRow = (button: string) => {
-    setActiveButtonBottomRow(button);
-  }
-
+  useEffect(() => {
+    console.log(selectedApprovalStatus);
+  }, [selectedApprovalStatus]);
+  useEffect(() => {
+    console.log(selectedTimeframe);
+  }, [selectedTimeframe]);
   return (
     <ParallaxScrollView
       headerBackgroundColor={{ light: '#A1CEDC', dark: '#1D3D47' }}
@@ -29,85 +28,16 @@ export default function UserDashboard() {
       {/* Schedule Title*/}
       <View style={styles.scheduleContainer}>
         <Text style={styles.scheduleTitle}>Schedule</Text>
-
-        {/* Top Row of Buttons */}
-
-        {/* Pending button */}
-        <View style={styles.buttonRow}>
-          <TouchableOpacity
-            style={[
-              styles.button,
-              activeButtonTopRow === 'Pending' && styles.buttonActive,
-            ]}
-            onPress={() => handlePressTopRow('Pending')}
-          >
-            <Text style={[
-              styles.buttonText,
-              activeButtonTopRow === 'Pending' && styles.buttonTextActive,
-            ]}
-            >
-              Pending
-            </Text>
-          </TouchableOpacity>
-
-          {/* Approved button */}
-          <TouchableOpacity
-            style={[
-              styles.button,
-              activeButtonTopRow === 'Approved' && styles.buttonActive,
-            ]}
-            onPress={() => handlePressTopRow('Approved')}
-          >
-            <Text
-              style={[
-                styles.buttonText,
-                activeButtonTopRow === 'Approved' && styles.buttonTextActive,
-              ]}
-            >
-              Approved
-            </Text>
-          </TouchableOpacity>
-        </View>
-
-        {/* Bottom Row of Buttons */}
-
-        {/* Week button */}
-        <View style={styles.buttonRow}>
-          <TouchableOpacity
-            style={[
-              styles.button,
-              activeButtonBottomRow === 'Week' && styles.buttonActive,
-            ]}
-            onPress={() => handlePressBottomRow('Week')}
-          >
-            <Text
-              style={[
-                styles.buttonText,
-                activeButtonBottomRow === 'Week' && styles.buttonTextActive,
-              ]}
-            >
-              Week
-            </Text>
-          </TouchableOpacity>
-
-          {/* Month button */}
-          <TouchableOpacity
-            style={[
-              styles.button,
-              activeButtonBottomRow === 'Month' && styles.buttonActive,
-            ]}
-            onPress={() => handlePressBottomRow('Month')}
-          >
-            <Text
-              style={[
-                styles.buttonText,
-                activeButtonBottomRow === 'Month' && styles.buttonTextActive,
-              ]}
-            >
-              Month
-            </Text>
-          </TouchableOpacity>
-        </View>
+        <OptionToggle
+            options={['Week', 'Month']}
+            gap={8}
+            handleToggledOption={setSelectedTimeframe}
+        />
+        <OptionToggle
+            options={['Pending', 'Approved', 'Denied']}
+            gap={4}
+            handleToggledOption={setSelectedApprovalStatus}
+        />
       </View>
 
       {/* Placeholder Box */}
@@ -136,31 +66,6 @@ const styles = StyleSheet.create({
     fontSize: 24,
     fontWeight: 'bold',
     marginBottom: 16,
-  },
-  buttonRow: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    marginBottom: 14,
-    width: '100%',
-  },
-  button: {
-    flex: 1,
-    backgroundColor: '#CFD8DC',
-    paddingVertical: 12,
-    marginHorizontal: 8,
-    borderRadius: 8,
-    alignItems: 'center',
-  },
-  buttonActive: {
-    backgroundColor: 'black',
-  },
-  buttonText: {
-    color: 'black',
-    fontSize: 12,
-  },
-  buttonTextActive: {
-    color: 'white',
-    fontSize: 12,
   },
   placeholderBox: {
     marginTop: 16,
