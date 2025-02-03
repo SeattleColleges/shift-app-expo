@@ -61,6 +61,10 @@ export default function HomeScreen(): ReactElement {
         <Link
             style={linkStyle}
             href="/loginpage">Login</Link>
+
+        <Link
+            style={linkStyle}
+            href="/landing">Landing page</Link>
         
         <Link
             style={linkStyle}
