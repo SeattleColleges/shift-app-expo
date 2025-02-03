@@ -1,3 +1,4 @@
+import { Link } from 'expo-router';
 import React, { useState } from 'react';
 import {
   View,
@@ -9,6 +10,10 @@ import {
   Alert,
 } from 'react-native';
 
+
+
+
+
 const { width } = Dimensions.get('window'); // Get the current screen width
 
 export default function SignUpPage() {
@@ -18,6 +23,7 @@ export default function SignUpPage() {
   const [confirmPassword, setConfirmPassword] = useState('');
   const [department, setDepartment] = useState('');
   const [supervisor, setSupervisor] = useState('');
+
 
   const handleSignUp = () => {
     Alert.alert('Sign Up', `Name: ${name}\nEmail: ${email}`);
@@ -112,9 +118,9 @@ export default function SignUpPage() {
       {/* Sign In Link */}
       <View style={styles.signInContainer}>
         <Text style={styles.text}>Already have an account? </Text>
-        <TouchableOpacity>
-          <Text style={styles.link}>Sign In</Text>
-        </TouchableOpacity>
+        <Link href="/loginpage" style={styles.link}>
+        Login
+      </Link>
       </View>
     </View>
   );
