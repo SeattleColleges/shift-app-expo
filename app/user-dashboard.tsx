@@ -1,30 +1,44 @@
 import React, {useEffect} from 'react';
-import { Image, StyleSheet, View, Text } from 'react-native';
-
-import ParallaxScrollView from '@/components/ParallaxScrollView';
+import {StyleSheet, View, Text, ScrollView, SafeAreaView} from 'react-native';
 import { supabase } from '@/supabaseClient';
 import {OptionToggle} from "@/components/dashboard/OptionToggle";
+import {Calendar, CalendarProvider, WeekCalendar} from "react-native-calendars";
 
+interface DateProps {
+  dateString: string,
+  day: number,
+  month: number,
+  timestamp: number,
+  year: number,
+}
 export default function UserDashboard() {
   const [selectedTimeframe, setSelectedTimeframe] = React.useState<string | undefined>();
   const [selectedApprovalStatus, setSelectedApprovalStatus] = React.useState<string | undefined>();
-
+  const [selectedDate, setSelectedDate] = React.useState<string>(new Intl.DateTimeFormat('en-CA').format(new Date()));
   useEffect(() => {
     console.log(selectedApprovalStatus);
   }, [selectedApprovalStatus]);
   useEffect(() => {
     console.log(selectedTimeframe);
   }, [selectedTimeframe]);
-  return (
-    <ParallaxScrollView
-      headerBackgroundColor={{ light: '#A1CEDC', dark: '#1D3D47' }}
-      headerImage={
-        <Image
-          source={require('@/assets/images/partial-react-logo.png')}
-          style={styles.reactLogo}
-        />
-      }>
+  useEffect(() => {
+    console.log(selectedDate);
+  }, [selectedDate]);
 
+  const handleDatePress = (date: DateProps) => {
+    setSelectedDate(date.dateString);
+  }
+  return (
+    <SafeAreaView style={{flex: 1}}>
+      <CalendarProvider
+          date={selectedDate}
+          // onDateChanged={onDateChanged}
+          // onMonthChange={onMonthChange}
+          showTodayButton={false}
+          // disabledOpacity={0.6}
+          // theme={todayBtnTheme.current}
+          // todayBottomMargin={16}
+      >
       {/* Schedule Title*/}
       <View style={styles.scheduleContainer}>
         <Text style={styles.scheduleTitle}>Schedule</Text>
@@ -39,25 +53,27 @@ export default function UserDashboard() {
             handleToggledOption={setSelectedApprovalStatus}
         />
       </View>
-
-      {/* Placeholder Box */}
-      <View style={styles.placeholderBox}>
-        <Text style={styles.placeholderText}>
-          Calendar Components Placeholder Box
-        </Text>
-      </View>
-    </ParallaxScrollView>
+      {
+        selectedTimeframe == "Month" ?
+              <Calendar
+                enableSwipeMonths={true}
+                onDayPress={(day: DateProps) => handleDatePress(day)}
+                markedDates={{
+                  [selectedDate]: {selected: true, selectedColor: 'blue'},
+                  '2025-02-17': {marked: true},
+                  '2025-02-18': {marked: true, dotColor: 'red', activeOpacity: 0},
+                  '2025-02-19': {disabled: true, disableTouchEvent: true}
+                }}
+              />
+            :
+              <WeekCalendar/>
+      }
+      </CalendarProvider>
+    </SafeAreaView>
   );
 }
 
 const styles = StyleSheet.create({
-  reactLogo: {
-    height: 178,
-    width: 290,
-    bottom: 0,
-    left: 0,
-    position: 'absolute',
-  },
   scheduleContainer: {
     margin: 16,
     alignItems: 'center',
