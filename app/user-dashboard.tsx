@@ -1,8 +1,10 @@
-import React, {useEffect} from 'react';
+import React, {useEffect, useState} from 'react';
 import {StyleSheet, View, Text, ScrollView, SafeAreaView} from 'react-native';
 import { supabase } from '@/supabaseClient';
 import {OptionToggle} from "@/components/dashboard/OptionToggle";
 import {Calendar, CalendarProvider, WeekCalendar} from "react-native-calendars";
+import {shiftData, ShiftData} from "@/data/dummyShiftData";
+import {MarkedDates} from "react-native-calendars/src/types";
 
 interface DateProps {
   dateString: string,
@@ -11,10 +13,12 @@ interface DateProps {
   timestamp: number,
   year: number,
 }
+
 export default function UserDashboard() {
-  const [selectedTimeframe, setSelectedTimeframe] = React.useState<string | undefined>();
-  const [selectedApprovalStatus, setSelectedApprovalStatus] = React.useState<string | undefined>();
-  const [selectedDate, setSelectedDate] = React.useState<string>(new Intl.DateTimeFormat('en-CA').format(new Date()));
+  const [selectedTimeframe, setSelectedTimeframe] = useState<string | undefined>();
+  const [selectedApprovalStatus, setSelectedApprovalStatus] = useState<string | undefined>();
+  const [selectedDate, setSelectedDate] = useState<string>(new Intl.DateTimeFormat('en-CA').format(new Date()));
+  const [markedDates, setMarkedDates] = useState({});
   useEffect(() => {
     console.log(selectedApprovalStatus);
   }, [selectedApprovalStatus]);
@@ -28,6 +32,33 @@ export default function UserDashboard() {
   const handleDatePress = (date: DateProps) => {
     setSelectedDate(date.dateString);
   }
+
+  useEffect(() => {
+    setMarkedDates(getMarkedDates(shiftData, selectedDate));
+  }, [selectedDate]);
+
+  const getMarkedDates = (shifts: ShiftData[], selectedDate: string) => {
+    let marked: MarkedDates = {};
+    shifts.forEach(({ date, shifts }) => {
+      marked[date] = {
+        marked: true,
+        dots: shifts.map((shift, index) => ({
+          key: `${date}-${index}`,
+          color: shift.role === "Security" ? "red" : shift.role === "IT Support" ? "blue" : "green",
+        }))
+      };
+    });
+    if (selectedDate) {
+      marked[selectedDate] = {
+        ...(marked[selectedDate] || {}), // Preserve existing dots if present
+        selected: true,
+        selectedColor: "lightblue",
+        dots: [...(marked[selectedDate]?.dots || [])]
+      };
+    }
+    return marked;
+  };
+
   return (
     <SafeAreaView style={{flex: 1}}>
       <CalendarProvider
@@ -35,9 +66,6 @@ export default function UserDashboard() {
           // onDateChanged={onDateChanged}
           // onMonthChange={onMonthChange}
           showTodayButton={false}
-          // disabledOpacity={0.6}
-          // theme={todayBtnTheme.current}
-          // todayBottomMargin={16}
       >
       {/* Schedule Title*/}
       <View style={styles.scheduleContainer}>
@@ -57,13 +85,9 @@ export default function UserDashboard() {
         selectedTimeframe == "Month" ?
               <Calendar
                 enableSwipeMonths={true}
+                markingType={"multi-dot"}
                 onDayPress={(day: DateProps) => handleDatePress(day)}
-                markedDates={{
-                  [selectedDate]: {selected: true, selectedColor: 'blue'},
-                  '2025-02-17': {marked: true},
-                  '2025-02-18': {marked: true, dotColor: 'red', activeOpacity: 0},
-                  '2025-02-19': {disabled: true, disableTouchEvent: true}
-                }}
+                markedDates={markedDates}
               />
             :
               <WeekCalendar/>
