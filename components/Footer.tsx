@@ -6,7 +6,7 @@ import { Pressable, ScrollView, StyleSheet, View } from "react-native";
 export default function Footer() {
   return (
     <>
-    <ScrollView>
+    <View>
       <View style={styles.container}>
       <View><Pressable><Feather name="home" size={32} color="black" /></Pressable></View>
       <View> <Pressable><Entypo name="new-message" size={32} color="black" /></Pressable></View>
@@ -15,7 +15,7 @@ export default function Footer() {
       <View><Pressable><Feather name="user" size={32} color="black" /></Pressable></View>
       
       </View>
-    </ScrollView>
+    </View>
     </>
   );
 }
