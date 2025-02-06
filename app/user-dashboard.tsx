@@ -1,10 +1,11 @@
-import React, {useEffect, useState} from 'react';
-import {StyleSheet, View, Text, ScrollView, SafeAreaView} from 'react-native';
+import React, {useCallback, useEffect, useState} from 'react';
+import {StyleSheet, View, Text, ScrollView, SafeAreaView, FlatList} from 'react-native';
 import { supabase } from '@/supabaseClient';
 import {OptionToggle} from "@/components/dashboard/OptionToggle";
-import {Calendar, CalendarProvider, WeekCalendar} from "react-native-calendars";
+import { AgendaList, Calendar, CalendarProvider, WeekCalendar} from "react-native-calendars";
 import {shiftData, ShiftData} from "@/data/dummyShiftData";
 import {MarkedDates} from "react-native-calendars/src/types";
+import {DayViewItem} from "@/components/DayViewItem";
 
 interface DateProps {
   dateString: string,
@@ -13,21 +14,45 @@ interface DateProps {
   timestamp: number,
   year: number,
 }
-
+interface AgendaListProps {
+  title: string,
+  data: any[]
+}
 export default function UserDashboard() {
   const [selectedTimeframe, setSelectedTimeframe] = useState<string | undefined>();
   const [selectedApprovalStatus, setSelectedApprovalStatus] = useState<string | undefined>();
   const [selectedDate, setSelectedDate] = useState<string>(new Intl.DateTimeFormat('en-CA').format(new Date()));
   const [markedDates, setMarkedDates] = useState({});
+  const [agendaListItems, setAgendaListItems] = useState<any[]>([]);
   useEffect(() => {
-    console.log(selectedApprovalStatus);
+    let items: AgendaListProps[] = [];
+    shiftData.forEach(shift => {
+      const existing = items.findIndex(item => item.title === shift.date);
+      const shiftItem = {
+        startTime: shift.startTime,
+        endTime: shift.endTime,
+        role: shift.role,
+        roomNumber: shift.roomNumber,
+        building: shift.building,
+        title: "Shift"
+      }
+      if (existing === -1) {
+        items.push({
+          title: shift.date,
+          data: [...[shiftItem]],
+        })
+      } else {
+        items[existing].data.push(shiftItem);
+      }
+    })
+    setAgendaListItems(items);
+  }, [markedDates]);
+  useEffect(() => {
+    // console.log(selectedApprovalStatus);
   }, [selectedApprovalStatus]);
   useEffect(() => {
-    console.log(selectedTimeframe);
+    // console.log(selectedTimeframe);
   }, [selectedTimeframe]);
-  useEffect(() => {
-    console.log(selectedDate);
-  }, [selectedDate]);
 
   const handleDatePress = (date: DateProps) => {
     setSelectedDate(date.dateString);
@@ -39,18 +64,25 @@ export default function UserDashboard() {
 
   const getMarkedDates = (shifts: ShiftData[], selectedDate: string) => {
     let marked: MarkedDates = {};
-    shifts.forEach(({ date, shifts }) => {
-      marked[date] = {
-        marked: true,
-        dots: shifts.map((shift, index) => ({
-          key: `${date}-${index}`,
-          color: shift.role === "Security" ? "red" : shift.role === "IT Support" ? "blue" : "green",
-        }))
-      };
+    shifts.forEach(({ date, id,  role }) => {
+      if (!marked[date]) {
+        marked[date] = {
+          marked: true,
+          dots: [{
+            key: `${date}-${id}`,
+            color: 'black'
+          }]
+        };
+      } else {
+        marked[date].dots?.push({
+          key: `${date}-${id}`,
+          color: 'black'
+        })
+      }
     });
     if (selectedDate) {
       marked[selectedDate] = {
-        ...(marked[selectedDate] || {}), // Preserve existing dots if present
+        ...(marked[selectedDate] || {}),
         selected: true,
         selectedColor: "lightblue",
         dots: [...(marked[selectedDate]?.dots || [])]
@@ -58,7 +90,9 @@ export default function UserDashboard() {
     }
     return marked;
   };
-
+  const renderItem = useCallback(({item}: any) => {
+    return <DayViewItem item={item}/>
+  }, []);
   return (
     <SafeAreaView style={{flex: 1}}>
       <CalendarProvider
@@ -90,8 +124,17 @@ export default function UserDashboard() {
                 markedDates={markedDates}
               />
             :
-              <WeekCalendar/>
+              <WeekCalendar
+                markingType={'multi-dot'}
+                onDayPress={(day: DateProps) => handleDatePress(day)}
+                markedDates={markedDates}
+              />
       }
+      <AgendaList
+          sections={agendaListItems}
+          renderItem={renderItem}
+          contentContainerStyle={{paddingBottom: 50}}
+      />
       </CalendarProvider>
     </SafeAreaView>
   );
