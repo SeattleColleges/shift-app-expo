@@ -4,22 +4,23 @@ import {CoworkerListItem, CoworkerProps} from "@/components/CoworkerListItem";
 import React from "react";
 
 export default function CoworkersList() {
-    const renderCoworker: ListRenderItem<CoworkerProps> = ({ item }) =>
+    const renderCoworker: ListRenderItem<CoworkerProps> = ({item}) =>
         <CoworkerListItem
             id={item.id}
             name={item.name}
             role={item.role}
             profileImageUrl={item.profileImageUrl}
         />;
+
     interface ItemSeparatorProps {
         height?: number;  // Optional prop to control the spacing height
     }
 
-    const ItemSeparator: React.FC<ItemSeparatorProps> = ({ height = 10 }) => {
-        return <View style={{ height }} />;
+    const ItemSeparator: React.FC<ItemSeparatorProps> = ({height = 10}) => {
+        return <View style={{height}}/>;
     };
     return (
-        <View style={styles.coworkersList} >
+        <View style={styles.coworkersList}>
             <FlatList
                 data={coworkersDummyData}
                 renderItem={renderCoworker}

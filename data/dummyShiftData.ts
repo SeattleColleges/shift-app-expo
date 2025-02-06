@@ -10,7 +10,7 @@ export interface ShiftData {
 
 export const shiftData: ShiftData[] = [
     {
-        id:0,
+        id: 0,
         date: "2025-02-05",
         startTime: "08:00",
         endTime: "16:00",
@@ -19,7 +19,7 @@ export const shiftData: ShiftData[] = [
         roomNumber: "101"
     },
     {
-        id:1,
+        id: 1,
         date: "2025-02-05",
         startTime: "13:00",
         endTime: "17:00",
@@ -28,7 +28,7 @@ export const shiftData: ShiftData[] = [
         roomNumber: "B2"
     },
     {
-        id:2,
+        id: 2,
         date: "2025-02-06",
         startTime: "09:00",
         endTime: "14:00",
@@ -37,7 +37,7 @@ export const shiftData: ShiftData[] = [
         roomNumber: "305"
     },
     {
-        id:3,
+        id: 3,
         date: "2025-02-07",
         startTime: "07:00",
         endTime: "11:00",
@@ -46,7 +46,7 @@ export const shiftData: ShiftData[] = [
         roomNumber: "A1"
     },
     {
-        id:4,
+        id: 4,
         date: "2025-02-07",
         startTime: "12:00",
         endTime: "16:00",
