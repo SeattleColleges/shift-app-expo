@@ -25,7 +25,7 @@ export default function UserDashboard() {
   const [markedDates, setMarkedDates] = useState({});
   const [agendaListItems, setAgendaListItems] = useState<any[]>([]);
   useEffect(() => {
-    let items: AgendaListProps[] = [];
+    const items: AgendaListProps[] = [];
     shiftData.forEach(shift => {
       const existing = items.findIndex(item => item.title === shift.date);
       const shiftItem = {
@@ -47,12 +47,6 @@ export default function UserDashboard() {
     })
     setAgendaListItems(items);
   }, []);
-  useEffect(() => {
-    // console.log(selectedApprovalStatus);
-  }, [selectedApprovalStatus]);
-  useEffect(() => {
-    // console.log(selectedTimeframe);
-  }, [selectedTimeframe]);
 
   const handleDatePress = (date: DateProps) => {
     setSelectedDate(date.dateString);
