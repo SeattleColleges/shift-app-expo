@@ -46,7 +46,7 @@ export default function UserDashboard() {
       }
     })
     setAgendaListItems(items);
-  }, [markedDates]);
+  }, []);
   useEffect(() => {
     // console.log(selectedApprovalStatus);
   }, [selectedApprovalStatus]);
