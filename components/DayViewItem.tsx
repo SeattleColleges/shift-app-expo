@@ -1,12 +1,11 @@
 import {Text, View} from "react-native";
 import React from "react";
 
-interface Props {
+interface DayViewItemProps {
     item: any,
 }
 
-export const DayViewItem = (props: Props) => {
-    const {item} = props;
+export const DayViewItem = ({item}: DayViewItemProps) => {
     const start = Number(item.startTime.split(':')[0]);
     const end = Number(item.endTime.split(':')[0]);
     const numHoursScheduled = end - start;
