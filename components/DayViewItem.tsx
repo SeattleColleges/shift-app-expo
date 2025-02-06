@@ -1,6 +1,5 @@
 import {Text, View} from "react-native";
 import React from "react";
-import {time} from "@expo/fingerprint/cli/build/utils/log";
 
 interface DayViewItemProps {
     item: any,
