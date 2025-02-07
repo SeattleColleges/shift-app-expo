@@ -91,7 +91,7 @@ export default function UserDashboard() {
   const renderItem = useCallback(({item}: any) => {
     return <DayViewItem item={item}/>
   }, []);
-  console.log(selectedTimeframe)
+
   return (
     <SafeAreaView style={{flex: 1}}>
       <CalendarProvider
