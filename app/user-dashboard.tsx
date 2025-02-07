@@ -18,13 +18,46 @@ interface AgendaListProps {
   title: string,
   data: any[]
 }
+const getMarkedDates = (shifts: ShiftData[], selectedDate: string) => {
+  let marked: MarkedDates = {};
+  shifts.forEach(({ date, id }) => {
+    if (!marked[date]) {
+      marked[date] = {
+        marked: true,
+        dots: [{
+          key: `${date}-${id}`,
+          color: 'black'
+        }]
+      };
+    } else {
+      marked[date].dots?.push({
+        key: `${date}-${id}`,
+        color: 'black'
+      })
+    }
+  });
+  if (selectedDate) {
+    marked[selectedDate] = {
+      ...(marked[selectedDate] || {}),
+      selected: true,
+      selectedColor: "lightblue",
+      dots: [...(marked[selectedDate]?.dots || [])]
+    };
+  }
+  return marked;
+};
 export default function UserDashboard() {
-  const [selectedTimeframe, setSelectedTimeframe] = useState<string | undefined>();
-  const [selectedApprovalStatus, setSelectedApprovalStatus] = useState<string | undefined>();
+  const timeframeOptions = ['Week', 'Month'];
+  const approvalStatusOptions = ['Pending', 'Approved', 'Denied'];
+  const [selectedTimeframe, setSelectedTimeframe] = useState<string | undefined>(timeframeOptions[0]);
+  const [selectedApprovalStatus, setSelectedApprovalStatus] = useState<string | undefined>(approvalStatusOptions[0]);
   const [selectedDate, setSelectedDate] = useState<string>(new Intl.DateTimeFormat('en-CA').format(new Date()));
-  const [markedDates, setMarkedDates] = useState({});
+  const [markedDates, setMarkedDates] = useState(getMarkedDates(shiftData, selectedDate));
   const [agendaListItems, setAgendaListItems] = useState<any[]>([]);
   useEffect(() => {
+    initializeAgendaItems();
+  }, []);
+  const initializeAgendaItems = () => {
     const items: AgendaListProps[] = [];
     shiftData.forEach(shift => {
       const existing = items.findIndex(item => item.title === shift.date);
@@ -46,8 +79,7 @@ export default function UserDashboard() {
       }
     })
     setAgendaListItems(items);
-  }, []);
-
+  }
   const handleDatePress = (date: DateProps) => {
     setSelectedDate(date.dateString);
   }
@@ -56,37 +88,10 @@ export default function UserDashboard() {
     setMarkedDates(getMarkedDates(shiftData, selectedDate));
   }, [selectedDate]);
 
-  const getMarkedDates = (shifts: ShiftData[], selectedDate: string) => {
-    let marked: MarkedDates = {};
-    shifts.forEach(({ date, id,  role }) => {
-      if (!marked[date]) {
-        marked[date] = {
-          marked: true,
-          dots: [{
-            key: `${date}-${id}`,
-            color: 'black'
-          }]
-        };
-      } else {
-        marked[date].dots?.push({
-          key: `${date}-${id}`,
-          color: 'black'
-        })
-      }
-    });
-    if (selectedDate) {
-      marked[selectedDate] = {
-        ...(marked[selectedDate] || {}),
-        selected: true,
-        selectedColor: "lightblue",
-        dots: [...(marked[selectedDate]?.dots || [])]
-      };
-    }
-    return marked;
-  };
   const renderItem = useCallback(({item}: any) => {
     return <DayViewItem item={item}/>
   }, []);
+  console.log(selectedTimeframe)
   return (
     <SafeAreaView style={{flex: 1}}>
       <CalendarProvider
@@ -99,18 +104,18 @@ export default function UserDashboard() {
       <View style={styles.scheduleContainer}>
         <Text style={styles.scheduleTitle}>Schedule</Text>
         <OptionToggle
-            options={['Week', 'Month']}
+            options={timeframeOptions}
             gap={8}
             handleToggledOption={setSelectedTimeframe}
         />
         <OptionToggle
-            options={['Pending', 'Approved', 'Denied']}
+            options={approvalStatusOptions}
             gap={4}
             handleToggledOption={setSelectedApprovalStatus}
         />
       </View>
       {
-        selectedTimeframe == "Month" ?
+        selectedTimeframe === "Month" ?
               <Calendar
                 enableSwipeMonths={true}
                 markingType={"multi-dot"}
