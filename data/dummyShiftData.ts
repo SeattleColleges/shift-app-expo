@@ -53,5 +53,50 @@ export const shiftData: ShiftData[] = [
         role: "IT Support",
         building: "Tech Hub",
         roomNumber: "202"
+    },
+    {
+        id: 5,
+        date: "2025-03-05",
+        startTime: "08:00",
+        endTime: "16:00",
+        role: "Front Desk",
+        building: "Main Office",
+        roomNumber: "101"
+    },
+    {
+        id: 6,
+        date: "2025-03-05",
+        startTime: "13:00",
+        endTime: "17:00",
+        role: "Security",
+        building: "Warehouse",
+        roomNumber: "B2"
+    },
+    {
+        id: 7,
+        date: "2025-03-06",
+        startTime: "09:00",
+        endTime: "14:00",
+        role: "Maintenance",
+        building: "Engineering Block",
+        roomNumber: "305"
+    },
+    {
+        id: 8,
+        date: "2025-03-07",
+        startTime: "07:00",
+        endTime: "11:00",
+        role: "Customer Support",
+        building: "Service Center",
+        roomNumber: "A1"
+    },
+    {
+        id: 9,
+        date: "2025-03-07",
+        startTime: "12:00",
+        endTime: "16:00",
+        role: "IT Support",
+        building: "Tech Hub",
+        roomNumber: "202"
     }
 ];
