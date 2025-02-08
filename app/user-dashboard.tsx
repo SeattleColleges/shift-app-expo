@@ -1,8 +1,8 @@
-import React, {useCallback, useEffect, useState} from 'react';
-import {StyleSheet, View, Text, ScrollView, SafeAreaView, FlatList} from 'react-native';
+import React, {useCallback, useContext, useEffect, useRef, useState} from 'react';
+import {StyleSheet, View, Text, ScrollView, SafeAreaView, FlatList, SectionList} from 'react-native';
 import { supabase } from '@/supabaseClient';
 import {OptionToggle} from "@/components/dashboard/OptionToggle";
-import { AgendaList, Calendar, CalendarProvider, WeekCalendar} from "react-native-calendars";
+import {AgendaList, Calendar, CalendarContext, CalendarProvider, WeekCalendar} from "react-native-calendars";
 import {shiftData, ShiftData} from "@/data/dummyShiftData";
 import {MarkedDates} from "react-native-calendars/src/types";
 import {DayViewItem} from "@/components/DayViewItem";
@@ -47,13 +47,13 @@ const getMarkedDates = (shifts: ShiftData[], selectedDate: string) => {
   return marked;
 };
 export default function UserDashboard() {
-  const timeframeOptions = ['Week', 'Month'];
+  const timeframeOptions = ['Month', 'Week'];
   const approvalStatusOptions = ['Pending', 'Approved', 'Denied'];
   const [selectedTimeframe, setSelectedTimeframe] = useState<string | undefined>(timeframeOptions[0]);
   const [selectedApprovalStatus, setSelectedApprovalStatus] = useState<string | undefined>(approvalStatusOptions[0]);
   const [selectedDate, setSelectedDate] = useState<string>(new Intl.DateTimeFormat('en-CA').format(new Date()));
-  const [markedDates, setMarkedDates] = useState(getMarkedDates(shiftData, selectedDate));
   const [agendaListItems, setAgendaListItems] = useState<any[]>([]);
+  const {setDate} = useContext(CalendarContext);
   useEffect(() => {
     initializeAgendaItems();
   }, []);
@@ -83,20 +83,25 @@ export default function UserDashboard() {
   const handleDatePress = (date: DateProps) => {
     setSelectedDate(date.dateString);
   }
-
-  useEffect(() => {
-    setMarkedDates(getMarkedDates(shiftData, selectedDate));
-  }, [selectedDate]);
-
   const renderItem = useCallback(({item}: any) => {
     return <DayViewItem item={item}/>
   }, []);
-
+  const agendaRef = useRef<SectionList>(null);
+  const scrollToEvent = (dateIndex: number, itemIndex: number) => {
+    if (agendaRef.current) {
+      agendaRef.current.scrollToLocation({
+        sectionIndex: dateIndex,
+        itemIndex: itemIndex,
+        animated: true,
+      });
+    }
+  };
+  const marked = useRef(getMarkedDates(shiftData, selectedDate))
   return (
     <SafeAreaView style={{flex: 1}}>
       <CalendarProvider
           date={selectedDate}
-          // onDateChanged={onDateChanged}
+          onDateChanged={setSelectedDate}
           // onMonthChange={onMonthChange}
           showTodayButton={false}
       >
@@ -115,24 +120,37 @@ export default function UserDashboard() {
         />
       </View>
       {
-        selectedTimeframe === "Month" ?
+        selectedTimeframe === timeframeOptions[0] ?
+            (
               <Calendar
                 enableSwipeMonths={true}
                 markingType={"multi-dot"}
                 onDayPress={(day: DateProps) => handleDatePress(day)}
-                markedDates={markedDates}
+                markedDates={marked.current}
               />
-            :
+            )
+            : (
               <WeekCalendar
                 markingType={'multi-dot'}
+                enableSwipeMonths={false}
                 onDayPress={(day: DateProps) => handleDatePress(day)}
-                markedDates={markedDates}
+                markedDates={marked.current}
+                current={selectedDate}
               />
+            )
       }
       <AgendaList
+          ref={agendaRef}
           sections={agendaListItems}
           renderItem={renderItem}
+          // avoidDateUpdates={true}
+          onLayout={() => scrollToEvent(0,0)}
           contentContainerStyle={{paddingBottom: 50}}
+          infiniteListProps={{
+            itemHeight: 110,
+            titleHeight: 50,
+            visibleIndicesChangedDebounce: 250,
+          }}
       />
       </CalendarProvider>
     </SafeAreaView>
