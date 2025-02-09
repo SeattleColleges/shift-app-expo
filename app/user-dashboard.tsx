@@ -2,7 +2,7 @@ import React, {useCallback, useContext, useEffect, useRef, useState} from 'react
 import {StyleSheet, View, Text, ScrollView, SafeAreaView, FlatList, SectionList} from 'react-native';
 import { supabase } from '@/supabaseClient';
 import {OptionToggle} from "@/components/dashboard/OptionToggle";
-import {AgendaList, Calendar, CalendarContext, CalendarProvider, WeekCalendar} from "react-native-calendars";
+import {AgendaList, Calendar, CalendarContext, CalendarProvider, DateData, WeekCalendar} from "react-native-calendars";
 import {shiftData, ShiftData} from "@/data/dummyShiftData";
 import {MarkedDates} from "react-native-calendars/src/types";
 import {DayViewItem} from "@/components/DayViewItem";
@@ -36,14 +36,13 @@ const getMarkedDates = (shifts: ShiftData[], selectedDate: string) => {
       })
     }
   });
-  if (selectedDate) {
-    marked[selectedDate] = {
-      ...(marked[selectedDate] || {}),
-      selected: true,
-      selectedColor: "lightblue",
-      dots: [...(marked[selectedDate]?.dots || [])]
-    };
+
+  marked[selectedDate] = {
+    ...(marked[selectedDate] || {}),
+    selected: true,
+    dots: [...(marked[selectedDate]?.dots || [])]
   }
+
   return marked;
 };
 export default function UserDashboard() {
@@ -53,10 +52,16 @@ export default function UserDashboard() {
   const [selectedApprovalStatus, setSelectedApprovalStatus] = useState<string | undefined>(approvalStatusOptions[0]);
   const [selectedDate, setSelectedDate] = useState<string>(new Intl.DateTimeFormat('en-CA').format(new Date()));
   const [agendaListItems, setAgendaListItems] = useState<any[]>([]);
-  const {setDate} = useContext(CalendarContext);
+  const [markedDates, setMarkedDates] = useState<MarkedDates>();
+
   useEffect(() => {
     initializeAgendaItems();
   }, []);
+
+  useEffect(() => {
+    setMarkedDates(getMarkedDates(shiftData, selectedDate))
+  }, [selectedDate]);
+
   const initializeAgendaItems = () => {
     const items: AgendaListProps[] = [];
     shiftData.forEach(shift => {
@@ -80,6 +85,21 @@ export default function UserDashboard() {
     })
     setAgendaListItems(items);
   }
+
+  const isDateInCurrentWeek = (dateStr: string): boolean => {
+    const inputDate = new Date(dateStr);
+    const today = new Date();
+
+    const startOfWeek = new Date(today);
+    startOfWeek.setDate(today.getDate() - today.getDay());
+    startOfWeek.setHours(0, 0, 0, 0);
+
+    const endOfWeek = new Date(startOfWeek);
+    endOfWeek.setDate(startOfWeek.getDate() + 6);
+    endOfWeek.setHours(23, 59, 59, 999);
+
+    return inputDate >= startOfWeek && inputDate <= endOfWeek;
+  }
   const handleDatePress = (date: DateProps) => {
     setSelectedDate(date.dateString);
   }
@@ -96,13 +116,11 @@ export default function UserDashboard() {
       });
     }
   };
-  const marked = useRef(getMarkedDates(shiftData, selectedDate))
   return (
     <SafeAreaView style={{flex: 1}}>
       <CalendarProvider
           date={selectedDate}
           onDateChanged={setSelectedDate}
-          // onMonthChange={onMonthChange}
           showTodayButton={false}
       >
       {/* Schedule Title*/}
@@ -120,13 +138,13 @@ export default function UserDashboard() {
         />
       </View>
       {
-        selectedTimeframe === timeframeOptions[0] ?
+        selectedTimeframe === "Month" ?
             (
               <Calendar
                 enableSwipeMonths={true}
                 markingType={"multi-dot"}
                 onDayPress={(day: DateProps) => handleDatePress(day)}
-                markedDates={marked.current}
+                markedDates={markedDates}
               />
             )
             : (
@@ -134,16 +152,20 @@ export default function UserDashboard() {
                 markingType={'multi-dot'}
                 enableSwipeMonths={false}
                 onDayPress={(day: DateProps) => handleDatePress(day)}
-                markedDates={marked.current}
+                markedDates={markedDates}
                 current={selectedDate}
+                initialDate={selectedDate}
               />
             )
       }
       <AgendaList
           ref={agendaRef}
-          sections={agendaListItems}
+          sections={selectedTimeframe === 'Month' ?
+              agendaListItems :
+              agendaListItems.filter(item => {
+            return isDateInCurrentWeek(item.title);
+          })}
           renderItem={renderItem}
-          // avoidDateUpdates={true}
           onLayout={() => scrollToEvent(0,0)}
           contentContainerStyle={{paddingBottom: 50}}
           infiniteListProps={{
