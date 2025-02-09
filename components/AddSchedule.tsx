@@ -500,7 +500,7 @@ const styles = StyleSheet.create({
     borderRadius: 10,
     backgroundColor: "#fff",
     marginBottom: 20,
-    width: "100%",
+    width: "90%",
   },
   pickerButton: {
     padding: 12,
