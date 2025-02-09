@@ -67,6 +67,11 @@ const AddSchedule: React.FC = () => {
     }
   };
 
+  const handleAddShift = () => {
+    // Handle the add shift logic here
+    console.log("Shift added");
+  };
+
   return (
     <ScrollView contentContainerStyle={styles.scrollContainer}>
       <View style={styles.outerContainer}>
@@ -300,6 +305,14 @@ const AddSchedule: React.FC = () => {
             onChangeText={setNotes}
             multiline
           />
+
+          {/* Add Shift Button */}
+          <TouchableOpacity
+            style={styles.button}
+            onPress={handleAddShift}
+          >
+            <Text style={styles.buttonText}>Add Shift</Text>
+          </TouchableOpacity>
         </View>
       </View>
     </ScrollView>
