@@ -1,8 +1,8 @@
-import React, {useCallback, useContext, useEffect, useRef, useState} from 'react';
-import {StyleSheet, View, Text, ScrollView, SafeAreaView, FlatList, SectionList} from 'react-native';
+import React, {useCallback, useEffect, useRef, useState} from 'react';
+import {StyleSheet, SectionList} from 'react-native';
 import { supabase } from '@/supabaseClient';
 import {OptionToggle} from "@/components/dashboard/OptionToggle";
-import {AgendaList, Calendar, CalendarContext, CalendarProvider, DateData, WeekCalendar} from "react-native-calendars";
+import {AgendaList, Calendar, CalendarProvider, WeekCalendar} from "react-native-calendars";
 import {shiftData, ShiftData} from "@/data/dummyShiftData";
 import {MarkedDates} from "react-native-calendars/src/types";
 import {DayViewItem} from "@/components/DayViewItem";
@@ -19,6 +19,10 @@ interface DateProps {
 interface AgendaListProps {
   title: string,
   data: any[]
+}
+enum Timeframes {
+  Week = "Week",
+  Month = "Month"
 }
 const getMarkedDates = (shifts: ShiftData[], selectedDate: string) => {
   let marked: MarkedDates = {};
@@ -48,11 +52,12 @@ const getMarkedDates = (shifts: ShiftData[], selectedDate: string) => {
   return marked;
 };
 export default function UserDashboard() {
-  const timeframeOptions = ['Month', 'Week'];
+  const today = new Intl.DateTimeFormat('en-CA').format(new Date());
+  const timeframeOptions = [Timeframes.Month, Timeframes.Week];
   const approvalStatusOptions = ['Pending', 'Approved', 'Denied'];
-  const [selectedTimeframe, setSelectedTimeframe] = useState<string | undefined>(timeframeOptions[0]);
+  const [selectedTimeframe, setSelectedTimeframe] = useState<Timeframes | undefined>(timeframeOptions[0]);
   const [selectedApprovalStatus, setSelectedApprovalStatus] = useState<string | undefined>(approvalStatusOptions[0]);
-  const [selectedDate, setSelectedDate] = useState<string>(new Intl.DateTimeFormat('en-CA').format(new Date()));
+  const [selectedDate, setSelectedDate] = useState<string>(today);
   const [agendaListItems, setAgendaListItems] = useState<any[]>([]);
   const [markedDates, setMarkedDates] = useState<MarkedDates>();
 
@@ -64,6 +69,11 @@ export default function UserDashboard() {
     setMarkedDates(getMarkedDates(shiftData, selectedDate))
   }, [selectedDate]);
 
+  useEffect(() => {
+    if (selectedTimeframe === Timeframes.Week) {
+      setSelectedDate(today);
+    }
+  }, [selectedTimeframe]);
   const initializeAgendaItems = () => {
     const items: AgendaListProps[] = [];
     shiftData.forEach(shift => {
@@ -105,9 +115,11 @@ export default function UserDashboard() {
   const handleDatePress = (date: DateProps) => {
     setSelectedDate(date.dateString);
   }
+
   const renderItem = useCallback(({item}: any) => {
     return <DayViewItem item={item}/>
   }, []);
+
   const agendaRef = useRef<SectionList>(null);
   const scrollToEvent = (dateIndex: number, itemIndex: number) => {
     if (agendaRef.current) {
@@ -118,6 +130,7 @@ export default function UserDashboard() {
       });
     }
   };
+
   return (
     <ThemedView style={{flex: 1}}>
       <CalendarProvider
@@ -129,9 +142,9 @@ export default function UserDashboard() {
       <ThemedView style={styles.scheduleContainer}>
         <ThemedText style={styles.scheduleTitle}>Schedule</ThemedText>
         <OptionToggle
-            options={timeframeOptions}
+            options={timeframeOptions.map(tf => tf.toString())}
             gap={8}
-            handleToggledOption={setSelectedTimeframe}
+            handleToggledOption={(value) => setSelectedTimeframe(value === Timeframes.Month.toString() ? Timeframes.Month : Timeframes.Week)}
         />
         <OptionToggle
             options={approvalStatusOptions}
@@ -140,11 +153,10 @@ export default function UserDashboard() {
         />
       </ThemedView>
       {
-        selectedTimeframe === "Month" ?
+        selectedTimeframe === Timeframes.Month ?
             (
               <Calendar
                 enableSwipeMonths={true}
-                // theme={}
                 markingType={"multi-dot"}
                 onDayPress={(day: DateProps) => handleDatePress(day)}
                 markedDates={markedDates}
@@ -157,23 +169,24 @@ export default function UserDashboard() {
                 onDayPress={(day: DateProps) => handleDatePress(day)}
                 markedDates={markedDates}
                 current={selectedDate}
-                initialDate={selectedDate}
+                initialDate={today}
               />
             )
       }
       <AgendaList
           ref={agendaRef}
-          sections={selectedTimeframe === 'Month' ?
+          sections={selectedTimeframe === Timeframes.Month ?
               agendaListItems :
               agendaListItems.filter(item => {
             return isDateInCurrentWeek(item.title);
           })}
+          avoidDateUpdates={selectedTimeframe === Timeframes.Week}
           renderItem={renderItem}
           onLayout={() => scrollToEvent(0,0)}
           contentContainerStyle={{paddingBottom: 50}}
           infiniteListProps={{
             itemHeight: 115,
-            titleHeight: 50,
+            titleHeight: 45,
             visibleIndicesChangedDebounce: 250,
           }}
       />
