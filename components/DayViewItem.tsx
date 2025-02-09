@@ -29,7 +29,7 @@ export const DayViewItem = ({item}: DayViewItemProps) => {
                 </Text>
                 <Text style={{flexDirection: 'row', justifyContent: 'flex-start', fontSize: 16, marginVertical: 4}}>
                     <Text style={{fontWeight: 'bold'}}>{numHoursScheduled} HR</Text>
-                    <Text> | {`${to12Hours(start)} ${setAMOrPM(start)} - ${to12Hours(end)} ${setAMOrPM(end)}`}</Text>
+                    <Text> | {`${to12Hours(start)}${setAMOrPM(start)} - ${to12Hours(end)}${setAMOrPM(end)}`}</Text>
                     <Text>{item.duration}</Text>
                 </Text>
             </View>
