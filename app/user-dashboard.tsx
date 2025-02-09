@@ -6,6 +6,8 @@ import {AgendaList, Calendar, CalendarContext, CalendarProvider, DateData, WeekC
 import {shiftData, ShiftData} from "@/data/dummyShiftData";
 import {MarkedDates} from "react-native-calendars/src/types";
 import {DayViewItem} from "@/components/DayViewItem";
+import {ThemedView} from "@/components/ThemedView";
+import {ThemedText} from "@/components/ThemedText";
 
 interface DateProps {
   dateString: string,
@@ -117,15 +119,15 @@ export default function UserDashboard() {
     }
   };
   return (
-    <SafeAreaView style={{flex: 1}}>
+    <ThemedView style={{flex: 1}}>
       <CalendarProvider
           date={selectedDate}
           onDateChanged={setSelectedDate}
           showTodayButton={false}
       >
       {/* Schedule Title*/}
-      <View style={styles.scheduleContainer}>
-        <Text style={styles.scheduleTitle}>Schedule</Text>
+      <ThemedView style={styles.scheduleContainer}>
+        <ThemedText style={styles.scheduleTitle}>Schedule</ThemedText>
         <OptionToggle
             options={timeframeOptions}
             gap={8}
@@ -136,12 +138,13 @@ export default function UserDashboard() {
             gap={4}
             handleToggledOption={setSelectedApprovalStatus}
         />
-      </View>
+      </ThemedView>
       {
         selectedTimeframe === "Month" ?
             (
               <Calendar
                 enableSwipeMonths={true}
+                // theme={}
                 markingType={"multi-dot"}
                 onDayPress={(day: DateProps) => handleDatePress(day)}
                 markedDates={markedDates}
@@ -169,13 +172,13 @@ export default function UserDashboard() {
           onLayout={() => scrollToEvent(0,0)}
           contentContainerStyle={{paddingBottom: 50}}
           infiniteListProps={{
-            itemHeight: 110,
+            itemHeight: 115,
             titleHeight: 50,
             visibleIndicesChangedDebounce: 250,
           }}
       />
       </CalendarProvider>
-    </SafeAreaView>
+    </ThemedView>
   );
 }
 
@@ -188,16 +191,5 @@ const styles = StyleSheet.create({
     fontSize: 24,
     fontWeight: 'bold',
     marginBottom: 16,
-  },
-  placeholderBox: {
-    marginTop: 16,
-    padding: 16,
-    backgroundColor: '#f0f0f0',
-    borderRadius: 8,
-    alignItems: 'center',
-  },
-  placeholderText: {
-    fontSize: 16,
-    color: 'black',
   },
 });
