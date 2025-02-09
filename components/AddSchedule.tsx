@@ -35,15 +35,18 @@ const AddSchedule: React.FC = () => {
       setShow(false);
       return;
     }
-    const currentDate = selectedDate || date;
-    setShow(false);
-    setDate(currentDate);
-
-    const formattedDate = `${currentDate.getDate()}/${
-      currentDate.getMonth() + 1
-    }/${currentDate.getFullYear()}`;
-    setText(formattedDate);
+  
+    setDate(selectedDate); // Update the date state
+  
+    // Format the date properly
+    const formattedDate = `${selectedDate.getDate()}/${
+      selectedDate.getMonth() + 1
+    }/${selectedDate.getFullYear()}`;
+  
+    setText(formattedDate); // Update the visible date text
+    setShow(false); // Close the modal after selection
   };
+  
 
   const onTimeChange = (event: any, selectedTime?: Date) => {
     if (!selectedTime) {
@@ -146,89 +149,86 @@ const AddSchedule: React.FC = () => {
           )}
 
           {/* Date Picker */}
-          <Text style={styles.label}>Date</Text>
-          {Platform.OS === "web" ? (
-            <input
-              type="date"
-              value={text}
-              onChange={(e) => {
-                const selectedDate = new Date(e.target.value);
-                setDate(selectedDate);
-                setText(e.target.value);
-              }}
-              style={styles.webInput}
-            />
-          ) : (
-            <TouchableOpacity
-              style={styles.button}
-              onPress={() => {
-                setMode("date");
-                setShow(true);
-              }}
-            >
-              <Text style={styles.buttonText}>{text}</Text>
-            </TouchableOpacity>
-          )}
+<Text style={styles.label}>Date</Text>
+{Platform.OS === "web" ? (
+  <input
+    type="date"
+    value={text}
+    onChange={(e) => {
+      const selectedDate = new Date(e.target.value);
+      setDate(selectedDate);
+      setText(e.target.value);
+    }}
+    style={styles.webInput}
+  />
+) : (
+  <TouchableOpacity
+    style={styles.button}
+    onPress={() => {
+      setMode("date");
+      setShow(true);
+    }}
+  >
+    <Text style={styles.buttonText}>{text}</Text>
+  </TouchableOpacity>
+)}
+
+{/* iOS-specific DateTimePicker */}
+{Platform.OS === "ios" && show && (
+  <Modal transparent animationType="slide">
+    <View style={styles.modalContainer}>
+      <View style={styles.pickerWrapper}>
+        <DateTimePicker
+          value={date}
+          mode="date"
+          display="spinner"
+          onChange={onChange} // Use the updated function
+          textColor="#000" // Ensure visibility in dark mode
+        />
+        <TouchableOpacity
+          style={styles.doneButton}
+          onPress={() => setShow(false)}
+        >
+          <Text style={styles.doneButtonText}>Done</Text>
+        </TouchableOpacity>
+      </View>
+    </View>
+  </Modal>
+)}
+
+
+{/* Native Android Picker (unchanged) */}
+{Platform.OS === "android" && show && (
+  <DateTimePicker
+    value={date}
+    mode="date"
+    display="default"
+    onChange={onChange}
+  />
+)}
+
 
           {/* Start Time Picker */}
           <Text style={styles.label}>Start Time</Text>
-          {Platform.OS === "web" ? (
-            <input
-              type="time"
-              value={startTime}
-              onChange={(e) => setStartTime(e.target.value)}
-              style={styles.webInput}
-            />
-          ) : (
-            <TouchableOpacity
-              style={styles.button}
-              onPress={() => {
-                setMode("time");
-                setCurrentPicker("start");
-                setShow(true);
-              }}
-            >
-              <Text style={styles.buttonText}>{startTime}</Text>
-            </TouchableOpacity>
-          )}
+          <TextInput
+            style={styles.input}
+            value={startTime}
+            onChangeText={setStartTime}
+            placeholder="Enter start time"
+            keyboardType="default"
+          />
 
           {/* End Time Picker */}
           <Text style={styles.label}>End Time</Text>
-          {Platform.OS === "web" ? (
-            <input
-              type="time"
-              value={endTime}
-              onChange={(e) => setEndTime(e.target.value)}
-              style={styles.webInput}
-            />
-          ) : (
-            <TouchableOpacity
-              style={styles.button}
-              onPress={() => {
-                setMode("time");
-                setCurrentPicker("end");
-                setShow(true);
-              }}
-            >
-              <Text style={styles.buttonText}>{endTime}</Text>
-            </TouchableOpacity>
-          )}
+          <TextInput
+            style={styles.input}
+            value={endTime}
+            onChangeText={setEndTime}
+            placeholder="Enter end time"
+            keyboardType="default"
+          />
 
-          {/* Native DateTimePicker */}
-          {Platform.OS !== "web" && show && (
-            <DateTimePicker
-              value={date}
-              mode={mode}
-              display={Platform.OS === "ios" ? "spinner" : "default"}
-              onChange={(event, selectedDate) => {
-                if (mode === "date") {
-                  onChange(event, selectedDate);
-                } else {
-                  onTimeChange(event, selectedDate);
-                }
-              }}
-            />
-          )}
+         
 
           {/* Location Picker */}
           <Text style={styles.label}>Location</Text>
@@ -422,7 +422,7 @@ const styles = StyleSheet.create({
     flex: 1,
     justifyContent: "center",
     alignItems: "center",
-    backgroundColor: "rgba(0,0,0,0.5)",
+    backgroundColor: "rgba(0,0,0,0.5)", 
   },
   modalContent: {
     width: 300,
@@ -446,7 +446,28 @@ const styles = StyleSheet.create({
     borderRadius: 10,
     backgroundColor: "#fff",
     marginBottom: 20,
+    width: "92%",
+  },
+  pickerWrapper: {
+    width: 320,
+    backgroundColor: "#fff",
+    borderRadius: 15,
+    padding: 20,
+    alignItems: "center",
+    justifyContent: "center",
+  },
+  doneButton: {
+    marginTop: 10,
+    padding: 10,
     width: "100%",
+    alignItems: "center",
+    backgroundColor: "#007bff",
+    borderRadius: 8,
+  },
+  doneButtonText: {
+    fontSize: 18,
+    color: "#fff",
+    fontWeight: "bold",
   },
 });
 
