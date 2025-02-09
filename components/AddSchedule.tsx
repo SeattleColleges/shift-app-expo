@@ -13,6 +13,7 @@ import { Picker } from "@react-native-picker/picker";
 import DateTimePicker from "@react-native-community/datetimepicker";
 import { roles } from "../data/roles"; // Import the roles data
 import { locations } from "../data/locations"; // Import the locations data
+import { times } from "../data/times"; // Import the times data
 
 type DateTimePickerMode = "date" | "time";
 
@@ -29,6 +30,8 @@ const AddSchedule: React.FC = () => {
   const [notes, setNotes] = useState<string>("");
   const [showRolePicker, setShowRolePicker] = useState<boolean>(false);
   const [showLocationPicker, setShowLocationPicker] = useState<boolean>(false);
+  const [showStartTimePicker, setShowStartTimePicker] = useState<boolean>(false);
+  const [showEndTimePicker, setShowEndTimePicker] = useState<boolean>(false);
 
   const onChange = (event: any, selectedDate?: Date) => {
     if (!selectedDate) {
@@ -87,7 +90,7 @@ const AddSchedule: React.FC = () => {
             <select
               value={role}
               onChange={(e) => setRole(e.target.value)}
-              style={styles.webPicker}
+              style={styles.webInput} // Apply the same style as Date
             >
               {roles.map((roleOption) => (
                 <option key={roleOption.value} value={roleOption.value}>
@@ -95,13 +98,13 @@ const AddSchedule: React.FC = () => {
                 </option>
               ))}
             </select>
-          ) : Platform.OS === "ios" ? (
+          ) : Platform.OS === "ios" || Platform.OS === "android" ? (
             <>
               <TouchableOpacity
-                style={styles.pickerButton}
+                style={styles.button} // Apply the same style as Date
                 onPress={() => setShowRolePicker(true)}
               >
-                <Text style={styles.pickerButtonText}>{role}</Text>
+                <Text style={styles.buttonText}>{role}</Text>
               </TouchableOpacity>
 
               <Modal visible={showRolePicker} transparent animationType="slide">
@@ -149,86 +152,180 @@ const AddSchedule: React.FC = () => {
           )}
 
           {/* Date Picker */}
-<Text style={styles.label}>Date</Text>
-{Platform.OS === "web" ? (
-  <input
-    type="date"
-    value={text}
-    onChange={(e) => {
-      const selectedDate = new Date(e.target.value);
-      setDate(selectedDate);
-      setText(e.target.value);
-    }}
-    style={styles.webInput}
-  />
-) : (
-  <TouchableOpacity
-    style={styles.button}
-    onPress={() => {
-      setMode("date");
-      setShow(true);
-    }}
-  >
-    <Text style={styles.buttonText}>{text}</Text>
-  </TouchableOpacity>
-)}
+          <Text style={styles.label}>Date</Text>
+          {Platform.OS === "web" ? (
+            <input
+              type="date"
+              value={text}
+              onChange={(e) => {
+                const selectedDate = new Date(e.target.value);
+                setDate(selectedDate);
+                setText(e.target.value);
+              }}
+              style={styles.webInput}
+            />
+          ) : (
+            <TouchableOpacity
+              style={styles.button}
+              onPress={() => {
+                setMode("date");
+                setShow(true);
+              }}
+            >
+              <Text style={styles.buttonText}>{text}</Text>
+            </TouchableOpacity>
+          )}
 
-{/* iOS-specific DateTimePicker */}
-{Platform.OS === "ios" && show && (
-  <Modal transparent animationType="slide">
-    <View style={styles.modalContainer}>
-      <View style={styles.pickerWrapper}>
-        <DateTimePicker
-          value={date}
-          mode="date"
-          display="spinner"
-          onChange={onChange} // Use the updated function
-          textColor="#000" // Ensure visibility in dark mode
-        />
-        <TouchableOpacity
-          style={styles.doneButton}
-          onPress={() => setShow(false)}
-        >
-          <Text style={styles.doneButtonText}>Done</Text>
-        </TouchableOpacity>
-      </View>
-    </View>
-  </Modal>
-)}
+          {/* iOS-specific DateTimePicker */}
+          {Platform.OS === "ios" && show && (
+            <Modal transparent animationType="slide">
+              <View style={styles.modalContainer}>
+                <View style={styles.pickerWrapper}>
+                  <DateTimePicker
+                    value={date}
+                    mode="date"
+                    display="spinner"
+                    onChange={onChange} // Use the updated function
+                    textColor="#000" // Ensure visibility in dark mode
+                  />
+                  <TouchableOpacity
+                    style={styles.doneButton}
+                    onPress={() => setShow(false)}
+                  >
+                    <Text style={styles.doneButtonText}>Done</Text>
+                  </TouchableOpacity>
+                </View>
+              </View>
+            </Modal>
+          )}
 
-
-{/* Native Android Picker (unchanged) */}
-{Platform.OS === "android" && show && (
-  <DateTimePicker
-    value={date}
-    mode="date"
-    display="default"
-    onChange={onChange}
-  />
-)}
-
+          {/* Native Android Picker (unchanged) */}
+          {Platform.OS === "android" && show && (
+            <DateTimePicker
+              value={date}
+              mode="date"
+              display="default"
+              onChange={onChange}
+            />
+          )}
 
           {/* Start Time Picker */}
           <Text style={styles.label}>Start Time</Text>
-          <TextInput
-            style={styles.input}
-            value={startTime}
-            onChangeText={setStartTime}
-            placeholder="Enter start time"
-            keyboardType="default"
-          />
+          {Platform.OS === "web" ? (
+            <select
+              value={startTime}
+              onChange={(e) => setStartTime(e.target.value)}
+              style={styles.webInput}
+            >
+              {times.map((time) => (
+                <option key={time} value={time}>
+                  {time}
+                </option>
+              ))}
+            </select>
+          ) : Platform.OS === "ios" || Platform.OS === "android" ? (
+            <>
+              <TouchableOpacity
+                style={styles.button}
+                onPress={() => setShowStartTimePicker(true)}
+              >
+                <Text style={styles.buttonText}>{startTime}</Text>
+              </TouchableOpacity>
+
+              <Modal visible={showStartTimePicker} transparent animationType="slide">
+                <View style={styles.modalContainer}>
+                  <View style={styles.modalContent}>
+                    <Picker
+                      selectedValue={startTime}
+                      onValueChange={(itemValue) => setStartTime(itemValue)}
+                      style={styles.picker}
+                    >
+                      {times.map((time) => (
+                        <Picker.Item key={time} label={time} value={time} />
+                      ))}
+                    </Picker>
+                    <TouchableOpacity
+                      onPress={() => setShowStartTimePicker(false)}
+                      style={styles.modalCloseButton}
+                    >
+                      <Text style={styles.modalCloseText}>Done</Text>
+                    </TouchableOpacity>
+                  </View>
+                </View>
+              </Modal>
+            </>
+          ) : (
+            <View style={styles.pickerContainer}>
+              <Picker
+                selectedValue={startTime}
+                onValueChange={(itemValue) => setStartTime(itemValue)}
+                style={styles.picker}
+              >
+                {times.map((time) => (
+                  <Picker.Item key={time} label={time} value={time} />
+                ))}
+              </Picker>
+            </View>
+          )}
 
           {/* End Time Picker */}
           <Text style={styles.label}>End Time</Text>
-          <TextInput
-            style={styles.input}
-            value={endTime}
-            onChangeText={setEndTime}
-            placeholder="Enter end time"
-            keyboardType="default"
-          />
+          {Platform.OS === "web" ? (
+            <select
+              value={endTime}
+              onChange={(e) => setEndTime(e.target.value)}
+              style={styles.webInput}
+            >
+              {times.map((time) => (
+                <option key={time} value={time}>
+                  {time}
+                </option>
+              ))}
+            </select>
+          ) : Platform.OS === "ios" || Platform.OS === "android" ? (
+            <>
+              <TouchableOpacity
+                style={styles.button}
+                onPress={() => setShowEndTimePicker(true)}
+              >
+                <Text style={styles.buttonText}>{endTime}</Text>
+              </TouchableOpacity>
 
-         
+              <Modal visible={showEndTimePicker} transparent animationType="slide">
+                <View style={styles.modalContainer}>
+                  <View style={styles.modalContent}>
+                    <Picker
+                      selectedValue={endTime}
+                      onValueChange={(itemValue) => setEndTime(itemValue)}
+                      style={styles.picker}
+                    >
+                      {times.map((time) => (
+                        <Picker.Item key={time} label={time} value={time} />
+                      ))}
+                    </Picker>
+                    <TouchableOpacity
+                      onPress={() => setShowEndTimePicker(false)}
+                      style={styles.modalCloseButton}
+                    >
+                      <Text style={styles.modalCloseText}>Done</Text>
+                    </TouchableOpacity>
+                  </View>
+                </View>
+              </Modal>
+            </>
+          ) : (
+            <View style={styles.pickerContainer}>
+              <Picker
+                selectedValue={endTime}
+                onValueChange={(itemValue) => setEndTime(itemValue)}
+                style={styles.picker}
+              >
+                {times.map((time) => (
+                  <Picker.Item key={time} label={time} value={time} />
+                ))}
+              </Picker>
+            </View>
+          )}
 
           {/* Location Picker */}
           <Text style={styles.label}>Location</Text>
@@ -236,7 +333,7 @@ const AddSchedule: React.FC = () => {
             <select
               value={location}
               onChange={(e) => setLocation(e.target.value)}
-              style={styles.webPicker}
+              style={styles.webInput}
             >
               {locations.map((locationOption) => (
                 <option key={locationOption.value} value={locationOption.value}>
@@ -244,13 +341,13 @@ const AddSchedule: React.FC = () => {
                 </option>
               ))}
             </select>
-          ) : Platform.OS === "ios" ? (
+          ) : Platform.OS === "ios" || Platform.OS === "android" ? (
             <>
               <TouchableOpacity
-                style={styles.pickerButton}
+                style={styles.button}
                 onPress={() => setShowLocationPicker(true)}
               >
-                <Text style={styles.pickerButtonText}>{location}</Text>
+                <Text style={styles.buttonText}>{location}</Text>
               </TouchableOpacity>
 
               <Modal visible={showLocationPicker} transparent animationType="slide">
