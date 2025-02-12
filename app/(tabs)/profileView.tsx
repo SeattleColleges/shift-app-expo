@@ -3,6 +3,7 @@ import { Pressable, StyleSheet, Text, View } from "react-native";
 import { ScrollView } from "react-native";
 import { Image } from "expo-image";
 import Feather from "@expo/vector-icons/Feather";
+import { UserDetails } from "@/components/UserDetails";
 
 
 const userName = "user_name";
@@ -18,6 +19,7 @@ export default function AdminDashboard() {
             source="../assets/images/profileImg.jpg"
           />
         </View>
+        <UserDetails />
           <View><Text>Hi!, {userName}!</Text></View>
         </View>
         <View style={styles.border}>
