@@ -1,5 +1,4 @@
 import React from "react";
-import Footer from "../components/Footer";
 import { Pressable, StyleSheet, Text, View } from "react-native";
 import { ScrollView } from "react-native";
 import { Image } from "expo-image";
@@ -48,7 +47,6 @@ export default function AdminDashboard() {
         </View>
       </ScrollView>
       <View>
-        <Footer />
       </View>
     </>
   );

@@ -1,133 +1,201 @@
-import React, { useState } from 'react';
-import { Image, StyleSheet, View, Text, TouchableOpacity } from 'react-native';
-
-import ParallaxScrollView from '@/components/ParallaxScrollView';
+import React, {useCallback, useEffect, useRef, useState} from 'react';
+import {StyleSheet, SectionList} from 'react-native';
 import { supabase } from '@/supabaseClient';
+import {OptionToggle} from "@/components/dashboard/OptionToggle";
+import {AgendaList, Calendar, CalendarProvider, WeekCalendar} from "react-native-calendars";
+import {shiftData, ShiftData} from "@/data/dummyShiftData";
+import {MarkedDates} from "react-native-calendars/src/types";
+import {DayViewItem} from "@/components/DayViewItem";
+import {ThemedView} from "@/components/ThemedView";
+import {ThemedText} from "@/components/ThemedText";
 
-export default function UserDashboard() {
-  const [activeButtonTopRow, setActiveButtonTopRow] = useState('Pending');
-  const [activeButtonBottomRow, setActiveButtonBottomRow] = useState('Week');
+interface DateProps {
+  dateString: string,
+  day: number,
+  month: number,
+  timestamp: number,
+  year: number,
+}
+interface AgendaListProps {
+  title: string,
+  data: any[]
+}
+enum Timeframes {
+  Week = "Week",
+  Month = "Month"
+}
+const getMarkedDates = (shifts: ShiftData[], selectedDate: string) => {
+  let marked: MarkedDates = {};
+  shifts.forEach(({ date, id }) => {
+    if (!marked[date]) {
+      marked[date] = {
+        marked: true,
+        dots: [{
+          key: `${date}-${id}`,
+          color: 'black'
+        }]
+      };
+    } else {
+      marked[date].dots?.push({
+        key: `${date}-${id}`,
+        color: 'black'
+      })
+    }
+  });
 
-  const handlePressTopRow = (button: string) => {
-    setActiveButtonTopRow(button);
-  };
-
-  const handlePressBottomRow = (button: string) => {
-    setActiveButtonBottomRow(button);
+  marked[selectedDate] = {
+    ...(marked[selectedDate] || {}),
+    selected: true,
+    dots: [...(marked[selectedDate]?.dots || [])]
   }
 
+  return marked;
+};
+export default function UserDashboard() {
+  const today = new Intl.DateTimeFormat('en-CA').format(new Date());
+  const timeframeOptions = [Timeframes.Month, Timeframes.Week];
+  const approvalStatusOptions = ['Pending', 'Approved', 'Denied'];
+  const [selectedTimeframe, setSelectedTimeframe] = useState<Timeframes | undefined>(timeframeOptions[0]);
+  const [selectedApprovalStatus, setSelectedApprovalStatus] = useState<string | undefined>(approvalStatusOptions[0]);
+  const [selectedDate, setSelectedDate] = useState<string>(today);
+  const [agendaListItems, setAgendaListItems] = useState<any[]>([]);
+  const [markedDates, setMarkedDates] = useState<MarkedDates>();
+
+  useEffect(() => {
+    initializeAgendaItems();
+  }, []);
+
+  useEffect(() => {
+    setMarkedDates(getMarkedDates(shiftData, selectedDate))
+  }, [selectedDate]);
+
+  useEffect(() => {
+    if (selectedTimeframe === Timeframes.Week) {
+      setSelectedDate(today);
+    }
+  }, [selectedTimeframe]);
+  const initializeAgendaItems = () => {
+    const items: AgendaListProps[] = [];
+    shiftData.forEach(shift => {
+      const existing = items.findIndex(item => item.title === shift.date);
+      const shiftItem = {
+        startTime: shift.startTime,
+        endTime: shift.endTime,
+        role: shift.role,
+        roomNumber: shift.roomNumber,
+        building: shift.building,
+        title: "Shift"
+      }
+      if (existing === -1) {
+        items.push({
+          title: shift.date,
+          data: [...[shiftItem]],
+        })
+      } else {
+        items[existing].data.push(shiftItem);
+      }
+    })
+    setAgendaListItems(items);
+  }
+
+  const isDateInCurrentWeek = (dateStr: string): boolean => {
+    const inputDate = new Date(dateStr);
+    const today = new Date();
+
+    const startOfWeek = new Date(today);
+    startOfWeek.setDate(today.getDate() - today.getDay());
+    startOfWeek.setHours(0, 0, 0, 0);
+
+    const endOfWeek = new Date(startOfWeek);
+    endOfWeek.setDate(startOfWeek.getDate() + 6);
+    endOfWeek.setHours(23, 59, 59, 999);
+
+    return inputDate >= startOfWeek && inputDate <= endOfWeek;
+  }
+  const handleDatePress = (date: DateProps) => {
+    setSelectedDate(date.dateString);
+  }
+
+  const renderItem = useCallback(({item}: any) => {
+    return <DayViewItem item={item}/>
+  }, []);
+
+  const agendaRef = useRef<SectionList>(null);
+  const scrollToEvent = (dateIndex: number, itemIndex: number) => {
+    if (agendaRef.current) {
+      agendaRef.current.scrollToLocation({
+        sectionIndex: dateIndex,
+        itemIndex: itemIndex,
+        animated: true,
+      });
+    }
+  };
+
   return (
-    <ParallaxScrollView
-      headerBackgroundColor={{ light: '#A1CEDC', dark: '#1D3D47' }}
-      headerImage={
-        <Image
-          source={require('@/assets/images/partial-react-logo.png')}
-          style={styles.reactLogo}
-        />
-      }>
-
+    <ThemedView style={{flex: 1}}>
+      <CalendarProvider
+          date={selectedDate}
+          onDateChanged={setSelectedDate}
+          showTodayButton={false}
+      >
       {/* Schedule Title*/}
-      <View style={styles.scheduleContainer}>
-        <Text style={styles.scheduleTitle}>Schedule</Text>
-
-        {/* Top Row of Buttons */}
-
-        {/* Pending button */}
-        <View style={styles.buttonRow}>
-          <TouchableOpacity
-            style={[
-              styles.button,
-              activeButtonTopRow === 'Pending' && styles.buttonActive,
-            ]}
-            onPress={() => handlePressTopRow('Pending')}
-          >
-            <Text style={[
-              styles.buttonText,
-              activeButtonTopRow === 'Pending' && styles.buttonTextActive,
-            ]}
-            >
-              Pending
-            </Text>
-          </TouchableOpacity>
-
-          {/* Approved button */}
-          <TouchableOpacity
-            style={[
-              styles.button,
-              activeButtonTopRow === 'Approved' && styles.buttonActive,
-            ]}
-            onPress={() => handlePressTopRow('Approved')}
-          >
-            <Text
-              style={[
-                styles.buttonText,
-                activeButtonTopRow === 'Approved' && styles.buttonTextActive,
-              ]}
-            >
-              Approved
-            </Text>
-          </TouchableOpacity>
-        </View>
-
-        {/* Bottom Row of Buttons */}
-
-        {/* Week button */}
-        <View style={styles.buttonRow}>
-          <TouchableOpacity
-            style={[
-              styles.button,
-              activeButtonBottomRow === 'Week' && styles.buttonActive,
-            ]}
-            onPress={() => handlePressBottomRow('Week')}
-          >
-            <Text
-              style={[
-                styles.buttonText,
-                activeButtonBottomRow === 'Week' && styles.buttonTextActive,
-              ]}
-            >
-              Week
-            </Text>
-          </TouchableOpacity>
-
-          {/* Month button */}
-          <TouchableOpacity
-            style={[
-              styles.button,
-              activeButtonBottomRow === 'Month' && styles.buttonActive,
-            ]}
-            onPress={() => handlePressBottomRow('Month')}
-          >
-            <Text
-              style={[
-                styles.buttonText,
-                activeButtonBottomRow === 'Month' && styles.buttonTextActive,
-              ]}
-            >
-              Month
-            </Text>
-          </TouchableOpacity>
-        </View>
-      </View>
-
-      {/* Placeholder Box */}
-      <View style={styles.placeholderBox}>
-        <Text style={styles.placeholderText}>
-          Calendar Components Placeholder Box
-        </Text>
-      </View>
-    </ParallaxScrollView>
+      <ThemedView style={styles.scheduleContainer}>
+        <ThemedText style={styles.scheduleTitle}>Schedule</ThemedText>
+        <OptionToggle
+            options={timeframeOptions.map(tf => tf.toString())}
+            gap={8}
+            handleToggledOption={(value) => setSelectedTimeframe(value === Timeframes.Month.toString() ? Timeframes.Month : Timeframes.Week)}
+        />
+        <OptionToggle
+            options={approvalStatusOptions}
+            gap={4}
+            handleToggledOption={setSelectedApprovalStatus}
+        />
+      </ThemedView>
+      {
+        selectedTimeframe === Timeframes.Month ?
+            (
+              <Calendar
+                enableSwipeMonths={true}
+                markingType={"multi-dot"}
+                onDayPress={(day: DateProps) => handleDatePress(day)}
+                markedDates={markedDates}
+              />
+            )
+            : (
+              <WeekCalendar
+                markingType={'multi-dot'}
+                enableSwipeMonths={false}
+                onDayPress={(day: DateProps) => handleDatePress(day)}
+                markedDates={markedDates}
+                current={selectedDate}
+                initialDate={today}
+              />
+            )
+      }
+      <AgendaList
+          ref={agendaRef}
+          sections={selectedTimeframe === Timeframes.Month ?
+              agendaListItems :
+              agendaListItems.filter(item => {
+            return isDateInCurrentWeek(item.title);
+          })}
+          avoidDateUpdates={selectedTimeframe === Timeframes.Week}
+          renderItem={renderItem}
+          onLayout={() => scrollToEvent(0,0)}
+          contentContainerStyle={{paddingBottom: 50}}
+          infiniteListProps={{
+            itemHeight: 115,
+            titleHeight: 45,
+            visibleIndicesChangedDebounce: 250,
+          }}
+      />
+      </CalendarProvider>
+    </ThemedView>
   );
 }
 
 const styles = StyleSheet.create({
-  reactLogo: {
-    height: 178,
-    width: 290,
-    bottom: 0,
-    left: 0,
-    position: 'absolute',
-  },
   scheduleContainer: {
     margin: 16,
     alignItems: 'center',
@@ -136,41 +204,5 @@ const styles = StyleSheet.create({
     fontSize: 24,
     fontWeight: 'bold',
     marginBottom: 16,
-  },
-  buttonRow: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    marginBottom: 14,
-    width: '100%',
-  },
-  button: {
-    flex: 1,
-    backgroundColor: '#CFD8DC',
-    paddingVertical: 12,
-    marginHorizontal: 8,
-    borderRadius: 8,
-    alignItems: 'center',
-  },
-  buttonActive: {
-    backgroundColor: 'black',
-  },
-  buttonText: {
-    color: 'black',
-    fontSize: 12,
-  },
-  buttonTextActive: {
-    color: 'white',
-    fontSize: 12,
-  },
-  placeholderBox: {
-    marginTop: 16,
-    padding: 16,
-    backgroundColor: '#f0f0f0',
-    borderRadius: 8,
-    alignItems: 'center',
-  },
-  placeholderText: {
-    fontSize: 16,
-    color: 'black',
   },
 });

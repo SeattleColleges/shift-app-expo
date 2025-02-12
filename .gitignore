@@ -1,6 +1,7 @@
 # Environment Variables
 .env
 
+.idea/
 node_modules/
 .expo/
 dist/
