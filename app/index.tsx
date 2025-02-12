@@ -51,6 +51,11 @@ export default function HomeScreen(): ReactElement {
         <Link
             href="/(auth)/forgot-password"
             style={linkStyle}>Forgot Password Page</Link>
+
+        <Link     
+            style={linkStyle}
+            href="/help">Help Page</Link>
+
         <Link
             style={linkStyle}
             href="/landing">Landing page</Link>
@@ -64,8 +69,11 @@ export default function HomeScreen(): ReactElement {
           style={linkStyle}
           href="/(tabs)/notifications">Notifications Page</Link>
 
-      </ThemedView>
+        <Link
+          style={linkStyle}
+          href="/add-schedule">Add Schedule</Link>
 
+      </ThemedView>
     </ParallaxScrollView>
   );
 }
