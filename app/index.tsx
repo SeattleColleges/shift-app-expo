@@ -46,6 +46,9 @@ export default function HomeScreen(): ReactElement {
         <Link href="/(tabs)"
               style={linkStyle}>Go to main app features after login</Link>
         <Link
+            href="/user-dashboard"
+            style={linkStyle}>User Dashboard Page</Link>
+        <Link
             href="/(auth)/forgot-password"
             style={linkStyle}>Forgot Password Page</Link>
         <Link
