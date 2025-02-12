@@ -8,7 +8,6 @@ export default function CoWorkersPage() {
   return (
       <ThemedView style={[styles.container]}>
         <ThemedText
-            style={styles.title}
             type="title"
         >
           Coworkers
