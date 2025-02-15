@@ -1,30 +1,28 @@
 import React, { useState } from 'react';
-import { Image, StyleSheet, TextInput, Button, Text } from 'react-native';
+import {
+  View,
+  Text,
+  TextInput,
+  TouchableOpacity,
+  StyleSheet,
+  Dimensions,
+} from 'react-native';
 import { Link } from 'expo-router';
 
-import ParallaxScrollView from '@/components/ParallaxScrollView';
-import { ThemedText } from '@/components/ThemedText';
-import { ThemedView } from '@/components/ThemedView';
-import { useColorScheme } from 'react-native';
-
+const { width } = Dimensions.get('window'); // Get the current screen width
 
 export default function ForgotPasswordPage() {
   const [email, setEmail] = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [message, setMessage] = useState('');
-  const colorScheme = useColorScheme(); // Use the color scheme for light and dark mode
 
-  // Handle password reset function when button is clicked (simple stage, needs further enhancing)
   const handlePasswordReset = () => {
     if (!email.includes('@')) {
       setMessage('Please enter a valid email address.');
       return;
     }
-
     setIsSubmitting(true);
     setMessage('');
-
-    // Simulate API call
     setTimeout(() => {
       setIsSubmitting(false);
       setMessage('If this email is registered, you will receive a reset link.');
@@ -32,81 +30,105 @@ export default function ForgotPasswordPage() {
   };
 
   return (
-    <ParallaxScrollView
-      headerBackgroundColor={{ light: '#A1CEDC', dark: '#1D3D47' }}
-      headerImage={
-        <Image
-          source={require('@/assets/images/partial-react-logo.png')}
-          style={styles.reactLogo}
-        />
-      }>
-      <ThemedView style={styles.stepContainer}>
-        <ThemedText type="subtitle">Forgot Password</ThemedText>
-        <Text
-          style={[
-            styles.message,
-            { color: colorScheme === 'dark' ? 'white' : 'black' }, // Text color for the message (based on light and dark mode)
-          ]}
-        >
-          Enter your email address below, and we’ll send you a link to reset your password.
-        </Text>
+    <View style={styles.container}>
+      {/* Title */}
+      <Text style={styles.title}>Forgot Password</Text>
+
+      {/* Email Label and Input */}
+      <View style={styles.inputContainer}>
+        <Text style={styles.label}>Email</Text>
         <TextInput
-          style={[styles.input, { color: colorScheme === 'light' ? 'black' : 'white' }]} // Dynamic color based on colorScheme (light/dark mode) 
+          style={styles.input}
           placeholder="Enter your email"
+          placeholderTextColor="#888"
           value={email}
           onChangeText={setEmail}
           keyboardType="email-address"
           autoCapitalize="none"
-          placeholderTextColor={colorScheme === 'light' ? 'gray' : 'lightgray'} // Change placeholder color for light/dark mode
         />
-        <Button
-            title={isSubmitting ? 'Sending...' : 'Send Reset Link'}
-            onPress={handlePasswordReset}
-            disabled={isSubmitting}
-          />
-        {message !== '' && <Text style={styles.feedback}>{message}</Text>}
-        <Link href="/loginpage" style={styles.link}>
-        Back to Login
-        </Link> 
-      </ThemedView>
-    </ParallaxScrollView>
+      </View>
+
+      {/* Submit Button */}
+      <TouchableOpacity
+        style={[styles.submitButton, isSubmitting && styles.disabledButton]}
+        onPress={handlePasswordReset}
+        disabled={isSubmitting}
+      >
+        <Text style={styles.submitButtonText}>
+          {isSubmitting ? 'Sending...' : 'Send Reset Link'}
+        </Text>
+      </TouchableOpacity>
+
+      {/* Feedback Message */}
+      {message !== '' && <Text style={styles.feedback}>{message}</Text>}
+
+      {/* Back to Login Link */}
+      <Link href="/loginpage" style={styles.link}>Back to Login</Link>
+    </View>
   );
 }
 
 const styles = StyleSheet.create({
-  stepContainer: {
-    gap: 8,
-    marginBottom: 8,
-    padding: 16,
+  container: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+    backgroundColor: '#fff',
+    paddingHorizontal: 20,
   },
-  reactLogo: {
-    height: 178,
-    width: 290,
-    position: 'absolute',
-    bottom: 0,
-    left: 0,
+  title: {
+    fontSize: width > 400 ? 32 : 28,
+    fontWeight: 'normal',
+    marginBottom: 20,
   },
-  message: {
-    fontSize: 16,
-    marginBottom: 12,
+  inputContainer: {
+    width: '85%',
+    maxWidth: 400,
+    marginBottom: 15,
+  },
+  label: {
+    fontSize: 18,
+    color: '#333',
+    marginBottom: 5,
   },
   input: {
+    width: '100%',
+    height: width > 400 ? 50 : 45,
     borderWidth: 1,
-    borderColor: 'gray',
+    borderColor: '#ccc',
     borderRadius: 8,
-    padding: 10,
-    marginBottom: 12,
+    paddingHorizontal: 10,
+    fontSize: 16,
+    backgroundColor: '#f9f9f9',
+  },
+  submitButton: {
+    width: '85%',
+    maxWidth: 400,
+    height: width > 400 ? 50 : 45,
+    backgroundColor: '#000',
+    justifyContent: 'center',
+    alignItems: 'center',
+    borderRadius: 8,
+    marginBottom: 15,
+  },
+  submitButtonText: {
+    color: '#fff',
+    fontSize: 16,
+    fontWeight: 'bold',
+  },
+  disabledButton: {
+    backgroundColor: '#555',
   },
   feedback: {
     fontSize: 14,
     color: 'green',
     marginTop: 12,
+    textAlign: 'center',
   },
   link: {
-    marginTop: 20,
-    textAlign: 'center',
-    color: 'blue',
+    color: '#007BFF',
+    fontSize: 14,
+    marginTop: 5,
     textDecorationLine: 'underline',
   },
 });
-
