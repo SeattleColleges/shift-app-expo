@@ -1,108 +1,153 @@
-import Ionicons from "@expo/vector-icons/Ionicons";
-import { type IconProps } from "@expo/vector-icons/build/createIconSet";
-import { type ComponentProps } from "react";
 import React, { useState } from "react";
-import { View, Text, TextInput, StyleSheet, Button, Alert } from "react-native";
+import {
+    View,
+    Text,
+    TextInput,
+    TouchableOpacity,
+    StyleSheet,
+    Dimensions,
+    Alert,
+} from "react-native";
+
+const { width } = Dimensions.get("window");
 
 const RequestPage = () => {
-    // State variables for the form fields
     const [fullName, setFullName] = useState("");
     const [startDate, setStartDate] = useState("");
     const [endDate, setEndDate] = useState("");
     const [hoursOff, setHoursOff] = useState("");
     const [reason, setReason] = useState("");
 
-    // Handler for the Submit button
     const handleSubmit = () => {
         if (!fullName || !startDate || !endDate || !hoursOff || !reason) {
-            Alert.alert(
-                "Error",
-                "Please fill out all fields before submitting."
-            );
+            Alert.alert("Error", "Please fill out all fields before submitting.");
             return;
         }
-        // Submit
-        Alert.alert(
-            "Request Submitted",
-            "Your time-off request has been submitted."
-        );
+        Alert.alert("Request Submitted", "Your time-off request has been submitted.");
     };
 
     return (
         <View style={styles.container}>
-            {/* Title */}
             <Text style={styles.title}>Request Time Off</Text>
 
-            {/* Form Fields */}
-            <TextInput
-                style={styles.input}
-                placeholder="Full Name"
-                value={fullName}
-                onChangeText={setFullName}
-            />
-            <TextInput
-                style={styles.input}
-                placeholder="Start Date (YYYY-MM-DD)"
-                value={startDate}
-                onChangeText={setStartDate}
-            />
-            <TextInput
-                style={styles.input}
-                placeholder="End Date (YYYY-MM-DD)"
-                value={endDate}
-                onChangeText={setEndDate}
-            />
-            <TextInput
-                style={styles.input}
-                placeholder="Hours Off"
-                value={hoursOff}
-                onChangeText={setHoursOff}
-                keyboardType="numeric"
-            />
-            <TextInput
-                style={[styles.input, styles.reasonInput]}
-                placeholder="Reason"
-                value={reason}
-                onChangeText={setReason}
-                multiline={true}
-            />
-
-            {/* Submit Button */}
-            <View style={styles.button}>
-                <Button title="Submit Request" onPress={handleSubmit} />
+            <View style={styles.inputContainer}>
+                <Text style={styles.label}>Full Name</Text>
+                <TextInput
+                    style={styles.input}
+                    placeholder="Enter your full name"
+                    placeholderTextColor="#888"
+                    value={fullName}
+                    onChangeText={setFullName}
+                />
             </View>
+
+            <View style={styles.inputContainer}>
+                <Text style={styles.label}>Start Date</Text>
+                <TextInput
+                    style={styles.input}
+                    placeholder="YYYY-MM-DD"
+                    placeholderTextColor="#888"
+                    value={startDate}
+                    onChangeText={setStartDate}
+                />
+            </View>
+
+            <View style={styles.inputContainer}>
+                <Text style={styles.label}>End Date</Text>
+                <TextInput
+                    style={styles.input}
+                    placeholder="YYYY-MM-DD"
+                    placeholderTextColor="#888"
+                    value={endDate}
+                    onChangeText={setEndDate}
+                />
+            </View>
+
+            <View style={styles.inputContainer}>
+                <Text style={styles.label}>Hours Off</Text>
+                <TextInput
+                    style={styles.input}
+                    placeholder="Enter hours off"
+                    placeholderTextColor="#888"
+                    value={hoursOff}
+                    onChangeText={setHoursOff}
+                    keyboardType="numeric"
+                />
+            </View>
+
+            <View style={[styles.inputContainer, styles.reasonContainer]}>
+                <Text style={styles.label}>Reason</Text>
+                <TextInput
+                    style={[styles.input, styles.reasonInput]}
+                    placeholder="Enter reason"
+                    placeholderTextColor="#888"
+                    value={reason}
+                    onChangeText={setReason}
+                    multiline
+                />
+            </View>
+
+            <TouchableOpacity style={styles.submitButton} onPress={handleSubmit}>
+                <Text style={styles.submitButtonText}>Submit Request</Text>
+            </TouchableOpacity>
         </View>
     );
 };
 
-// Styles
 const styles = StyleSheet.create({
     container: {
         flex: 1,
-        padding: 20,
-        backgroundColor: "#f9f9f9",
+        justifyContent: "center",
+        alignItems: "center",
+        backgroundColor: "#fff",
+        paddingHorizontal: 20,
     },
     title: {
-        fontSize: 24,
-        fontWeight: "bold",
+        fontSize: width > 400 ? 32 : 28,
+        fontWeight: "normal",
         marginBottom: 20,
-        textAlign: "center",
+    },
+    inputContainer: {
+        width: "85%",
+        maxWidth: 400,
+        marginBottom: 15,
+    },
+    label: {
+        fontSize: 18,
+        color: "#333",
+        marginBottom: 5,
     },
     input: {
+        width: "100%",
+        height: width > 400 ? 50 : 45,
         borderWidth: 1,
-        borderColor: "#cccccc",
+        borderColor: "#ccc",
         borderRadius: 8,
-        padding: 10,
+        paddingHorizontal: 10,
         fontSize: 16,
-        marginBottom: 15,
-        backgroundColor: "#ffffff",
+        backgroundColor: "#f9f9f9",
+    },
+    reasonContainer: {
+        marginBottom: 30,
     },
     reasonInput: {
         height: 80,
         textAlignVertical: "top",
     },
-    button: {
+    submitButton: {
+        width: "85%",
+        maxWidth: 400,
+        height: width > 400 ? 50 : 45,
+        backgroundColor: "#000",
+        justifyContent: "center",
+        alignItems: "center",
+        borderRadius: 8,
         marginTop: 20,
+    },
+    submitButtonText: {
+        color: "#fff",
+        fontSize: 16,
+        fontWeight: "bold",
     },
 });
 
