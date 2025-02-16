@@ -13,7 +13,7 @@ export const DayViewItem = ({item}: DayViewItemProps) => {
     const setAMOrPM = (time: number) => time >= 12 ? "pm" : 'am';
     const to12Hours = (time: number) =>  time > 12 ? time - 12 : time;
     return (
-        <ThemedView>
+        <ThemedView style={{width:'100%'}}>
             <ThemedView lightColor={'#CFD8DC'} darkColor={'#CFD8DC'} style={{
                 marginBottom: 10,
                 width: '70%',
