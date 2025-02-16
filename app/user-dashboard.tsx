@@ -8,6 +8,7 @@ import {MarkedDates} from "react-native-calendars/src/types";
 import {DayViewItem} from "@/components/DayViewItem";
 import {ThemedView} from "@/components/ThemedView";
 import {ThemedText} from "@/components/ThemedText";
+import {Link} from "expo-router";
 
 interface DateProps {
   dateString: string,
@@ -79,6 +80,8 @@ export default function UserDashboard() {
     shiftData.forEach(shift => {
       const existing = items.findIndex(item => item.title === shift.date);
       const shiftItem = {
+        id: shift.id,
+        date: shift.date,
         startTime: shift.startTime,
         endTime: shift.endTime,
         role: shift.role,
@@ -117,7 +120,23 @@ export default function UserDashboard() {
   }
 
   const renderItem = useCallback(({item}: any) => {
-    return <DayViewItem item={item}/>
+    return <Link
+        key={item.id}
+        style={{width:'100%'}}
+        href={{
+          pathname: `./shift-details-page/${item.id}`,
+          params: {
+            date: item.date,
+            startTime: item.startTime,
+            endTime: item.endTime,
+            role: item.role,
+            roomNumber: item.roomNumber,
+            building: item.building,
+            title: "Shift"
+          }
+    }}>
+      <DayViewItem item={item}/>
+    </Link>
   }, []);
 
   const agendaRef = useRef<SectionList>(null);
