@@ -8,11 +8,13 @@ interface DayViewItemProps {
 }
 
 export const DayViewItem = ({item}: DayViewItemProps) => {
+    const setAMOrPM = (time: number) => time >= 12 ? "pm" : 'am';
+    const to12Hours = (time: number) =>  time > 12 ? time - 12 : time;
     const start = Number(item.startTime.split(':')[0]);
     const end = Number(item.endTime.split(':')[0]);
     const numHoursScheduled = end - start;
-    const setAMOrPM = (time: number) => time >= 12 ? "pm" : 'am';
-    const to12Hours = (time: number) =>  time > 12 ? time - 12 : time;
+    const startFormatted = `${to12Hours(start)}${setAMOrPM(start)}`
+    const endFormatted = `${to12Hours(end)}${setAMOrPM(end)}`
     return (
         <Link
             key={item.id}
@@ -21,11 +23,12 @@ export const DayViewItem = ({item}: DayViewItemProps) => {
                 pathname: `./shift-details-page/${item.id}`,
                 params: {
                     date: item.date,
-                    startTime: item.startTime,
-                    endTime: item.endTime,
+                    startTime: startFormatted,
+                    endTime: endFormatted,
                     role: item.role,
                     roomNumber: item.roomNumber,
                     building: item.building,
+                    numHoursScheduled,
                     title: "Shift"
                 }
             }}>
@@ -44,7 +47,7 @@ export const DayViewItem = ({item}: DayViewItemProps) => {
                 </ThemedText>
                 <ThemedText style={{flexDirection: 'row', justifyContent: 'flex-start', fontSize: 16, marginVertical: 4}}>
                     <ThemedText style={{fontWeight: 'bold'}}>{numHoursScheduled} HR</ThemedText>
-                    <ThemedText> | {`${to12Hours(start)}${setAMOrPM(start)} - ${to12Hours(end)}${setAMOrPM(end)}`}</ThemedText>
+                    <ThemedText> | {`${startFormatted} - ${endFormatted}`}</ThemedText>
                     <ThemedText>{item.duration}</ThemedText>
                 </ThemedText>
             </ThemedView>

@@ -1,4 +1,4 @@
-import {SafeAreaView, StyleSheet, Text, View} from "react-native";
+import {StyleSheet, Text, View} from "react-native";
 import {useLocalSearchParams} from "expo-router";
 import {ThemedText} from "@/components/ThemedText";
 import {ThemedView} from "@/components/ThemedView";
@@ -11,7 +11,7 @@ export default function ShiftDetailsPage () {
                 <ThemedText style={{marginBottom: 10, alignSelf: 'center'}} type={'subtitle'}>
                     Shift Details
                 </ThemedText>
-                <Text>Hours Scheduled: </Text>
+                <Text>Hours Scheduled: {item.numHoursScheduled}</Text>
                 <Text>Time: {item.startTime} - {item.endTime}</Text>
                 <Text>Role: {item.role}</Text>
                 <Text>Building: {item.building}: {item.roomNumber}</Text>
