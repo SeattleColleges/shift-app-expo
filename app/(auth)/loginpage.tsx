@@ -1,3 +1,4 @@
+import { useRouter } from 'expo-router';
 import React, { useState } from 'react';
 import {
   View,
@@ -14,10 +15,19 @@ const { width } = Dimensions.get('window'); // Get the current screen width
 export default function LoginPage() {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
+  const router = useRouter();
 
   const handleLogin = () => {
     Alert.alert('Login', `Email: ${email}\nPassword: ${password}`);
   };
+
+  const goToForgotPassword = () => {
+    router.push('/(auth)/forgot-password');
+  }
+
+  const goToSignupPage = () => {
+    router.push('/(auth)/signuppage');
+  }
 
   return (
     <View style={styles.container}>
@@ -56,14 +66,14 @@ export default function LoginPage() {
       </TouchableOpacity>
 
       {/* Forgot Password Link */}
-      <TouchableOpacity>
+      <TouchableOpacity onPress={goToForgotPassword}>
         <Text style={styles.link}>Forgot Password?</Text>
       </TouchableOpacity>
 
       {/* Sign-Up Section */}
       <View style={styles.signUpContainer}>
         <Text style={styles.text}>Don't have an account? </Text>
-        <TouchableOpacity>
+        <TouchableOpacity onPress={goToSignupPage}>
           <Text style={styles.link}>Sign Up</Text>
         </TouchableOpacity>
       </View>
