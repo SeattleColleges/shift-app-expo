@@ -1,6 +1,7 @@
 import React from "react";
 import {ThemedText} from "@/components/ThemedText";
 import {ThemedView} from "@/components/ThemedView";
+import {Link} from "expo-router";
 
 interface DayViewItemProps {
     item: any,
@@ -13,6 +14,21 @@ export const DayViewItem = ({item}: DayViewItemProps) => {
     const setAMOrPM = (time: number) => time >= 12 ? "pm" : 'am';
     const to12Hours = (time: number) =>  time > 12 ? time - 12 : time;
     return (
+        <Link
+            key={item.id}
+            style={{width:'100%'}}
+            href={{
+                pathname: `./shift-details-page/${item.id}`,
+                params: {
+                    date: item.date,
+                    startTime: item.startTime,
+                    endTime: item.endTime,
+                    role: item.role,
+                    roomNumber: item.roomNumber,
+                    building: item.building,
+                    title: "Shift"
+                }
+            }}>
         <ThemedView style={{width:'100%'}}>
             <ThemedView lightColor={'#CFD8DC'} darkColor={'#CFD8DC'} style={{
                 marginBottom: 10,
@@ -33,5 +49,6 @@ export const DayViewItem = ({item}: DayViewItemProps) => {
                 </ThemedText>
             </ThemedView>
         </ThemedView>
+        </Link>
     )
 }
