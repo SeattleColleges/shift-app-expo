@@ -22,6 +22,9 @@ const SIZE = IMAGE + PADDING * 3;
 export function NotificationTile(props: Props) {
   const { notification, index, scrollSet } = props;
   const { id, dateTime, message } = notification;
+  const date = new Date(notification.dateTime).toDateString();
+  const localTime = new Date(notification.dateTime).toLocaleTimeString("en-US");
+  const time = localTime.slice(0,-6) +" " + localTime.slice(-2); //remove seconds
 
   const inputRange = [-1, 0, SIZE * index, SIZE * (index + 3)];
   const scale = scrollSet.interpolate({
@@ -30,20 +33,16 @@ export function NotificationTile(props: Props) {
   });
 
   return (
-    <Animated.View style={[styles.card, { transform: [{ scale }] }]}>
-      <View style={styles.row}>
-        <Text style={styles.title}>ID: {id}</Text>
+    <View>
+      <View style={styles.timerow}>
+        <Text style={styles.dateTime}> {date} {time}</Text>
       </View>
-
-      <View style={styles.row}>
-        <Text style={styles.dateTime}>Time: {dateTime}</Text>
-      </View>
-
-      <View style={styles.row}>
-        <Text style={styles.message}>{message}</Text>
-
-      </View>
-    </Animated.View>
+      <Animated.View style={[styles.card, { transform: [{ scale }] }]}>
+        <View style={styles.row}>
+          <Text style={styles.message}>{message}</Text>
+        </View>
+      </Animated.View>
+    </View>
   );
 }
 
@@ -63,6 +62,12 @@ const styles = StyleSheet.create({
     width: 380,
     gap: 10,
   },
+  timerow: {
+    marginLeft: 26,
+    flexDirection: "row",
+    justifyContent: "space-between",
+    alignItems: "flex-start",
+  },
   row: {
     flexDirection: "row",
     justifyContent: "space-between",
@@ -73,9 +78,8 @@ const styles = StyleSheet.create({
     color: "#1E1E1E",
   },
   dateTime: {
-    fontSize: 12,
+    fontSize: 14,
     color: "#999",
-    marginTop: -12,
   },
   zip: {
     color: "#999",
@@ -89,5 +93,7 @@ const styles = StyleSheet.create({
   message: {
     fontSize: 18,
     color: "black",
+    paddingTop: MARGIN,
+    paddingBottom: MARGIN,
   }
 });
