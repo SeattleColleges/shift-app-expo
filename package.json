@@ -9,6 +9,7 @@
     "ios": "expo start --ios",
     "web": "expo start --web",
     "test": "jest --watchAll",
+    "test:coverage": "jest --coverage",
     "unit:tests": "jest --coverage",
     "lint": "expo lint",
     "compile": "tsc"
