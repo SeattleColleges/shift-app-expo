@@ -3,6 +3,7 @@ import { Pressable, StyleSheet, Text, View } from "react-native";
 import { ScrollView } from "react-native";
 import { Image } from "expo-image";
 import Feather from "@expo/vector-icons/Feather";
+import {router} from "expo-router";
 
 
 const userName = "user_name";
@@ -39,7 +40,7 @@ export default function AdminDashboard() {
           </View>
         </View>
         <View style={styles.buttonCont}>
-            <Pressable style={styles.button}>
+            <Pressable style={styles.button} onPress={()=> router.replace("/(auth)")}>
                 <Text style={styles.buttonTxt}>Log out</Text>
             </Pressable>
         </View>
