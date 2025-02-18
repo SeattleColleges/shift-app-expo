@@ -23,6 +23,10 @@ export default function ShiftDetailsPage () {
         text: string;
         onPress: () => void;
     }
+    type ShiftDetailItemProps = {
+        title: string;
+        value: any;
+    }
     const PressableIcon = ({name, size = 20, onPress}: PressableIconProps) => {
         return (
             <Pressable onPress={onPress}>
@@ -43,6 +47,15 @@ export default function ShiftDetailsPage () {
             </Pressable>
         )
     }
+    const ShiftDetailItem = ({title, value}: ShiftDetailItemProps) => {
+
+        return (
+            <View style={{flexDirection:'row', gap:5, alignItems:'center'}}>
+                <Text style={{fontSize:12}}>{title}:</Text>
+                <Text style={{fontSize:16}}>{value}</Text>
+            </View>
+        )
+    }
     return (
         <ThemedView style={styles.container}>
             <View style={styles.dateHeader}>
@@ -54,12 +67,12 @@ export default function ShiftDetailsPage () {
                 <Text style={{alignSelf: 'center', fontWeight:'500', fontSize: 18}}>
                     Shift Details
                 </Text>
-                <Text>Hours Scheduled: {item.numHoursScheduled}</Text>
-                <Text>Time: {item.startTime} - {item.endTime}</Text>
-                <Text>Role: {item.role}</Text>
-                <Text>Building: {item.building} - {item.roomNumber}</Text>
-                <Text>Supervisor: </Text>
-                <Text>Coworkers: </Text>
+                <ShiftDetailItem title={'Hours Scheduled'} value={item.numHoursScheduled}/>
+                <ShiftDetailItem title={'Time'} value={`${item.startTime} - ${item.endTime}`}/>
+                <ShiftDetailItem title={'Role'} value={item.role}/>
+                <ShiftDetailItem title={'Building'} value={`${item.building} - ${item.roomNumber}`}/>
+                <ShiftDetailItem title={'Supervisor'} value={''}/>
+                <ShiftDetailItem title={'Coworkers'} value={''}/>
             </ThemedView>
             <ThemedView style={{flexDirection: 'row', gap: 25}}>
                 <ShiftRequestButton onPress={() => console.log('give up shift')} text={'GIVE UP SHIFT'}/>
@@ -82,7 +95,7 @@ const styles = StyleSheet.create({
         backgroundColor: "#eee",
         padding: 15,
         paddingBottom: 20,
-        gap: 20
+        gap: 18
     },
     dateHeader: {
         alignItems:'center',
