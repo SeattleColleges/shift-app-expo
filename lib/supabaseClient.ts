@@ -1,3 +1,4 @@
+// @ts-ignore
 import * as SecureStore from 'expo-secure-store';
 import { createClient } from '@supabase/supabase-js';
 

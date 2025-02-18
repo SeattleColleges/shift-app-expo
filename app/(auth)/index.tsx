@@ -20,10 +20,11 @@ export default function Index() {
   const router = useRouter()
 
   async function signInWithEmail() {
-    const { error } = await supabase?.auth.signInWithPassword({
+    const { error, data } = await supabase?.auth.signInWithPassword({
       email: email,
       password: password,
     })
+    console.log("Signin page: "+JSON.stringify(data, null, 2));
 
     if (error) {
       Alert.alert(error.message)

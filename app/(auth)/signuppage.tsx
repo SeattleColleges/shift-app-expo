@@ -22,7 +22,7 @@ export default function SignUpPage() {
   const handleSignUp = ():void => {
     async function signUpWithEmail():Promise<void> {
       setLoading(true)
-      const { error } = await supabase?.auth.signUp({
+      const { error, data } = await supabase?.auth.signUp({
         email: signUpObj.email,
         password: signUpObj.password,
         options: {
@@ -30,15 +30,16 @@ export default function SignUpPage() {
             name: signUpObj.name,
           },
         },
-      });
-
+      })
+      console.log('Signup page: '+ JSON.stringify(data,null, 2))
       if (error) {
         Alert.alert(error.message)
       }
-      setLoading(false)
-      console.log(`{name: ${signUpObj.name}, email: ${signUpObj.email}, password: ${signUpObj.password}}`)
     }
-    signUpWithEmail();
+    signUpWithEmail().then(r => {
+      Alert.alert("Signed up w/:", JSON.stringify(signUpObj))
+      router.push('/(tabs)')
+    });
   };
 
   return (
