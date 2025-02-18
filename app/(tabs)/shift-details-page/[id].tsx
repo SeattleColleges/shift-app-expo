@@ -7,7 +7,7 @@ import Ionicons from "@expo/vector-icons/Ionicons";
 
 export default function ShiftDetailsPage () {
     const item = useLocalSearchParams();
-    const date = new Date(item.date as string)
+    const date = new Date(item.date as string) || new Date()
     const day = date.getDate();
     const month = months()[date.getMonth()];
     const dayOfWeek = weekdays()[date.getDay()];
