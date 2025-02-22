@@ -51,6 +51,12 @@ export default function TabLayout() {
                     href: null
                 }}
             />
+            <Tabs.Screen
+                name="shift-details-page/[id]"
+                options={{
+                    href: null
+                }}
+            />
         </Tabs>
     );
 }

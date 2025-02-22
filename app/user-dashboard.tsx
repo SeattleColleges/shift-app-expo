@@ -79,6 +79,8 @@ export default function UserDashboard() {
     shiftData.forEach(shift => {
       const existing = items.findIndex(item => item.title === shift.date);
       const shiftItem = {
+        id: shift.id,
+        date: shift.date,
         startTime: shift.startTime,
         endTime: shift.endTime,
         role: shift.role,
