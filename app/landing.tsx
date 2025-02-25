@@ -85,6 +85,7 @@ const styles = StyleSheet.create({
     fontSize: 24,
     fontWeight: 'bold',
     textAlign: 'center',
+    color: '#000',
   },
   buttonContainer: {
     backgroundColor: '#000',
