@@ -17,12 +17,10 @@ export default function SignUpPage() {
   const [signUpObj, setSignUpObj] = React.useState({
     name:'', email:'', password:''
   });
-  const [loading, setLoading] = React.useState(false);
 
   const handleSignUp = ():void => {
     async function signUpWithEmail():Promise<void> {
-      setLoading(true)
-      const { error, data } = await supabase?.auth.signUp({
+      const { error, data:{user,session} } = await supabase?.auth.signUp({
         email: signUpObj.email,
         password: signUpObj.password,
         options: {
@@ -31,14 +29,19 @@ export default function SignUpPage() {
           },
         },
       })
-      console.log('Signup page: '+ JSON.stringify(data,null, 2))
+
       if (error) {
         Alert.alert(error.message)
+        if(error.message === 'User already registered') {
+          router.replace('/(auth)')
+        }
+      } else if (user && session) {
+        console.log("Signin page: "+JSON.stringify(data, null, 2))
+        router.push('/(tabs)')
       }
     }
     signUpWithEmail().then(r => {
-      Alert.alert("Signed up w/:", JSON.stringify(signUpObj))
-      router.push('/(tabs)')
+        console.log('Sign up promise: '+r)
     });
   };
 
@@ -130,7 +133,7 @@ export default function SignUpPage() {
       {/* Sign In Link */}
       <View style={styles.signInContainer}>
         <Text style={styles.text}>Already have an account? </Text>
-        <TouchableOpacity onPress={()=> router.back()}>
+        <TouchableOpacity onPress={()=> router.replace('/(auth)')}>
           <Text style={styles.link}>Sign In</Text>
         </TouchableOpacity>
       </View>
