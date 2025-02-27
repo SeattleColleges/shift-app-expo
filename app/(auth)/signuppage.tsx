@@ -14,18 +14,22 @@ import {router} from "expo-router";
 const { width } = Dimensions.get('window'); // Get the current screen width
 
 export default function SignUpPage() {
-  const [signUpObj, setSignUpObj] = React.useState({
-    name:'', email:'', password:''
-  });
+  const [name, setName] = useState('');
+  const [email, setEmail] = useState('');
+  const [password, setPassword] = useState('');
+  const [confirmPassword, setConfirmPassword] = useState('');
+  const [department, setDepartment] = useState('');
+  const [supervisor, setSupervisor] = useState('');
 
   const handleSignUp = ():void => {
     async function signUpWithEmail():Promise<void> {
+      // @ts-ignore
       const { error, data:{user,session} } = await supabase?.auth.signUp({
-        email: signUpObj.email,
-        password: signUpObj.password,
+        email: email,
+        password: password,
         options: {
           data: {
-            name: signUpObj.name,
+            name: name,
           },
         },
       })
@@ -35,9 +39,12 @@ export default function SignUpPage() {
         if(error.message === 'User already registered') {
           router.replace('/(auth)')
         }
-      } else if (user && session) {
-        console.log("Signin page: "+JSON.stringify(data, null, 2))
-        router.push('/(tabs)')
+      } else { // @ts-ignore
+        if (data) {
+                // @ts-ignore
+          console.log("Signin page: "+JSON.stringify(data, null, 2))
+                router.push('/(tabs)')
+              }
       }
     }
     signUpWithEmail().then(r => {
@@ -57,8 +64,8 @@ export default function SignUpPage() {
           style={styles.input}
           placeholder="value"
           placeholderTextColor="#888"
-          value={signUpObj.name}
-          onChangeText={(value)=> setSignUpObj({...signUpObj, name: value}) }
+          value={name}
+          onChangeText={setName}
         />
       </View>
 
@@ -69,8 +76,8 @@ export default function SignUpPage() {
           style={styles.input}
           placeholder="value"
           placeholderTextColor="#888"
-          value={signUpObj.email}
-          onChangeText={(value)=> setSignUpObj({...signUpObj, email: value}) }
+          value={email}
+          onChangeText={setEmail}
           keyboardType="email-address"
         />
       </View>
@@ -82,48 +89,48 @@ export default function SignUpPage() {
           style={styles.input}
           placeholder="value"
           placeholderTextColor="#888"
-          value={signUpObj.password}
-          onChangeText={(value)=> setSignUpObj({...signUpObj, password: value}) }
+          value={password}
+          onChangeText={setPassword}
           secureTextEntry
         />
       </View>
 
-      {/* Confirm Password Input: commented out for now */}
-      {/*<View style={styles.inputContainer}>*/}
-      {/*  <Text style={styles.label}>Confirm Password</Text>*/}
-      {/*  <TextInput*/}
-      {/*    style={styles.input}*/}
-      {/*    placeholder="value"*/}
-      {/*    placeholderTextColor="#888"*/}
-      {/*    value={confirmPassword}*/}
-      {/*    onChangeText={setConfirmPassword}*/}
-      {/*    secureTextEntry*/}
-      {/*  />*/}
-      {/*</View>*/}
+      {/* Confirm Password Input */}
+      <View style={styles.inputContainer}>
+        <Text style={styles.label}>Confirm Password</Text>
+        <TextInput
+          style={styles.input}
+          placeholder="value"
+          placeholderTextColor="#888"
+          value={confirmPassword}
+          onChangeText={setConfirmPassword}
+          secureTextEntry
+        />
+      </View>
 
-      {/* Department Input: commented out for now */}
-      {/*<View style={styles.inputContainer}>*/}
-      {/*  <Text style={styles.label}>Department</Text>*/}
-      {/*  <TextInput*/}
-      {/*    style={styles.input}*/}
-      {/*    placeholder="value"*/}
-      {/*    placeholderTextColor="#888"*/}
-      {/*    value={department}*/}
-      {/*    onChangeText={setDepartment}*/}
-      {/*  />*/}
-      {/*</View>*/}
+      {/* Department Input */}
+      <View style={styles.inputContainer}>
+        <Text style={styles.label}>Department</Text>
+        <TextInput
+          style={styles.input}
+          placeholder="value"
+          placeholderTextColor="#888"
+          value={department}
+          onChangeText={setDepartment}
+        />
+      </View>
 
-      {/* Supervisor Input: commented out for now  */}
-      {/*<View style={styles.inputContainer}>*/}
-      {/*  <Text style={styles.label}>Supervisor</Text>*/}
-      {/*  <TextInput*/}
-      {/*    style={styles.input}*/}
-      {/*    placeholder="value"*/}
-      {/*    placeholderTextColor="#888"*/}
-      {/*    value={supervisor}*/}
-      {/*    onChangeText={setSupervisor}*/}
-      {/*  />*/}
-      {/*</View>*/}
+      {/* Supervisor Input */}
+      <View style={styles.inputContainer}>
+        <Text style={styles.label}>Supervisor</Text>
+        <TextInput
+          style={styles.input}
+          placeholder="value"
+          placeholderTextColor="#888"
+          value={supervisor}
+          onChangeText={setSupervisor}
+        />
+      </View>
 
       {/* Sign Up Button */}
       <TouchableOpacity style={styles.signUpButton} onPress={handleSignUp}>

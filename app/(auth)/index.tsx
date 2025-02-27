@@ -8,11 +8,10 @@ import {
   Dimensions,
   Alert,
 } from 'react-native';
-import {router, useRouter} from "expo-router";
+import {useRouter} from "expo-router";
 import {supabase} from "@/lib/supabaseClient";
 
 const { width } = Dimensions.get('window'); // Get the current screen width
-
 
 export default function Index() {
   const [email, setEmail] = useState('');
@@ -21,6 +20,7 @@ export default function Index() {
 
   const handleSignIn = ():void => {
     async function signInWithEmail() {
+      // @ts-ignore For now
       const { error, data } = await supabase?.auth.signInWithPassword({
         email: email,
         password: password,
@@ -35,6 +35,14 @@ export default function Index() {
       }
     }
     signInWithEmail()
+  }
+
+  const goToForgotPassword = () => {
+    router.push('/(auth)/forgot-password');
+  }
+
+  const goToSignupPage = () => {
+    router.push('/(auth)/signuppage');
   }
 
   return (
@@ -74,14 +82,14 @@ export default function Index() {
       </TouchableOpacity>
 
       {/* Forgot Password Link */}
-      <TouchableOpacity onPress={() => router.push('/forgot-password')}>
+      <TouchableOpacity onPress={goToForgotPassword}>
         <Text style={styles.link}>Forgot Password?</Text>
       </TouchableOpacity>
 
       {/* Sign-Up Section */}
       <View style={styles.signUpContainer}>
         <Text style={styles.text}>Don't have an account? </Text>
-        <TouchableOpacity onPress={()=> router.push('/signuppage')}>
+        <TouchableOpacity onPress={goToSignupPage}>
           <Text style={styles.link}>Sign Up</Text>
         </TouchableOpacity>
       </View>

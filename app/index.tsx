@@ -1,34 +1,19 @@
-import React, { ReactElement, useEffect, useState } from 'react';
-import { Image, StyleSheet} from 'react-native';
+import React, { ReactElement } from 'react';
+import { Image, StyleSheet } from 'react-native';
 import { HelloWave } from '@/components/HelloWave';
 import ParallaxScrollView from '@/components/ParallaxScrollView';
 import { ThemedText } from '@/components/ThemedText';
 import { ThemedView } from '@/components/ThemedView';
 import { Link } from 'expo-router';
-import { useColorScheme } from 'react-native';  // Import useColorScheme hook
-import { supabase } from '@/lib/supabaseClient';
+import { useColorScheme } from 'react-native';
 
 export default function HomeScreen(): ReactElement {
+  const colorScheme = useColorScheme();
+  const linkStyle = [
+    styles.link,
+    { color: colorScheme === 'dark' ? '#ddd' : '#007bff' }
+  ];
 
-  // const fetchMessage = async () => {
-  //   const { data, error } = await supabase
-  //     .from('messages')
-  //     .select('text')
-  //     .eq('id', 1) 
-  //     .single();
-  //   if (error) {
-  //     console.error(error);
-  //   } else {
-  //     console.log(data)
-  //   }
-  // };
-  // fetchMessage()
-
-  const colorScheme = useColorScheme(); // Get the current color scheme (light/dark)
-    const linkStyle = [
-        styles.link,
-        { color: colorScheme === 'dark' ? '#ddd' : '#007bff' } // Dark mode: light color, light mode: blue
-    ];
   return (
     <ParallaxScrollView
       headerBackgroundColor={{ light: '#A1CEDC', dark: '#1D3D47' }}
@@ -37,29 +22,23 @@ export default function HomeScreen(): ReactElement {
           source={require('@/assets/images/partial-react-logo.png')}
           style={styles.reactLogo}
         />
-      }>
-
+      }
+    >
       <ThemedView style={styles.stepContainer}>
         <ThemedText type="subtitle">Database Message:</ThemedText>
         <HelloWave />
 
-        <Link href="/(tabs)"
-              style={linkStyle}>Go to main app features after login</Link>
-        <Link
-            href="/(auth)/forgot-password"
-            style={linkStyle}>Forgot Password Page</Link>
-        <Link
-            style={linkStyle}
-            href="/(auth)">Login</Link>
-        <Link
-            style={linkStyle}
-            href="/(auth)/signuppage">Signup</Link>
-        <Link 
-          style={linkStyle}
-          href="/(tabs)/notifications">Notifications Page</Link>
-
+        <Link href="/(tabs)" style={linkStyle}>Go to main app features after login</Link>
+        <Link href="/user-dashboard" style={linkStyle}>User Dashboard Page</Link>
+        <Link href="/(auth)/forgot-password" style={linkStyle}>Forgot Password Page</Link>
+        <Link href="/help" style={linkStyle}>Help Page</Link>
+        <Link href="/landing" style={linkStyle}>Landing page</Link>
+        <Link href="/(auth)" style={linkStyle}>Login</Link>
+        <Link href="/(auth)/signuppage" style={linkStyle}>Signup</Link>
+        <Link href="/(tabs)/notifications" style={linkStyle}>Notifications Page</Link>
+        <Link href="/add-schedule" style={linkStyle}>Add Schedule</Link>
+        <Link href="/request-time-off" style={linkStyle}>Go to Request Time Off Page</Link>
       </ThemedView>
-
     </ParallaxScrollView>
   );
 }
@@ -89,6 +68,6 @@ const styles = StyleSheet.create({
     fontSize: 16,
     textDecorationLine: 'underline',
     textAlign: 'left',
-    marginTop: 20, // Adjust as needed
+    marginTop: 20,
   },
 });

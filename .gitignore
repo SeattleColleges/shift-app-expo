@@ -23,3 +23,6 @@ web-build/
 
 expo-env.d.ts
 # @end expo-cli
+
+#Ignore coverage reports
+coverage/
