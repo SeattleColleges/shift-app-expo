@@ -1,19 +1,63 @@
-import {ScrollView, StyleSheet, View} from "react-native";
+import {ScrollView, StyleSheet, TextInput, View, Text, Button, Pressable, useColorScheme} from "react-native";
 import {ThemedText} from "@/components/ThemedText";
 import {ThemedView} from "@/components/ThemedView";
+import {Colors} from "@/constants/Colors";
+import {Picker} from "@react-native-picker/picker";
 
+interface TextFieldWithLabelProps {
+    label: string,
+}
+interface DropDownWithLabelProps {
+    label: string,
+    values: string[]
+}
 export default function EditProfile () {
-    
+    const TextFieldWithLabel = ({label, ...props}: TextFieldWithLabelProps) => {
+        return (
+            <View>
+                <Text style={styles.label}>{label}</Text>
+                <TextInput {...props} style={styles.input} />
+            </View>
+        )
+    }
+    const DropdownWithLabel = ({label, values}: DropDownWithLabelProps) => {
+        return (
+            <View>
+                <Text style={styles.label}>{label}</Text>
+                <View style={styles.picker}>
+                    <Picker>
+                        { values.map(v=> <Picker.Item key={v} label={v} value={v} />) }
+                    </Picker>
+                </View>
+            </View>
+        )
+    }
+    const colorScheme = useColorScheme() || 'light';
+    const studentStatuses = ['Enrolled', 'Graduated', 'Dropped Out']
     return (
         <ScrollView>
             <View style={styles.headerContainer}>
                 <ThemedText type={'title'}>Edit Profile</ThemedText>
                 <ThemedView darkColor={'#fff'} lightColor={'#000'} style={styles.circle} >
-                    <ThemedText style={styles.userText} lightColor={'#fff'} darkColor={'#000'} >Tdfsfd</ThemedText>
+                    <ThemedText style={styles.userText} lightColor={'#fff'} darkColor={'#000'} >
+                        T
+                    </ThemedText>
                 </ThemedView>
                 <ThemedText style={{fontSize:24}} type={'default'}>
                     Role: Ad Tutor
                 </ThemedText>
+            </View>
+            <View style={styles.editFieldsContainer}>
+                <TextFieldWithLabel label={'First Name'} />
+                <TextFieldWithLabel label={'Last Name'} />
+                <TextFieldWithLabel label={'Email'} />
+                <TextFieldWithLabel label={'Pronouns'} />
+                <DropdownWithLabel label={'Student Status'} values={studentStatuses} />
+                <Pressable onPress={() => console.log('submit')} style={[styles.button, {backgroundColor: Colors[colorScheme].text,}]}>
+                    <Text style={{color: colorScheme == 'light' ? Colors.dark.text: Colors.light.text}}>
+                        Submit
+                    </Text>
+                </Pressable>
             </View>
         </ScrollView>
     )
@@ -23,7 +67,7 @@ const styles = StyleSheet.create({
     headerContainer: {
         flex:1,
         alignItems:'center',
-        backgroundColor: 'yellow',
+        // backgroundColor: 'yellow',
         gap:15,
         paddingVertical: 16
     },
@@ -36,5 +80,32 @@ const styles = StyleSheet.create({
     },
     userText: {
         fontSize: 20
-    }
+    },
+    editFieldsContainer: {
+        flex: 1,
+        paddingHorizontal: 20,
+        gap: 10
+    },
+    label: {
+        fontSize: 16,
+        marginBottom: 5,
+        color: '#333',
+    },
+    input: {
+        borderWidth: 1,
+        borderColor: '#ccc',
+        borderRadius: 5,
+        padding: 10,
+        fontSize: 16,
+    },
+    button: {
+        padding: 12,
+        borderRadius: 5,
+        alignItems:'center'
+    },
+    picker: {
+        borderColor:'#ccc',
+        borderWidth: 1,
+        borderRadius: 5
+    },
 })
