@@ -1,4 +1,4 @@
-import {ScrollView, StyleSheet, TextInput, View, Text, Button, Pressable, useColorScheme} from "react-native";
+import {ScrollView, StyleSheet, TextInput, View, Text, Pressable, useColorScheme} from "react-native";
 import {ThemedText} from "@/components/ThemedText";
 import {ThemedView} from "@/components/ThemedView";
 import {Colors} from "@/constants/Colors";
@@ -33,7 +33,7 @@ export default function EditProfile () {
         )
     }
     const colorScheme = useColorScheme() || 'light';
-    const studentStatuses = ['Enrolled', 'Graduated', 'Dropped Out']
+    const studentStatuses = ['Full-Time', 'Part-Time']
     return (
         <ScrollView>
             <View style={styles.headerContainer}>
