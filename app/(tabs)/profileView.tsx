@@ -21,9 +21,6 @@ export default function AdminDashboard() {
             source="../assets/images/profileImg.jpg"
           />
         </View>
-          <Link style={{left: 100, top: 20, zIndex: 999}} href="/editProfile">
-            <Ionicons name={'pencil-outline'} size={20} />
-          </Link>
             <UserDetails />
           <View><Text>Hi!, {userName}!</Text></View>
         </View>

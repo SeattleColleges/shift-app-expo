@@ -1,5 +1,7 @@
 import React from 'react'
 import { Text, View, StyleSheet } from "react-native";
+import {Link} from "expo-router";
+import Ionicons from "@expo/vector-icons/Ionicons";
 
 export const UserDetails = () => {
   const firstName = "first name";
@@ -9,10 +11,25 @@ export const UserDetails = () => {
   const supervisor = "supervisor";
   const email = "email";
   const phoneNumber = "(206) 999-9999";
+  const pronouns ='they/them'
   return (
     <>
         <View style={styles.container}>
             <View>
+                <Link
+                    style={{alignSelf:'flex-end'}}
+                    href={{
+                        pathname:"/editProfile",
+                        params: {
+                            firstName,
+                            lastName,
+                            email,
+                            pronouns
+                        }
+                    }}
+                >
+                    <Ionicons name={'pencil-outline'} size={20} />
+                </Link>
                 <View>
                     <Text style={styles.heading}>User Details</Text>
                     <Text style={styles.text}>First Name: {firstName}</Text>
