@@ -11,7 +11,8 @@ export const UserDetails = () => {
   const supervisor = "supervisor";
   const email = "email";
   const phoneNumber = "(206) 999-9999";
-  const pronouns ='they/them'
+  const pronouns ='they/them';
+  const role = 'student'
   return (
     <>
         <View style={styles.container}>
@@ -24,7 +25,8 @@ export const UserDetails = () => {
                             firstName,
                             lastName,
                             email,
-                            pronouns
+                            pronouns,
+                            role
                         }
                     }}
                 >

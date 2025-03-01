@@ -3,20 +3,34 @@ import {ThemedText} from "@/components/ThemedText";
 import {ThemedView} from "@/components/ThemedView";
 import {Colors} from "@/constants/Colors";
 import {Picker} from "@react-native-picker/picker";
+import {useLocalSearchParams} from "expo-router";
+import {useState} from "react";
 
 interface TextFieldWithLabelProps {
     label: string,
+    onChangeText: (text: string) => void
+    value: string
 }
 interface DropDownWithLabelProps {
     label: string,
     values: string[]
 }
 export default function EditProfile () {
-    const TextFieldWithLabel = ({label, ...props}: TextFieldWithLabelProps) => {
+    const {firstName, lastName, email, pronouns} = useLocalSearchParams();
+    const [firstNameText, setFirstNameText] = useState(firstName);
+    const [lastNameText, setLastNameText] = useState(lastName);
+    const [emailText, setEmailText] = useState(email);
+    const [pronounsText, setPronounsText] = useState(pronouns);
+    const TextFieldWithLabel = ({label, onChangeText, value, ...props}: TextFieldWithLabelProps) => {
         return (
             <View>
                 <Text style={styles.label}>{label}</Text>
-                <TextInput {...props} style={styles.input} />
+                <TextInput
+                    {...props}
+                    style={styles.input}
+                    onChangeText={onChangeText}
+                    value={value}
+                />
             </View>
         )
     }
@@ -40,7 +54,7 @@ export default function EditProfile () {
                 <ThemedText type={'title'}>Edit Profile</ThemedText>
                 <ThemedView darkColor={'#fff'} lightColor={'#000'} style={styles.circle} >
                     <ThemedText style={styles.userText} lightColor={'#fff'} darkColor={'#000'} >
-                        T
+                        {`${firstName[0].toUpperCase()}${lastName[0].toUpperCase()}`}
                     </ThemedText>
                 </ThemedView>
                 <ThemedText style={{fontSize:24}} type={'default'}>
@@ -48,10 +62,26 @@ export default function EditProfile () {
                 </ThemedText>
             </View>
             <View style={styles.editFieldsContainer}>
-                <TextFieldWithLabel label={'First Name'} />
-                <TextFieldWithLabel label={'Last Name'} />
-                <TextFieldWithLabel label={'Email'} />
-                <TextFieldWithLabel label={'Pronouns'} />
+                <TextFieldWithLabel
+                    label={'First Name'}
+                    onChangeText={setFirstNameText}
+                    value={firstNameText as string}
+                />
+                <TextFieldWithLabel
+                    label={'Last Name'}
+                    onChangeText={setLastNameText}
+                    value={lastNameText as string}
+                />
+                <TextFieldWithLabel
+                    label={'Email'}
+                    onChangeText={setEmailText}
+                    value={emailText as string}
+                />
+                <TextFieldWithLabel
+                    label={'Pronouns'}
+                    onChangeText={setPronounsText}
+                    value={pronounsText as string}
+                />
                 <DropdownWithLabel label={'Student Status'} values={studentStatuses} />
                 <Pressable onPress={() => console.log('submit')} style={[styles.button, {backgroundColor: Colors[colorScheme].text,}]}>
                     <Text style={{color: colorScheme == 'light' ? Colors.dark.text: Colors.light.text}}>
