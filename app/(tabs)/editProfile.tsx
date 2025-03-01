@@ -43,7 +43,7 @@ const DropdownWithLabel = ({label, values, selectedValue, onValueChange}: DropDo
     )
 }
 export default function EditProfile () {
-    const {firstName, lastName, email, pronouns} = useLocalSearchParams();
+    const {firstName, lastName, email, pronouns, role} = useLocalSearchParams();
     const [firstNameText, setFirstNameText] = useState(firstName as string);
     const [lastNameText, setLastNameText] = useState(lastName as string);
     const [emailText, setEmailText] = useState(email as string);
@@ -62,7 +62,7 @@ export default function EditProfile () {
                     </ThemedText>
                 </ThemedView>
                 <ThemedText style={{fontSize:24}} type={'default'}>
-                    Role: Ad Tutor
+                    {`Role: ${role}`}
                 </ThemedText>
             </View>
             <View style={styles.editFieldsContainer}>
