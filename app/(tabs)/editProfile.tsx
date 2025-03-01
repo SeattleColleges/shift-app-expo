@@ -13,40 +13,43 @@ interface TextFieldWithLabelProps {
 }
 interface DropDownWithLabelProps {
     label: string,
-    values: string[]
+    values: string[],
+    selectedValue: string;
+    onValueChange: (itemValue: string) => void;
+}
+const TextFieldWithLabel = ({label, onChangeText, value, ...props}: TextFieldWithLabelProps) => {
+    return (
+        <View>
+            <Text style={styles.label}>{label}</Text>
+            <TextInput
+                {...props}
+                style={styles.input}
+                onChangeText={onChangeText}
+                value={value}
+            />
+        </View>
+    )
+}
+const DropdownWithLabel = ({label, values, selectedValue, onValueChange}: DropDownWithLabelProps) => {
+    return (
+        <View>
+            <Text style={styles.label}>{label}</Text>
+            <View style={styles.picker}>
+                <Picker selectedValue={selectedValue} onValueChange={onValueChange}>
+                    { values.map(v=> <Picker.Item key={v} label={v} value={v} />) }
+                </Picker>
+            </View>
+        </View>
+    )
 }
 export default function EditProfile () {
     const {firstName, lastName, email, pronouns} = useLocalSearchParams();
-    const [firstNameText, setFirstNameText] = useState(firstName);
-    const [lastNameText, setLastNameText] = useState(lastName);
-    const [emailText, setEmailText] = useState(email);
-    const [pronounsText, setPronounsText] = useState(pronouns);
+    const [firstNameText, setFirstNameText] = useState(firstName as string);
+    const [lastNameText, setLastNameText] = useState(lastName as string);
+    const [emailText, setEmailText] = useState(email as string);
+    const [pronounsText, setPronounsText] = useState(pronouns as string);
+    const [studentStatus, setStudentStatus] = useState('Full-Time');
     const router = useRouter();
-    const TextFieldWithLabel = ({label, onChangeText, value, ...props}: TextFieldWithLabelProps) => {
-        return (
-            <View>
-                <Text style={styles.label}>{label}</Text>
-                <TextInput
-                    {...props}
-                    style={styles.input}
-                    onChangeText={onChangeText}
-                    value={value}
-                />
-            </View>
-        )
-    }
-    const DropdownWithLabel = ({label, values}: DropDownWithLabelProps) => {
-        return (
-            <View>
-                <Text style={styles.label}>{label}</Text>
-                <View style={styles.picker}>
-                    <Picker>
-                        { values.map(v=> <Picker.Item key={v} label={v} value={v} />) }
-                    </Picker>
-                </View>
-            </View>
-        )
-    }
     const colorScheme = useColorScheme() || 'light';
     const studentStatuses = ['Full-Time', 'Part-Time']
     return (
@@ -66,24 +69,29 @@ export default function EditProfile () {
                 <TextFieldWithLabel
                     label={'First Name'}
                     onChangeText={setFirstNameText}
-                    value={firstNameText as string}
+                    value={firstNameText}
                 />
                 <TextFieldWithLabel
                     label={'Last Name'}
                     onChangeText={setLastNameText}
-                    value={lastNameText as string}
+                    value={lastNameText}
                 />
                 <TextFieldWithLabel
                     label={'Email'}
                     onChangeText={setEmailText}
-                    value={emailText as string}
+                    value={emailText}
                 />
                 <TextFieldWithLabel
                     label={'Pronouns'}
                     onChangeText={setPronounsText}
-                    value={pronounsText as string}
+                    value={pronounsText}
                 />
-                <DropdownWithLabel label={'Student Status'} values={studentStatuses} />
+                <DropdownWithLabel
+                    label={'Student Status'}
+                    values={studentStatuses}
+                    selectedValue={studentStatus}
+                    onValueChange={setStudentStatus}
+                />
                 <View style={styles.buttonsContainer}>
                     <Pressable onPress={() => console.log('submit')} style={[styles.button, {backgroundColor: Colors[colorScheme].text,}]}>
                         <Text style={{color: colorScheme == 'light' ? Colors.dark.text: Colors.light.text}}>
