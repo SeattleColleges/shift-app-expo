@@ -3,7 +3,7 @@ import {ThemedText} from "@/components/ThemedText";
 import {ThemedView} from "@/components/ThemedView";
 import {Colors} from "@/constants/Colors";
 import {Picker} from "@react-native-picker/picker";
-import {useLocalSearchParams} from "expo-router";
+import {useLocalSearchParams, useRouter} from "expo-router";
 import {useState} from "react";
 
 interface TextFieldWithLabelProps {
@@ -21,6 +21,7 @@ export default function EditProfile () {
     const [lastNameText, setLastNameText] = useState(lastName);
     const [emailText, setEmailText] = useState(email);
     const [pronounsText, setPronounsText] = useState(pronouns);
+    const router = useRouter();
     const TextFieldWithLabel = ({label, onChangeText, value, ...props}: TextFieldWithLabelProps) => {
         return (
             <View>
@@ -83,11 +84,18 @@ export default function EditProfile () {
                     value={pronounsText as string}
                 />
                 <DropdownWithLabel label={'Student Status'} values={studentStatuses} />
-                <Pressable onPress={() => console.log('submit')} style={[styles.button, {backgroundColor: Colors[colorScheme].text,}]}>
-                    <Text style={{color: colorScheme == 'light' ? Colors.dark.text: Colors.light.text}}>
-                        Submit
-                    </Text>
-                </Pressable>
+                <View style={styles.buttonsContainer}>
+                    <Pressable onPress={() => console.log('submit')} style={[styles.button, {backgroundColor: Colors[colorScheme].text,}]}>
+                        <Text style={{color: colorScheme == 'light' ? Colors.dark.text: Colors.light.text}}>
+                            Submit
+                        </Text>
+                    </Pressable>
+                    <Pressable onPress={() => router.navigate('/(tabs)/profileView')} style={[styles.button, {backgroundColor: Colors.cancel,}]}>
+                        <Text style={{color: colorScheme == 'light' ? Colors.dark.text: Colors.light.text}}>
+                            Cancel
+                        </Text>
+                    </Pressable>
+                </View>
             </View>
         </ScrollView>
     )
@@ -129,6 +137,7 @@ const styles = StyleSheet.create({
         fontSize: 16,
     },
     button: {
+        flex: 1,
         padding: 12,
         borderRadius: 5,
         alignItems:'center'
@@ -138,4 +147,11 @@ const styles = StyleSheet.create({
         borderWidth: 1,
         borderRadius: 5
     },
+    buttonsContainer: {
+        flex:1,
+        flexDirection:'row',
+        justifyContent:'center',
+        gap: 5,
+        width:'100%'
+    }
 })
