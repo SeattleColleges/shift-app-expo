@@ -20,7 +20,7 @@ interface DropDownWithLabelProps {
 const TextFieldWithLabel = ({label, onChangeText, value, ...props}: TextFieldWithLabelProps) => {
     return (
         <View>
-            <Text style={styles.label}>{label}</Text>
+            <ThemedText darkColor={'#ccc'} lightColor={'#333'} style={styles.label}>{label}</ThemedText>
             <TextInput
                 {...props}
                 style={styles.input}
@@ -33,7 +33,7 @@ const TextFieldWithLabel = ({label, onChangeText, value, ...props}: TextFieldWit
 const DropdownWithLabel = ({label, values, selectedValue, onValueChange}: DropDownWithLabelProps) => {
     return (
         <View>
-            <Text style={styles.label}>{label}</Text>
+            <ThemedText style={styles.label}>{label}</ThemedText>
             <View style={styles.picker}>
                 <Picker selectedValue={selectedValue} onValueChange={onValueChange}>
                     { values.map(v=> <Picker.Item key={v} label={v} value={v} />) }
@@ -43,7 +43,6 @@ const DropdownWithLabel = ({label, values, selectedValue, onValueChange}: DropDo
     )
 }
 const device = Platform.OS;
-let colorScheme;
 export default function EditProfile () {
     const {firstName, lastName, email, pronouns, role} = useLocalSearchParams();
     const [firstNameText, setFirstNameText] = useState(firstName as string);
@@ -52,7 +51,7 @@ export default function EditProfile () {
     const [pronounsText, setPronounsText] = useState(pronouns as string);
     const [studentStatus, setStudentStatus] = useState('Full-Time');
     const router = useRouter();
-    colorScheme = useColorScheme();
+    const colorScheme = useColorScheme();
     const studentStatuses = ['Full-Time', 'Part-Time']
     return (
         <ScrollView style={{backgroundColor: Colors[colorScheme || 'light'].background}}>
@@ -136,7 +135,6 @@ const styles = StyleSheet.create({
     label: {
         fontSize: 16,
         marginBottom: 5,
-        color: '#333',
     },
     input: {
         borderWidth: 1,
