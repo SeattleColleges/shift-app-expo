@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import {
     View,
     Text,
@@ -17,6 +17,11 @@ const RequestPage = () => {
     const [endDate, setEndDate] = useState("");
     const [hoursOff, setHoursOff] = useState("");
     const [reason, setReason] = useState("");
+    const [isDisabled, setIsDisabled] = useState(true);
+
+    useEffect(() => {
+        setIsDisabled(!(fullName && startDate && endDate && hoursOff && reason));
+    }, [fullName, startDate, endDate, hoursOff, reason]);
 
     const handleSubmit = () => {
         if (!fullName || !startDate || !endDate || !hoursOff || !reason) {
@@ -87,7 +92,7 @@ const RequestPage = () => {
                 />
             </View>
 
-            <TouchableOpacity style={styles.submitButton} onPress={handleSubmit}>
+            <TouchableOpacity style={[styles.submitButton, isDisabled && styles.disabledButton]} onPress={handleSubmit} disabled={isDisabled}>
                 <Text style={styles.submitButtonText}>Submit Request</Text>
             </TouchableOpacity>
         </View>
@@ -143,6 +148,9 @@ const styles = StyleSheet.create({
         alignItems: "center",
         borderRadius: 8,
         marginTop: 20,
+    },
+    disabledButton: {
+        backgroundColor: "#aaa",
     },
     submitButtonText: {
         color: "#fff",
