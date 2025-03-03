@@ -1,4 +1,4 @@
-import {ScrollView, StyleSheet, TextInput, View, Text, Pressable, useColorScheme} from "react-native";
+import {ScrollView, StyleSheet, TextInput, View, Text, Pressable, useColorScheme, Platform} from "react-native";
 import {ThemedText} from "@/components/ThemedText";
 import {ThemedView} from "@/components/ThemedView";
 import {Colors} from "@/constants/Colors";
@@ -42,6 +42,8 @@ const DropdownWithLabel = ({label, values, selectedValue, onValueChange}: DropDo
         </View>
     )
 }
+const device = Platform.OS;
+let colorScheme;
 export default function EditProfile () {
     const {firstName, lastName, email, pronouns, role} = useLocalSearchParams();
     const [firstNameText, setFirstNameText] = useState(firstName as string);
@@ -50,10 +52,10 @@ export default function EditProfile () {
     const [pronounsText, setPronounsText] = useState(pronouns as string);
     const [studentStatus, setStudentStatus] = useState('Full-Time');
     const router = useRouter();
-    const colorScheme = useColorScheme() || 'light';
+    colorScheme = useColorScheme();
     const studentStatuses = ['Full-Time', 'Part-Time']
     return (
-        <ScrollView>
+        <ScrollView style={{backgroundColor: Colors[colorScheme || 'light'].background}}>
             <View style={styles.headerContainer}>
                 <ThemedText type={'title'}>Edit Profile</ThemedText>
                 <ThemedView darkColor={'#fff'} lightColor={'#000'} style={styles.circle} >
@@ -93,7 +95,7 @@ export default function EditProfile () {
                     onValueChange={setStudentStatus}
                 />
                 <View style={styles.buttonsContainer}>
-                    <Pressable onPress={() => console.log('submit')} style={[styles.button, {backgroundColor: Colors[colorScheme].text,}]}>
+                    <Pressable onPress={() => console.log('submit')} style={[styles.button, {backgroundColor: Colors[colorScheme || 'light'].text,}]}>
                         <Text style={{color: colorScheme == 'light' ? Colors.dark.text: Colors.light.text}}>
                             Submit
                         </Text>
@@ -113,7 +115,6 @@ const styles = StyleSheet.create({
     headerContainer: {
         flex:1,
         alignItems:'center',
-        // backgroundColor: 'yellow',
         gap:15,
         paddingVertical: 16
     },
@@ -143,12 +144,15 @@ const styles = StyleSheet.create({
         borderRadius: 5,
         padding: 10,
         fontSize: 16,
+        backgroundColor:'#fff'
     },
     button: {
         flex: 1,
         padding: 12,
         borderRadius: 5,
-        alignItems:'center'
+        alignItems: 'center',
+        justifyContent: 'center',
+        height: device == 'web' ? 36 : 'auto'
     },
     picker: {
         borderColor:'#ccc',
@@ -160,6 +164,5 @@ const styles = StyleSheet.create({
         flexDirection:'row',
         justifyContent:'center',
         gap: 5,
-        width:'100%'
     }
 })
