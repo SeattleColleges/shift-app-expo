@@ -52,7 +52,7 @@ export default function EditProfile () {
     const [studentStatus, setStudentStatus] = useState('Full-Time');
     const router = useRouter();
     const colorScheme = useColorScheme();
-    const studentStatuses = ['Full-Time', 'Part-Time']
+    const studentStatuses = ['Full-Time', 'Part-Time', 'Intern', 'Work-Study', "Leave Of Absence"]
     return (
         <ScrollView style={{backgroundColor: Colors[colorScheme || 'light'].background}}>
             <View style={styles.headerContainer}>
