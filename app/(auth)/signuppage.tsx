@@ -43,6 +43,7 @@ export default function SignUpPage() {
         if (data) {
                 // @ts-ignore
           Alert.alert(JSON.stringify(data, null, 2))
+          // @ts-ignore
           console.log("Sign up page: "+JSON.stringify(data, null, 2))
                 router.push('/(tabs)')
               }
