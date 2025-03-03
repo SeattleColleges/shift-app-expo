@@ -7,28 +7,40 @@ import {
     StyleSheet,
     Dimensions,
     Alert,
+    Platform,
 } from "react-native";
+import DatePickerComponent from "./DatePickerComponent";
+import showAlert from "./showAlert"; 
 
 const { width } = Dimensions.get("window");
 
 const RequestPage = () => {
     const [fullName, setFullName] = useState("");
-    const [startDate, setStartDate] = useState("");
-    const [endDate, setEndDate] = useState("");
+    const [startDate, setStartDate] = useState<Date>(new Date());
+    const [endDate, setEndDate] = useState<Date>(new Date());
     const [hoursOff, setHoursOff] = useState("");
     const [reason, setReason] = useState("");
+    const [errorMessage, setErrorMessage] = useState<string | null>(null);
 
     const handleSubmit = () => {
         if (!fullName || !startDate || !endDate || !hoursOff || !reason) {
-            Alert.alert("Error", "Please fill out all fields before submitting.");
+            setErrorMessage("All fields are required.");
             return;
         }
-        Alert.alert("Request Submitted", "Your time-off request has been submitted.");
+        setErrorMessage(null);
+        showAlert(
+            "Request Submitted",
+            "Your time-off request has been submitted and is awaiting approval from your supervisor."
+        );
     };
+
+    const isFormValid = fullName && startDate && endDate && hoursOff && reason;
 
     return (
         <View style={styles.container}>
             <Text style={styles.title}>Request Time Off</Text>
+
+            {errorMessage && <Text style={styles.errorText}>{errorMessage}</Text>}
 
             <View style={styles.inputContainer}>
                 <Text style={styles.label}>Full Name</Text>
@@ -41,27 +53,8 @@ const RequestPage = () => {
                 />
             </View>
 
-            <View style={styles.inputContainer}>
-                <Text style={styles.label}>Start Date</Text>
-                <TextInput
-                    style={styles.input}
-                    placeholder="YYYY-MM-DD"
-                    placeholderTextColor="#888"
-                    value={startDate}
-                    onChangeText={setStartDate}
-                />
-            </View>
-
-            <View style={styles.inputContainer}>
-                <Text style={styles.label}>End Date</Text>
-                <TextInput
-                    style={styles.input}
-                    placeholder="YYYY-MM-DD"
-                    placeholderTextColor="#888"
-                    value={endDate}
-                    onChangeText={setEndDate}
-                />
-            </View>
+            <DatePickerComponent label="Start Date" date={startDate} setDate={setStartDate} />
+            <DatePickerComponent label="End Date" date={endDate} setDate={setEndDate} />
 
             <View style={styles.inputContainer}>
                 <Text style={styles.label}>Hours Off</Text>
@@ -87,7 +80,11 @@ const RequestPage = () => {
                 />
             </View>
 
-            <TouchableOpacity style={styles.submitButton} onPress={handleSubmit}>
+            <TouchableOpacity
+                style={[styles.submitButton, !isFormValid && styles.submitButtonDisabled]}
+                onPress={handleSubmit}
+                disabled={!isFormValid}
+            >
                 <Text style={styles.submitButtonText}>Submit Request</Text>
             </TouchableOpacity>
         </View>
@@ -144,10 +141,18 @@ const styles = StyleSheet.create({
         borderRadius: 8,
         marginTop: 20,
     },
+    submitButtonDisabled: {
+        backgroundColor: "#ccc",
+    },
     submitButtonText: {
         color: "#fff",
         fontSize: 16,
         fontWeight: "bold",
+    },
+    errorText: {
+        color: "red",
+        marginBottom: 20,
+        fontSize: 16,
     },
 });
 
