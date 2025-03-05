@@ -1,22 +1,11 @@
 import {ScrollView, StyleSheet, TextInput, View, Text, Pressable, useColorScheme, Platform} from "react-native";
 import {ThemedText} from "@/components/ThemedText";
 import {ThemedView} from "@/components/ThemedView";
-import {Colors} from "@/constants/Colors";
-import {Picker} from "@react-native-picker/picker";
 import {useLocalSearchParams, useRouter} from "expo-router";
 import {useState} from "react";
+import {DropdownWithLabel, TextFieldWithLabel} from "@/components/CustomInputFields";
+import {Colors} from "@/constants/Colors";
 
-interface TextFieldWithLabelProps {
-    label: string,
-    onChangeText: (text: string) => void
-    value: string
-}
-interface DropDownWithLabelProps {
-    label: string,
-    values: string[],
-    selectedValue: string;
-    onValueChange: (itemValue: string) => void;
-}
 type SearchParams = {
     firstName: string,
     middleName: string,
@@ -25,45 +14,7 @@ type SearchParams = {
     pronouns: string,
     role: string
 }
-const TextFieldWithLabel = ({label, onChangeText, value, ...props}: TextFieldWithLabelProps) => {
-    return (
-        <View>
-            <ThemedText
-                darkColor={Colors.dark.text}
-                lightColor={Colors.light.text}
-                style={styles.label}>
-                {label}
-            </ThemedText>
-            <TextInput
-                {...props}
-                style={styles.input}
-                onChangeText={onChangeText}
-                value={value}
-            />
-        </View>
-    )
-}
-const DropdownWithLabel = ({label, values, selectedValue, onValueChange}: DropDownWithLabelProps) => {
-    return (
-        <View>
-            <ThemedText
-                darkColor={Colors.dark.text}
-                lightColor={Colors.light.text}
-                style={styles.label}>
-                {label}
-            </ThemedText>
-            <ThemedView style={[styles.picker]}>
-                <Picker
-                    style={{color:Colors.light.text, backgroundColor:Colors.light.background}}
-                    selectedValue={selectedValue}
-                    onValueChange={onValueChange}
-                >
-                    { values.map(v=> <Picker.Item key={v} label={v} value={v} />) }
-                </Picker>
-            </ThemedView>
-        </View>
-    )
-}
+
 const device = Platform.OS;
 export default function EditProfile () {
     const {firstName, lastName, email, pronouns, role, middleName} = useLocalSearchParams<SearchParams>();
@@ -167,18 +118,6 @@ const styles = StyleSheet.create({
         paddingHorizontal: 20,
         gap: 10
     },
-    label: {
-        fontSize: 16,
-        marginBottom: 5,
-    },
-    input: {
-        borderWidth: 1,
-        borderColor: '#ccc',
-        borderRadius: 5,
-        padding: 10,
-        fontSize: 16,
-        backgroundColor:'#fff'
-    },
     button: {
         flex: 1,
         padding: 12,
@@ -186,11 +125,6 @@ const styles = StyleSheet.create({
         alignItems: 'center',
         justifyContent: 'center',
         height: device == 'web' ? 36 : 'auto'
-    },
-    picker: {
-        borderColor:'#ccc',
-        borderWidth: 1,
-        borderRadius: 5
     },
     buttonsContainer: {
         flex:1,
