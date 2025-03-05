@@ -4,9 +4,6 @@ import { ScrollView } from "react-native";
 import { Image } from "expo-image";
 import Feather from "@expo/vector-icons/Feather";
 import { UserDetails } from "@/components/UserDetails";
-import Ionicons from "@expo/vector-icons/Ionicons";
-import {Link} from "expo-router";
-
 
 const userName = "user_name";
 

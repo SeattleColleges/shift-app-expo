@@ -1,4 +1,4 @@
-import {ScrollView, StyleSheet, TextInput, View, Text, Pressable, useColorScheme, Platform} from "react-native";
+import {ScrollView, StyleSheet, View, Text, Pressable, useColorScheme, Platform} from "react-native";
 import {ThemedText} from "@/components/ThemedText";
 import {ThemedView} from "@/components/ThemedView";
 import {useLocalSearchParams, useRouter} from "expo-router";
