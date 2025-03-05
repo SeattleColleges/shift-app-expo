@@ -20,7 +20,12 @@ interface DropDownWithLabelProps {
 const TextFieldWithLabel = ({label, onChangeText, value, ...props}: TextFieldWithLabelProps) => {
     return (
         <View>
-            <ThemedText darkColor={'#ccc'} lightColor={'#333'} style={styles.label}>{label}</ThemedText>
+            <ThemedText
+                darkColor={'#ccc'}
+                lightColor={'#333'}
+                style={styles.label}>
+                {label}
+            </ThemedText>
             <TextInput
                 {...props}
                 style={styles.input}
@@ -33,12 +38,21 @@ const TextFieldWithLabel = ({label, onChangeText, value, ...props}: TextFieldWit
 const DropdownWithLabel = ({label, values, selectedValue, onValueChange}: DropDownWithLabelProps) => {
     return (
         <View>
-            <ThemedText style={styles.label}>{label}</ThemedText>
-            <View style={styles.picker}>
-                <Picker selectedValue={selectedValue} onValueChange={onValueChange}>
+            <ThemedText
+                darkColor={'#ccc'}
+                lightColor={'#333'}
+                style={styles.label}>
+                {label}
+            </ThemedText>
+            <ThemedView style={[styles.picker]}>
+                <Picker
+                    style={{color:Colors.light.text, backgroundColor:Colors.light.background}}
+                    selectedValue={selectedValue}
+                    onValueChange={onValueChange}
+                >
                     { values.map(v=> <Picker.Item key={v} label={v} value={v} />) }
                 </Picker>
-            </View>
+            </ThemedView>
         </View>
     )
 }
