@@ -26,7 +26,17 @@ export default function EditProfile () {
     const [studentStatus, setStudentStatus] = useState('Full-Time');
     const router = useRouter();
     const colorScheme = useColorScheme();
-    const studentStatuses = ['Full-Time', 'Part-Time', 'Intern', 'Work-Study', "Leave Of Absence"]
+    const studentStatuses = ['Full-Time', 'Part-Time', 'Intern', 'Work-Study', "Leave Of Absence"];
+
+    const handleCancelPressed = () => {
+        setFirstNameText(firstName);
+        setMiddleNameText(middleName);
+        setLastNameText(lastName);
+        setEmailText(email);
+        setPronounsText(pronouns);
+        // TODO: Handle student status
+        router.navigate('/(tabs)/profileView')
+    }
     return (
         <ScrollView style={{backgroundColor: Colors[colorScheme || 'light'].background}}>
             <View style={styles.headerContainer}>
@@ -85,7 +95,7 @@ export default function EditProfile () {
                             Submit
                         </Text>
                     </Pressable>
-                    <Pressable onPress={() => router.navigate('/(tabs)/profileView')} style={[styles.button, {backgroundColor: Colors.cancel,}]}>
+                    <Pressable onPress={handleCancelPressed} style={[styles.button, {backgroundColor: Colors.cancel,}]}>
                         <Text style={{color: colorScheme == 'light' ? Colors.dark.text: Colors.light.text}}>
                             Cancel
                         </Text>
