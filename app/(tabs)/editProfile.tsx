@@ -17,6 +17,13 @@ interface DropDownWithLabelProps {
     selectedValue: string;
     onValueChange: (itemValue: string) => void;
 }
+type SearchParams = {
+    firstName: string,
+    lastName: string,
+    email: string,
+    pronouns: string,
+    role: string
+}
 const TextFieldWithLabel = ({label, onChangeText, value, ...props}: TextFieldWithLabelProps) => {
     return (
         <View>
@@ -58,11 +65,11 @@ const DropdownWithLabel = ({label, values, selectedValue, onValueChange}: DropDo
 }
 const device = Platform.OS;
 export default function EditProfile () {
-    const {firstName, lastName, email, pronouns, role} = useLocalSearchParams();
-    const [firstNameText, setFirstNameText] = useState(firstName as string);
-    const [lastNameText, setLastNameText] = useState(lastName as string);
-    const [emailText, setEmailText] = useState(email as string);
-    const [pronounsText, setPronounsText] = useState(pronouns as string);
+    const {firstName, lastName, email, pronouns, role} = useLocalSearchParams<SearchParams>();
+    const [firstNameText, setFirstNameText] = useState(firstName);
+    const [lastNameText, setLastNameText] = useState(lastName);
+    const [emailText, setEmailText] = useState(email);
+    const [pronounsText, setPronounsText] = useState(pronouns);
     const [studentStatus, setStudentStatus] = useState('Full-Time');
     const router = useRouter();
     const colorScheme = useColorScheme();
