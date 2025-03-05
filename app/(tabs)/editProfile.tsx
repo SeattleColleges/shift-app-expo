@@ -105,7 +105,7 @@ export default function EditProfile () {
                 <TextFieldWithLabel
                     label={'Middle Name'}
                     onChangeText={setMiddleNameText}
-                    value={middleName}
+                    value={middleNameText}
                 />
                 <TextFieldWithLabel
                     label={'Last Name'}
