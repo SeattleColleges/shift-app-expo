@@ -19,6 +19,7 @@ interface DropDownWithLabelProps {
 }
 type SearchParams = {
     firstName: string,
+    middleName: string,
     lastName: string,
     email: string,
     pronouns: string,
@@ -65,8 +66,9 @@ const DropdownWithLabel = ({label, values, selectedValue, onValueChange}: DropDo
 }
 const device = Platform.OS;
 export default function EditProfile () {
-    const {firstName, lastName, email, pronouns, role} = useLocalSearchParams<SearchParams>();
+    const {firstName, lastName, email, pronouns, role, middleName} = useLocalSearchParams<SearchParams>();
     const [firstNameText, setFirstNameText] = useState(firstName);
+    const [middleNameText, setMiddleNameText] = useState(middleName);
     const [lastNameText, setLastNameText] = useState(lastName);
     const [emailText, setEmailText] = useState(email);
     const [pronounsText, setPronounsText] = useState(pronouns);
@@ -99,6 +101,11 @@ export default function EditProfile () {
                     label={'First Name'}
                     onChangeText={setFirstNameText}
                     value={firstNameText}
+                />
+                <TextFieldWithLabel
+                    label={'Middle Name'}
+                    onChangeText={setMiddleNameText}
+                    value={middleName}
                 />
                 <TextFieldWithLabel
                     label={'Last Name'}
