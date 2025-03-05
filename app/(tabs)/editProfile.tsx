@@ -28,8 +28,8 @@ const TextFieldWithLabel = ({label, onChangeText, value, ...props}: TextFieldWit
     return (
         <View>
             <ThemedText
-                darkColor={'#ccc'}
-                lightColor={'#333'}
+                darkColor={Colors.dark.text}
+                lightColor={Colors.light.text}
                 style={styles.label}>
                 {label}
             </ThemedText>
@@ -46,8 +46,8 @@ const DropdownWithLabel = ({label, values, selectedValue, onValueChange}: DropDo
     return (
         <View>
             <ThemedText
-                darkColor={'#ccc'}
-                lightColor={'#333'}
+                darkColor={Colors.dark.text}
+                lightColor={Colors.light.text}
                 style={styles.label}>
                 {label}
             </ThemedText>
@@ -78,8 +78,15 @@ export default function EditProfile () {
         <ScrollView style={{backgroundColor: Colors[colorScheme || 'light'].background}}>
             <View style={styles.headerContainer}>
                 <ThemedText type={'title'}>Edit Profile</ThemedText>
-                <ThemedView darkColor={'#fff'} lightColor={'#000'} style={styles.circle} >
-                    <ThemedText style={styles.userText} lightColor={'#fff'} darkColor={'#000'} >
+                <ThemedView
+                    darkColor={Colors.light.background}
+                    lightColor={Colors.dark.background}
+                    style={styles.circle} >
+                    <ThemedText
+                        style={styles.userText}
+                        lightColor={Colors.light.background}
+                        darkColor={Colors.dark.background}
+                    >
                         {`${firstName[0].toUpperCase()}${lastName[0].toUpperCase()}`}
                     </ThemedText>
                 </ThemedView>
