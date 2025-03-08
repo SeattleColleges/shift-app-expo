@@ -12,7 +12,7 @@ export default function LandingPage() {
   };
 
   const handleLoginPress = () => {
-    router.push('/loginpage'); // Navigate to the login page
+    router.push('/(auth)'); // Navigate to the login page
   };
 
   return (
