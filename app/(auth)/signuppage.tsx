@@ -1,5 +1,5 @@
 import { Link } from 'expo-router';
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import {
   View,
   Text,
@@ -21,6 +21,35 @@ export default function SignUpPage() {
   const [confirmPassword, setConfirmPassword] = useState('');
   const [department, setDepartment] = useState('');
   const [supervisor, setSupervisor] = useState('');
+  const [isFormValid, setIsFormValid] = useState(false);
+  const [isEmailValid, setIsEmailValid] = useState(true);
+  const [isPasswordValid, setIsPasswordValid] = useState(true);
+
+  useEffect(() => {
+    validateForm();
+  }, [name, lastName, email, password, confirmPassword, department, supervisor]);
+
+  const validateForm = () => {
+    const emailPattern = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    const emailIsValid = emailPattern.test(email);
+    setIsEmailValid(emailIsValid);
+
+    const passwordPattern = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$/;
+    const passwordIsValid = passwordPattern.test(password);
+    setIsPasswordValid(passwordIsValid);
+
+    let formValid = true;
+    if (!name) { formValid = false; }
+    if (!lastName) { formValid = false; }
+    if (!emailIsValid) { formValid = false; }
+    if (!passwordIsValid) { formValid = false; }
+    if (!confirmPassword) { formValid = false; }
+    if (!department) { formValid = false; }
+    if (!supervisor) { formValid = false; }
+    if (password !== confirmPassword) { formValid = false; }
+
+    setIsFormValid(formValid);
+  };
 
   const handleSignUp = () => {
     Alert.alert('Sign Up', `Name: ${name} ${middleName} ${lastName}\nEmail: ${email}`);
@@ -76,9 +105,17 @@ export default function SignUpPage() {
           placeholder="Email"
           placeholderTextColor="#888"
           value={email}
-          onChangeText={setEmail}
+          onChangeText={(text) => {
+            setEmail(text);
+            if (text) { // Check if email input is not empty
+              setIsEmailValid(/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(text));
+            } else {
+              setIsEmailValid(true); //email is valid if empty
+            }
+          }}
           keyboardType="email-address"
         />
+        {!isEmailValid && email.length > 0 && <Text style={styles.errorText}>Wrong email format</Text>}
       </View>
 
       {/* Password Input */}
@@ -92,6 +129,11 @@ export default function SignUpPage() {
           onChangeText={setPassword}
           secureTextEntry
         />
+        {!isPasswordValid && password.length > 0 && (
+          <Text style={styles.errorText}>
+            Password must be at least 8 characters long and include a special character, a capital letter, and a number.
+          </Text>
+        )}
       </View>
 
       {/* Confirm Password Input */}
@@ -105,6 +147,7 @@ export default function SignUpPage() {
           onChangeText={setConfirmPassword}
           secureTextEntry
         />
+        {password !== confirmPassword && <Text style={styles.errorText}>Passwords do not match</Text>}
       </View>
 
       {/* Department Input */}
@@ -132,7 +175,11 @@ export default function SignUpPage() {
       </View>
 
       {/* Sign Up Button */}
-      <TouchableOpacity style={styles.signUpButton} onPress={handleSignUp}>
+      <TouchableOpacity
+        style={[styles.signUpButton, !isFormValid && { backgroundColor: '#ccc' }]}
+        onPress={handleSignUp}
+        disabled={!isFormValid}
+      >
         <Text style={styles.signUpButtonText}>Sign Up</Text>
       </TouchableOpacity>
 
@@ -179,6 +226,11 @@ const styles = StyleSheet.create({
     paddingHorizontal: 10,
     fontSize: 16,
     backgroundColor: '#f9f9f9',
+  },
+  errorText: {
+    color: 'red',
+    fontSize: 14,
+    marginTop: 5,
   },
   signUpButton: {
     width: '85%',
