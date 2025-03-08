@@ -57,6 +57,12 @@ export default function TabLayout() {
                     href: null
                 }}
             />
+            <Tabs.Screen
+                name="editProfile"
+                options={{
+                    href: null
+                }}
+            />
         </Tabs>
     );
 }

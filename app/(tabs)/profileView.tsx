@@ -5,13 +5,12 @@ import { Image } from "expo-image";
 import Feather from "@expo/vector-icons/Feather";
 import { UserDetails } from "@/components/UserDetails";
 
-
 const userName = "user_name";
 
 export default function AdminDashboard() {
   return (
     <>
-      <ScrollView>
+      <ScrollView contentContainerStyle={{justifyContent:'space-between'}}>
         <View style={styles.container}>
         <View style={styles.profile}>
           <Image
@@ -19,7 +18,7 @@ export default function AdminDashboard() {
             source="../assets/images/profileImg.jpg"
           />
         </View>
-        <UserDetails />
+            <UserDetails />
           <View><Text>Hi!, {userName}!</Text></View>
         </View>
         <View style={styles.border}>
