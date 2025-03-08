@@ -33,7 +33,7 @@ export default function HomeScreen(): ReactElement {
         <Link href="/(auth)/forgot-password" style={linkStyle}>Forgot Password Page</Link>
         <Link href="/help" style={linkStyle}>Help Page</Link>
         <Link href="/landing" style={linkStyle}>Landing page</Link>
-        <Link href="/(auth)/loginpage" style={linkStyle}>Login</Link>
+        <Link href="/(auth)" style={linkStyle}>Login</Link>
         <Link href="/(auth)/signuppage" style={linkStyle}>Signup</Link>
         <Link href="/(tabs)/notifications" style={linkStyle}>Notifications Page</Link>
         <Link href="/add-schedule" style={linkStyle}>Add Schedule</Link>

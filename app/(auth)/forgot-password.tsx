@@ -9,7 +9,7 @@ import {
 } from 'react-native';
 import { Link } from 'expo-router';
 
-const { width } = Dimensions.get('window'); 
+const { width } = Dimensions.get('window');
 export default function ForgotPasswordPage() {
   const [email, setEmail] = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -30,10 +30,10 @@ export default function ForgotPasswordPage() {
 
   return (
     <View style={styles.container}>
-      
+
       <Text style={styles.title}>Forgot Password</Text>
 
-      
+
       <View style={styles.inputContainer}>
         <Text style={styles.label}>Email</Text>
         <TextInput
@@ -47,7 +47,6 @@ export default function ForgotPasswordPage() {
         />
       </View>
 
-      
       <TouchableOpacity
         style={[styles.submitButton, isSubmitting && styles.disabledButton]}
         onPress={handlePasswordReset}
@@ -58,11 +57,11 @@ export default function ForgotPasswordPage() {
         </Text>
       </TouchableOpacity>
 
-      
+
       {message !== '' && <Text style={styles.feedback}>{message}</Text>}
 
-      
-      <Link href="/loginpage" style={styles.link}>Back to Login</Link>
+
+      <Link href="/(auth)" style={styles.link}>Back to Login</Link>
     </View>
   );
 }

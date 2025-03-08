@@ -1,4 +1,3 @@
-import { useRouter } from 'expo-router';
 import React, { useState } from 'react';
 import {
   View,
@@ -9,17 +8,34 @@ import {
   Dimensions,
   Alert,
 } from 'react-native';
+import {useRouter} from "expo-router";
+import {supabase} from "@/lib/supabaseClient";
 
 const { width } = Dimensions.get('window'); // Get the current screen width
 
-export default function LoginPage() {
+export default function Index() {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
-  const router = useRouter();
+  const router = useRouter()
 
-  const handleLogin = () => {
-    Alert.alert('Login', `Email: ${email}\nPassword: ${password}`);
-  };
+  const handleSignIn = ():void => {
+    async function signInWithEmail() {
+      // @ts-ignore For now
+      const { error, data } = await supabase?.auth.signInWithPassword({
+        email: email,
+        password: password,
+      })
+
+      if (error) {
+        Alert.alert(error.message)
+      }
+      if (data) {
+        console.log("Signin page: "+JSON.stringify(data, null, 2))
+        router.replace('/(tabs)')
+      }
+    }
+    signInWithEmail()
+  }
 
   const goToForgotPassword = () => {
     router.push('/(auth)/forgot-password');
@@ -61,7 +77,7 @@ export default function LoginPage() {
       </View>
 
       {/* Login Button */}
-      <TouchableOpacity style={styles.loginButton} onPress={handleLogin}>
+      <TouchableOpacity style={styles.loginButton} onPress={handleSignIn}>
         <Text style={styles.loginButtonText}>Login</Text>
       </TouchableOpacity>
 
