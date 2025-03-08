@@ -10,23 +10,20 @@ import {
   Alert,
 } from 'react-native';
 
-
-
-
-
 const { width } = Dimensions.get('window'); // Get the current screen width
 
 export default function SignUpPage() {
   const [name, setName] = useState('');
+  const [middleName, setMiddleName] = useState('');
+  const [lastName, setLastName] = useState('');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
   const [department, setDepartment] = useState('');
   const [supervisor, setSupervisor] = useState('');
 
-
   const handleSignUp = () => {
-    Alert.alert('Sign Up', `Name: ${name}\nEmail: ${email}`);
+    Alert.alert('Sign Up', `Name: ${name} ${middleName} ${lastName}\nEmail: ${email}`);
     // Add sign-up logic here
   };
 
@@ -37,13 +34,37 @@ export default function SignUpPage() {
 
       {/* Name Input */}
       <View style={styles.inputContainer}>
-        <Text style={styles.label}>Name</Text>
+        <Text style={styles.label}>First Name</Text>
         <TextInput
           style={styles.input}
-          placeholder="value"
+          placeholder="First Name"
           placeholderTextColor="#888"
           value={name}
           onChangeText={setName}
+        />
+      </View>
+
+      {/* Middle Name Input */}
+      <View style={styles.inputContainer}>
+        <Text style={styles.label}>Middle Name (Optional)</Text>
+        <TextInput
+          style={styles.input}
+          placeholder="Middle Name"
+          placeholderTextColor="#888"
+          value={middleName}
+          onChangeText={setMiddleName}
+        />
+      </View>
+
+      {/* Last Name Input */}
+      <View style={styles.inputContainer}>
+        <Text style={styles.label}>Last Name</Text>
+        <TextInput
+          style={styles.input}
+          placeholder="Last Name"
+          placeholderTextColor="#888"
+          value={lastName}
+          onChangeText={setLastName}
         />
       </View>
 
@@ -52,7 +73,7 @@ export default function SignUpPage() {
         <Text style={styles.label}>Email</Text>
         <TextInput
           style={styles.input}
-          placeholder="value"
+          placeholder="Email"
           placeholderTextColor="#888"
           value={email}
           onChangeText={setEmail}
@@ -65,7 +86,7 @@ export default function SignUpPage() {
         <Text style={styles.label}>Password</Text>
         <TextInput
           style={styles.input}
-          placeholder="value"
+          placeholder="Password"
           placeholderTextColor="#888"
           value={password}
           onChangeText={setPassword}
@@ -78,7 +99,7 @@ export default function SignUpPage() {
         <Text style={styles.label}>Confirm Password</Text>
         <TextInput
           style={styles.input}
-          placeholder="value"
+          placeholder="Confirm Password"
           placeholderTextColor="#888"
           value={confirmPassword}
           onChangeText={setConfirmPassword}
@@ -91,7 +112,7 @@ export default function SignUpPage() {
         <Text style={styles.label}>Department</Text>
         <TextInput
           style={styles.input}
-          placeholder="value"
+          placeholder="Department"
           placeholderTextColor="#888"
           value={department}
           onChangeText={setDepartment}
@@ -103,7 +124,7 @@ export default function SignUpPage() {
         <Text style={styles.label}>Supervisor</Text>
         <TextInput
           style={styles.input}
-          placeholder="value"
+          placeholder="Supervisor"
           placeholderTextColor="#888"
           value={supervisor}
           onChangeText={setSupervisor}
@@ -119,8 +140,8 @@ export default function SignUpPage() {
       <View style={styles.signInContainer}>
         <Text style={styles.text}>Already have an account? </Text>
         <Link href="/loginpage" style={styles.link}>
-        Login
-      </Link>
+          Login
+        </Link>
       </View>
     </View>
   );
