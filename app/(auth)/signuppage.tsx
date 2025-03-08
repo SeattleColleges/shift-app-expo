@@ -1,5 +1,5 @@
 import { Link } from 'expo-router';
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import {
   View,
   Text,
@@ -8,173 +8,145 @@ import {
   StyleSheet,
   Dimensions,
   Alert,
+  KeyboardTypeOptions,
 } from 'react-native';
 
-const { width } = Dimensions.get('window'); // Get the current screen width
+const { width } = Dimensions.get('window');
 
 export default function SignUpPage() {
-  const [name, setName] = useState('');
-  const [middleName, setMiddleName] = useState('');
-  const [lastName, setLastName] = useState('');
-  const [email, setEmail] = useState('');
-  const [password, setPassword] = useState('');
-  const [confirmPassword, setConfirmPassword] = useState('');
-  const [department, setDepartment] = useState('');
-  const [supervisor, setSupervisor] = useState('');
+  const [formData, setFormData] = useState({
+    name: '',
+    middleName: '',
+    lastName: '',
+    email: '',
+    password: '',
+    confirmPassword: '',
+    department: '',
+    supervisor: '',
+  });
   const [isFormValid, setIsFormValid] = useState(false);
   const [isEmailValid, setIsEmailValid] = useState(true);
-  const [isPasswordValid, setIsPasswordValid] = useState(true);
+  const [passwordError, setPasswordError] = useState<string | null>(null);
+
+  const validateEmail = useCallback((email: string): boolean => {
+    const emailPattern = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    return emailPattern.test(email);
+  }, []);
+
+  const validatePassword = useCallback((password: string): string | null => {
+    if (password.length < 8) {
+      return 'Password must be at least 8 characters long.';
+    }
+    if (!/(?=.*[a-z])/.test(password)) {
+      return 'Password must contain at least one lowercase letter.';
+    }
+    if (!/(?=.*[A-Z])/.test(password)) {
+      return 'Password must contain at least one uppercase letter.';
+    }
+    if (!/(?=.*\d)/.test(password)) {
+      return 'Password must contain at least one number.';
+    }
+    if (!/(?=.*[@$!%*?&#])/.test(password)) {
+      return 'Password must contain at least one special character (@, $, !, %, *, ?, &).';
+    }
+    return null; // Password is valid
+  }, []);
+
+  const validateForm = useCallback(() => {
+    const emailIsValid = validateEmail(formData.email);
+    setIsEmailValid(emailIsValid);
+
+    const passwordErrorMsg = validatePassword(formData.password);
+    setPasswordError(passwordErrorMsg);
+
+    const formValid =
+      Object.entries(formData)
+        .filter(([key]) => key !== 'middleName') // Exclude middleName from required fields.
+        .every(([_, value]) => value) &&
+      emailIsValid &&
+      !passwordErrorMsg &&
+      formData.password === formData.confirmPassword;
+    setIsFormValid(formValid);
+  }, [formData, validateEmail, validatePassword]);
 
   useEffect(() => {
     validateForm();
-  }, [name, lastName, email, password, confirmPassword, department, supervisor]);
+  }, [validateForm]);
 
-  const validateForm = () => {
-    const emailPattern = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-    const emailIsValid = emailPattern.test(email);
-    setIsEmailValid(emailIsValid);
+  const handleInputChange = useCallback((name: string, value: string) => {
+    setFormData((prev) => ({ ...prev, [name]: value }));
+  }, []);
 
-    const passwordPattern = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$/;
-    const passwordIsValid = passwordPattern.test(password);
-    setIsPasswordValid(passwordIsValid);
-
-    let formValid = true;
-    if (!name) { formValid = false; }
-    if (!lastName) { formValid = false; }
-    if (!emailIsValid) { formValid = false; }
-    if (!passwordIsValid) { formValid = false; }
-    if (!confirmPassword) { formValid = false; }
-    if (!department) { formValid = false; }
-    if (!supervisor) { formValid = false; }
-    if (password !== confirmPassword) { formValid = false; }
-
-    setIsFormValid(formValid);
-  };
-
-  const handleSignUp = () => {
-    Alert.alert('Sign Up', `Name: ${name} ${middleName} ${lastName}\nEmail: ${email}`);
+  const handleSignUp = useCallback(() => {
+    Alert.alert(
+      'Sign Up',
+      `Name: ${formData.name} ${formData.middleName} ${formData.lastName}\nEmail: ${formData.email}`
+    );
     // Add sign-up logic here
-  };
+  }, [formData]);
+
+  const renderInput = useCallback(
+    (
+      label: string,
+      name: string,
+      value: string,
+      onChange: (name: string, value: string) => void,
+      keyboardType: KeyboardTypeOptions = 'default',
+      error: string | null = null,
+      secureTextEntry: boolean = false
+    ) => (
+      <View style={styles.inputContainer}>
+        <Text style={styles.label}>{label}</Text>
+        <TextInput
+          style={styles.input}
+          placeholder={label}
+          placeholderTextColor="#888"
+          value={value}
+          onChangeText={(text) => onChange(name, text)}
+          keyboardType={keyboardType}
+          secureTextEntry={secureTextEntry}
+        />
+        {error ? <Text style={styles.errorText}>{error}</Text> : null}
+      </View>
+    ),
+    []
+  );
 
   return (
     <View style={styles.container}>
-      {/* Title */}
       <Text style={styles.title}>Sign Up</Text>
+      {renderInput('First Name', 'name', formData.name, handleInputChange)}
+      {renderInput('Middle Name (Optional)', 'middleName', formData.middleName, handleInputChange)}
+      {renderInput('Last Name', 'lastName', formData.lastName, handleInputChange)}
+      {renderInput(
+        'Email',
+        'email',
+        formData.email,
+        handleInputChange,
+        'email-address',
+        !isEmailValid ? 'Wrong email format' : null
+      )}
+      {renderInput(
+        'Password',
+        'password',
+        formData.password,
+        handleInputChange,
+        'default',
+        passwordError,
+        true
+      )}
+      {renderInput(
+        'Confirm Password',
+        'confirmPassword',
+        formData.confirmPassword,
+        handleInputChange,
+        'default',
+        formData.password !== formData.confirmPassword ? 'Passwords do not match' : null,
+        true
+      )}
+      {renderInput('Department', 'department', formData.department, handleInputChange)}
+      {renderInput('Supervisor', 'supervisor', formData.supervisor, handleInputChange)}
 
-      {/* Name Input */}
-      <View style={styles.inputContainer}>
-        <Text style={styles.label}>First Name</Text>
-        <TextInput
-          style={styles.input}
-          placeholder="First Name"
-          placeholderTextColor="#888"
-          value={name}
-          onChangeText={setName}
-        />
-      </View>
-
-      {/* Middle Name Input */}
-      <View style={styles.inputContainer}>
-        <Text style={styles.label}>Middle Name (Optional)</Text>
-        <TextInput
-          style={styles.input}
-          placeholder="Middle Name"
-          placeholderTextColor="#888"
-          value={middleName}
-          onChangeText={setMiddleName}
-        />
-      </View>
-
-      {/* Last Name Input */}
-      <View style={styles.inputContainer}>
-        <Text style={styles.label}>Last Name</Text>
-        <TextInput
-          style={styles.input}
-          placeholder="Last Name"
-          placeholderTextColor="#888"
-          value={lastName}
-          onChangeText={setLastName}
-        />
-      </View>
-
-      {/* Email Input */}
-      <View style={styles.inputContainer}>
-        <Text style={styles.label}>Email</Text>
-        <TextInput
-          style={styles.input}
-          placeholder="Email"
-          placeholderTextColor="#888"
-          value={email}
-          onChangeText={(text) => {
-            setEmail(text);
-            if (text) { // Check if email input is not empty
-              setIsEmailValid(/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(text));
-            } else {
-              setIsEmailValid(true); //email is valid if empty
-            }
-          }}
-          keyboardType="email-address"
-        />
-        {!isEmailValid && email.length > 0 && <Text style={styles.errorText}>Wrong email format</Text>}
-      </View>
-
-      {/* Password Input */}
-      <View style={styles.inputContainer}>
-        <Text style={styles.label}>Password</Text>
-        <TextInput
-          style={styles.input}
-          placeholder="Password"
-          placeholderTextColor="#888"
-          value={password}
-          onChangeText={setPassword}
-          secureTextEntry
-        />
-        {!isPasswordValid && password.length > 0 && (
-          <Text style={styles.errorText}>
-            Password must be at least 8 characters long and include a special character, a capital letter, and a number.
-          </Text>
-        )}
-      </View>
-
-      {/* Confirm Password Input */}
-      <View style={styles.inputContainer}>
-        <Text style={styles.label}>Confirm Password</Text>
-        <TextInput
-          style={styles.input}
-          placeholder="Confirm Password"
-          placeholderTextColor="#888"
-          value={confirmPassword}
-          onChangeText={setConfirmPassword}
-          secureTextEntry
-        />
-        {password !== confirmPassword && <Text style={styles.errorText}>Passwords do not match</Text>}
-      </View>
-
-      {/* Department Input */}
-      <View style={styles.inputContainer}>
-        <Text style={styles.label}>Department</Text>
-        <TextInput
-          style={styles.input}
-          placeholder="Department"
-          placeholderTextColor="#888"
-          value={department}
-          onChangeText={setDepartment}
-        />
-      </View>
-
-      {/* Supervisor Input */}
-      <View style={styles.inputContainer}>
-        <Text style={styles.label}>Supervisor</Text>
-        <TextInput
-          style={styles.input}
-          placeholder="Supervisor"
-          placeholderTextColor="#888"
-          value={supervisor}
-          onChangeText={setSupervisor}
-        />
-      </View>
-
-      {/* Sign Up Button */}
       <TouchableOpacity
         style={[styles.signUpButton, !isFormValid && { backgroundColor: '#ccc' }]}
         onPress={handleSignUp}
@@ -183,7 +155,6 @@ export default function SignUpPage() {
         <Text style={styles.signUpButtonText}>Sign Up</Text>
       </TouchableOpacity>
 
-      {/* Sign In Link */}
       <View style={styles.signInContainer}>
         <Text style={styles.text}>Already have an account? </Text>
         <Link href="/loginpage" style={styles.link}>
