@@ -17,7 +17,18 @@ export default function LoginPage() {
   const [password, setPassword] = useState('');
   const router = useRouter();
 
+  const isValidEmail = (email: string) => {
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    return emailRegex.test(email);
+  };
+
+  const isFormValid = isValidEmail(email) && password.length > 0;
+
   const handleLogin = () => {
+    if (!isFormValid) {
+      Alert.alert('Error', 'Please enter a valid email address and password.');
+      return;
+    }
     Alert.alert('Login', `Email: ${email}\nPassword: ${password}`);
   };
 
@@ -61,7 +72,7 @@ export default function LoginPage() {
       </View>
 
       {/* Login Button */}
-      <TouchableOpacity style={styles.loginButton} onPress={handleLogin}>
+      <TouchableOpacity style={[styles.loginButton, !isFormValid && styles.disabledButton]} onPress={handleLogin} disabled={!isFormValid}>
         <Text style={styles.loginButtonText}>Login</Text>
       </TouchableOpacity>
 
@@ -131,6 +142,9 @@ const styles = StyleSheet.create({
     color: '#fff',
     fontSize: 16,
     fontWeight: 'bold',
+  },
+  disabledButton: {
+    backgroundColor: '#ccc',
   },
   link: {
     color: '#007BFF',
