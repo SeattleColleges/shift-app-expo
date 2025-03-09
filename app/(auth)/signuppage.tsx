@@ -46,8 +46,8 @@ export default function SignUpPage() {
     if (!/(?=.*\d)/.test(password)) {
       return 'Password must contain at least one number.';
     }
-    if (!/(?=.*[@$!%*?&#])/.test(password)) {
-      return 'Password must contain at least one special character (@, $, !, %, *, ?, &).';
+    if (!/(?=.*[@$!%*?&#^~])/.test(password)) {
+      return 'Password must contain at least one special character (@, $, !, %, *, ?, &,).';
     }
     return null; // Password is valid
   }, []);
