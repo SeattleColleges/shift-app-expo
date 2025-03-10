@@ -42,7 +42,7 @@ describe('ForgotPasswordPage Component', () => {
   });
 
   test('displays success message after form submission', async () => {
-    jest.useFakeTimers(); // ✅ Enable fake timers before rendering
+    jest.useFakeTimers(); 
 
     const { getByText, getByPlaceholderText, queryByText } = render(<ForgotPasswordPage />);
 
@@ -52,24 +52,24 @@ describe('ForgotPasswordPage Component', () => {
     fireEvent.changeText(emailInput, 'test@example.com');
     fireEvent.press(submitButton);
 
-    // Ensure the button changes to "Sending..."
+    
     expect(getByText('Sending...')).toBeTruthy();
 
-    // Move time forward by 2000ms
+    
     await act(async () => {
       jest.advanceTimersByTime(2000);
     });
 
-    // Wait for success message to appear
+    
     await waitFor(() => {
       expect(getByText('If this email is registered, you will receive a reset link.')).toBeTruthy();
     });
 
-    // Ensure the button resets back to "Send Reset Link"
+    
     await waitFor(() => {
       expect(queryByText('Sending...')).toBeNull();
     });
 
-    jest.useRealTimers(); // ✅ Restore real timers after test completes
+    jest.useRealTimers(); 
   });
 });
