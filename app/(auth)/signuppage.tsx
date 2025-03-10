@@ -102,7 +102,8 @@ export default function SignUpPage() {
       keyboardType: KeyboardTypeOptions = 'default',
       error: string | null = null,
       secureTextEntry: boolean = false,
-      autoCapitalize: 'none' | 'sentences' | 'words' | 'characters' = 'sentences'
+      autoCapitalize: 'none' | 'sentences' | 'words' | 'characters' = 'sentences',
+      textContentType: 'none' | 'emailAddress' | 'password' | 'newPassword' | 'oneTimeCode' = 'none'
     ) => (
       <View style={styles.inputContainer}>
         <Text style={styles.label}>{label}</Text>
@@ -115,6 +116,7 @@ export default function SignUpPage() {
           keyboardType={keyboardType}
           secureTextEntry={secureTextEntry}
           autoCapitalize={autoCapitalize}
+          textContentType={textContentType}
         />
         {error ? <Text style={styles.errorText}>{error}</Text> : null}
       </View>
@@ -136,7 +138,8 @@ export default function SignUpPage() {
         'email-address',
         !isEmailValid ? 'Wrong email format' : null,
         false,
-        'none'
+        'none',
+        'emailAddress'
       )}
       {renderInput(
         'Password',
@@ -145,7 +148,9 @@ export default function SignUpPage() {
         handleInputChange,
         'default',
         passwordError,
-        true
+        true,
+        'none',
+        'newPassword'
       )}
       {renderInput(
         'Confirm Password',
@@ -154,7 +159,9 @@ export default function SignUpPage() {
         handleInputChange,
         'default',
         formData.password !== formData.confirmPassword ? 'Passwords do not match' : null,
-        true
+        true,
+        'none',
+        'newPassword'
       )}
       {renderInput('Department', 'department', formData.department, handleInputChange)}
       {renderInput('Supervisor', 'supervisor', formData.supervisor, handleInputChange)}
