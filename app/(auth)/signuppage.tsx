@@ -73,8 +73,16 @@ export default function SignUpPage() {
     validateForm();
   }, [validateForm]);
 
+  const capitalizeFirstLetter = (string: string) => {
+    return string.charAt(0).toUpperCase() + string.slice(1);
+  };
+
   const handleInputChange = useCallback((name: string, value: string) => {
-    setFormData((prev) => ({ ...prev, [name]: value }));
+    let newValue = value;
+    if (['name', 'middleName', 'lastName'].includes(name)) {
+      newValue = capitalizeFirstLetter(value);
+    }
+    setFormData((prev) => ({ ...prev, [name]: newValue }));
   }, []);
 
   const handleSignUp = useCallback(() => {
@@ -93,7 +101,8 @@ export default function SignUpPage() {
       onChange: (name: string, value: string) => void,
       keyboardType: KeyboardTypeOptions = 'default',
       error: string | null = null,
-      secureTextEntry: boolean = false
+      secureTextEntry: boolean = false,
+      autoCapitalize: 'none' | 'sentences' | 'words' | 'characters' = 'sentences'
     ) => (
       <View style={styles.inputContainer}>
         <Text style={styles.label}>{label}</Text>
@@ -105,6 +114,7 @@ export default function SignUpPage() {
           onChangeText={(text) => onChange(name, text)}
           keyboardType={keyboardType}
           secureTextEntry={secureTextEntry}
+          autoCapitalize={autoCapitalize}
         />
         {error ? <Text style={styles.errorText}>{error}</Text> : null}
       </View>
@@ -124,7 +134,9 @@ export default function SignUpPage() {
         formData.email,
         handleInputChange,
         'email-address',
-        !isEmailValid ? 'Wrong email format' : null
+        !isEmailValid ? 'Wrong email format' : null,
+        false,
+        'none'
       )}
       {renderInput(
         'Password',
