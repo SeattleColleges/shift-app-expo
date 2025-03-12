@@ -21,45 +21,49 @@ const defaultUser: User = {
 export default function AdminDashboard() {
   const [user, setUser] = useState<User | null>(defaultUser);
   return (
-    <>
-      <ScrollView contentContainerStyle={{justifyContent:'space-between'}}>
-        <View style={styles.container}>
-        <View style={styles.profile}>
-          <Image
-            style={styles.image}
-            source="../assets/images/profileImg.jpg"
-          />
-        </View>
-            <UserDetails user={user || defaultUser} />
-          <View><Text>Hi!, {user?.userName || "User Name"}!</Text></View>
-        </View>
-        <View style={styles.border}>
-          <View style={styles.schedule}>
-            <View style={styles.grid}>
-              <View style={{paddingRight: 10}}>
-                <Feather name="plus-circle" size={24} color="green" />
-                <Feather name="alert-circle" size={24} color="red" />
-              </View>
-              <View style={styles.txt}>
-                <View style={{ marginLeft: 10 }}>
-                  <Text>Create Schedule</Text>
+      <>
+        <ScrollView contentContainerStyle={{justifyContent: 'space-between'}}>
+          <View style={styles.container}>
+            <View style={styles.profile}>
+              <Image
+                  style={styles.image}
+                  source="../assets/images/profileImg.jpg"
+              />
+            </View>
+            <UserDetails user={user || defaultUser}/>
+            <View>
+              <Text>
+                Hi!, {user?.userName || "User Name"}!
+              </Text>
+            </View>
+          </View>
+          <View style={styles.border}>
+            <View style={styles.schedule}>
+              <View style={styles.grid}>
+                <View style={{paddingRight: 10}}>
+                  <Feather name="plus-circle" size={24} color="green"/>
+                  <Feather name="alert-circle" size={24} color="red"/>
                 </View>
-                <View style={{ marginLeft: 10 }}>
-                  <Text>Review time off requests</Text>
+                <View style={styles.txt}>
+                  <View style={{marginLeft: 10}}>
+                    <Text>Create Schedule</Text>
+                  </View>
+                  <View style={{marginLeft: 10}}>
+                    <Text>Review time off requests</Text>
+                  </View>
                 </View>
               </View>
             </View>
           </View>
-        </View>
-        <View style={styles.buttonCont}>
+          <View style={styles.buttonCont}>
             <Pressable style={styles.button}>
-                <Text style={styles.buttonTxt}>Log out</Text>
+              <Text style={styles.buttonTxt}>Log out</Text>
             </Pressable>
+          </View>
+        </ScrollView>
+        <View>
         </View>
-      </ScrollView>
-      <View>
-      </View>
-    </>
+      </>
   );
 }
 
