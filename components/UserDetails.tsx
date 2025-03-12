@@ -2,7 +2,7 @@ import React from 'react'
 import {Text, View, StyleSheet} from "react-native";
 import {Link} from "expo-router";
 import Ionicons from "@expo/vector-icons/Ionicons";
-import {User} from "@/app/types/User";
+import {User} from "@/types/User";
 interface UserDetailsProps {
     user: User
 }
