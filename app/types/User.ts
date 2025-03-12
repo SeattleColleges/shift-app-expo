@@ -1,4 +1,5 @@
 export type User = {
+    userName: string;
     firstName: string,
     middleName: string,
     lastName: string,
