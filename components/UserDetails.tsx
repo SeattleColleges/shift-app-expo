@@ -3,8 +3,10 @@ import {Text, View, StyleSheet} from "react-native";
 import {Link} from "expo-router";
 import Ionicons from "@expo/vector-icons/Ionicons";
 import {User} from "@/app/types/User";
-
-export const UserDetails = (user: User) => {
+interface UserDetailsProps {
+    user: User
+}
+export const UserDetails = (user: UserDetailsProps) => {
     const {
         firstName,
         middleName,
@@ -16,7 +18,7 @@ export const UserDetails = (user: User) => {
         phone,
         pronouns,
         role
-    } = user;
+    } = user.user;
     return (
         <>
             <View style={styles.container}>
