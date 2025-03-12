@@ -18,8 +18,8 @@ const defaultUser: User = {
   supervisor: "supervisor",
   userName: 'user_name'
 }
-const [user, setUser] = useState<User | null>(defaultUser);
 export default function AdminDashboard() {
+  const [user, setUser] = useState<User | null>(defaultUser);
   return (
     <>
       <ScrollView contentContainerStyle={{justifyContent:'space-between'}}>
