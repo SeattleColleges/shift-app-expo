@@ -1,12 +1,24 @@
-import React from "react";
+import React, {useState} from "react";
 import { Pressable, StyleSheet, Text, View } from "react-native";
 import { ScrollView } from "react-native";
 import { Image } from "expo-image";
 import Feather from "@expo/vector-icons/Feather";
 import { UserDetails } from "@/components/UserDetails";
-
-const userName = "user_name";
-
+import {User} from "@/types/User";
+const defaultUser: User = {
+  firstName: "firstname",
+  middleName: "middlename",
+  lastName: "lastname",
+  dateHired: "12/31/1999",
+  dept: "dept",
+  email: "email@example.com",
+  phone: "555-555-5555",
+  pronouns: "they/them",
+  role: "role",
+  supervisor: "supervisor",
+  userName: 'user_name'
+}
+const [user, setUser] = useState<User | null>(defaultUser);
 export default function AdminDashboard() {
   return (
     <>
@@ -18,8 +30,8 @@ export default function AdminDashboard() {
             source="../assets/images/profileImg.jpg"
           />
         </View>
-            <UserDetails />
-          <View><Text>Hi!, {userName}!</Text></View>
+            <UserDetails user={user || defaultUser} />
+          <View><Text>Hi!, {user?.userName || "User Name"}!</Text></View>
         </View>
         <View style={styles.border}>
           <View style={styles.schedule}>
