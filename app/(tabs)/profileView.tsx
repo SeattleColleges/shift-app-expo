@@ -1,53 +1,69 @@
-import React from "react";
+import React, {useState} from "react";
 import { Pressable, StyleSheet, Text, View } from "react-native";
 import { ScrollView } from "react-native";
 import { Image } from "expo-image";
 import Feather from "@expo/vector-icons/Feather";
 import { UserDetails } from "@/components/UserDetails";
-
-const userName = "user_name";
-
+import {User} from "@/types/User";
+const defaultUser: User = {
+  firstName: "firstname",
+  middleName: "middlename",
+  lastName: "lastname",
+  dateHired: "12/31/1999",
+  dept: "dept",
+  email: "email@example.com",
+  phone: "555-555-5555",
+  pronouns: "they/them",
+  role: "role",
+  supervisor: "supervisor",
+  userName: 'user_name'
+}
 export default function AdminDashboard() {
+  const [user, setUser] = useState<User | null>(defaultUser);
   return (
-    <>
-      <ScrollView contentContainerStyle={{justifyContent:'space-between'}}>
-        <View style={styles.container}>
-        <View style={styles.profile}>
-          <Image
-            style={styles.image}
-            source="../assets/images/profileImg.jpg"
-          />
-        </View>
-            <UserDetails />
-          <View><Text>Hi!, {userName}!</Text></View>
-        </View>
-        <View style={styles.border}>
-          <View style={styles.schedule}>
-            <View style={styles.grid}>
-              <View style={{paddingRight: 10}}>
-                <Feather name="plus-circle" size={24} color="green" />
-                <Feather name="alert-circle" size={24} color="red" />
-              </View>
-              <View style={styles.txt}>
-                <View style={{ marginLeft: 10 }}>
-                  <Text>Create Schedule</Text>
+      <>
+        <ScrollView contentContainerStyle={{justifyContent: 'space-between'}}>
+          <View style={styles.container}>
+            <View style={styles.profile}>
+              <Image
+                  style={styles.image}
+                  source="../assets/images/profileImg.jpg"
+              />
+            </View>
+            <UserDetails user={user || defaultUser}/>
+            <View>
+              <Text>
+                Hi!, {user?.userName || "User Name"}!
+              </Text>
+            </View>
+          </View>
+          <View style={styles.border}>
+            <View style={styles.schedule}>
+              <View style={styles.grid}>
+                <View style={{paddingRight: 10}}>
+                  <Feather name="plus-circle" size={24} color="green"/>
+                  <Feather name="alert-circle" size={24} color="red"/>
                 </View>
-                <View style={{ marginLeft: 10 }}>
-                  <Text>Review time off requests</Text>
+                <View style={styles.txt}>
+                  <View style={{marginLeft: 10}}>
+                    <Text>Create Schedule</Text>
+                  </View>
+                  <View style={{marginLeft: 10}}>
+                    <Text>Review time off requests</Text>
+                  </View>
                 </View>
               </View>
             </View>
           </View>
-        </View>
-        <View style={styles.buttonCont}>
+          <View style={styles.buttonCont}>
             <Pressable style={styles.button}>
-                <Text style={styles.buttonTxt}>Log out</Text>
+              <Text style={styles.buttonTxt}>Log out</Text>
             </Pressable>
+          </View>
+        </ScrollView>
+        <View>
         </View>
-      </ScrollView>
-      <View>
-      </View>
-    </>
+      </>
   );
 }
 
