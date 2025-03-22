@@ -5,6 +5,7 @@ import {useLocalSearchParams, useRouter} from "expo-router";
 import {useState} from "react";
 import {DropdownWithLabel, TextFieldWithLabel} from "@/components/CustomInputFields";
 import {Colors} from "@/constants/Colors";
+import {ProfileImage} from "@/components/ProfileImage";
 
 type SearchParams = {
     firstName: string,
@@ -18,6 +19,7 @@ type SearchParams = {
 const device = Platform.OS;
 export default function EditProfile () {
     const {firstName, lastName, email, pronouns, role, middleName} = useLocalSearchParams<SearchParams>();
+    const userProfileImageUrl = null; // Replace with the actual image URL or fetch logic if available
     const [firstNameText, setFirstNameText] = useState(firstName);
     const [middleNameText, setMiddleNameText] = useState(middleName);
     const [lastNameText, setLastNameText] = useState(lastName);
@@ -40,23 +42,14 @@ export default function EditProfile () {
     return (
         <ScrollView style={{backgroundColor: Colors[colorScheme || 'light'].background}}>
             <View style={styles.headerContainer}>
-                <ThemedText type={'title'}>Edit Profile</ThemedText>
-                <ThemedView
-                    darkColor={Colors.light.background}
-                    lightColor={Colors.dark.background}
-                    style={styles.circle} >
-                    <ThemedText
-                        style={styles.userText}
-                        lightColor={Colors.light.background}
-                        darkColor={Colors.dark.background}
-                    >
-                        {`${firstName[0].toUpperCase()}${lastName[0].toUpperCase()}`}
-                    </ThemedText>
-                </ThemedView>
-                <ThemedText style={{fontSize:24}} type={'default'}>
-                    {`Role: ${role}`}
-                </ThemedText>
-            </View>
+            <ThemedText type={'title'}>Edit Profile</ThemedText>
+            <ProfileImage
+            initialImageSource={""} // Replace with the actual image URL if available
+            />
+    <ThemedText style={{ fontSize: 24 }} type={'default'}>
+        {`Role: ${role}`}
+    </ThemedText>
+</View>
             <View style={styles.editFieldsContainer}>
                 <TextFieldWithLabel
                     label={'First Name'}

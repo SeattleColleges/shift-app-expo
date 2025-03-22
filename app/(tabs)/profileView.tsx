@@ -1,10 +1,11 @@
-import React, {useState} from "react";
+import React, { useState } from "react";
 import { Pressable, StyleSheet, Text, View } from "react-native";
 import { ScrollView } from "react-native";
 import { Image } from "expo-image";
 import Feather from "@expo/vector-icons/Feather";
 import { UserDetails } from "@/components/UserDetails";
-import {User} from "@/types/User";
+import { User } from "@/types/User";
+
 const defaultUser: User = {
   firstName: "firstname",
   middleName: "middlename",
@@ -14,56 +15,60 @@ const defaultUser: User = {
   email: "email@example.com",
   phone: "555-555-5555",
   pronouns: "they/them",
-  role: "role",
+  role: "role", // Change this to "admin" or "user" to test
   supervisor: "supervisor",
-  userName: 'user_name'
-}
+  userName: "user_name",
+};
+
 export default function AdminDashboard() {
   const [user, setUser] = useState<User | null>(defaultUser);
+
+  // Define links based on the user's role
+  const links: { label: string; icon: "alert-circle" | "grid" | "repeat" | "send" | "download" | "calendar" | "clock" | "user"; action: () => void }[] =
+    user?.role === "admin"
+      ? [
+          { label: "Review Time Off Requests", icon: "alert-circle", action: () => console.log("Review Time Off Requests") },
+          { label: "View Shift Coverage Gaps", icon: "grid", action: () => console.log("View Shift Coverage Gaps") },
+          { label: "Review Shift Swap Requests", icon: "repeat", action: () => console.log("Review Shift Swap Requests") },
+          { label: "Send Announcement", icon: "send", action: () => console.log("Send Announcement") },
+          { label: "Export Weekly Requests", icon: "download", action: () => console.log("Export Weekly Requests") },
+        ]
+      : [
+          { label: "Request Time Off", icon: "calendar", action: () => console.log("Request Time Off") },
+          { label: "Request Shift Swap", icon: "repeat", action: () => console.log("Request Shift Swap") },
+          { label: "View Shift History", icon: "clock", action: () => console.log("View Shift History") },
+          { label: "View Supervisor Info", icon: "user", action: () => console.log("View Supervisor Info") },
+        ];
+
   return (
-      <>
-        <ScrollView contentContainerStyle={{justifyContent: 'space-between'}}>
-          <View style={styles.container}>
-            <View style={styles.profile}>
-              <Image
-                  style={styles.image}
-                  source="../assets/images/profileImg.jpg"
-              />
-            </View>
-            <UserDetails user={user || defaultUser}/>
-            <View>
-              <Text>
-                Hi!, {user?.userName || "User Name"}!
-              </Text>
-            </View>
+    <>
+      <ScrollView contentContainerStyle={{ justifyContent: "space-between" }}>
+        <View style={styles.container}>
+          <View style={styles.profile}>
+            <Image style={styles.image} source="../assets/images/profileImg.jpg" />
           </View>
-          <View style={styles.border}>
-            <View style={styles.schedule}>
-              <View style={styles.grid}>
-                <View style={{paddingRight: 10}}>
-                  <Feather name="plus-circle" size={24} color="green"/>
-                  <Feather name="alert-circle" size={24} color="red"/>
-                </View>
-                <View style={styles.txt}>
-                  <View style={{marginLeft: 10}}>
-                    <Text>Create Schedule</Text>
-                  </View>
-                  <View style={{marginLeft: 10}}>
-                    <Text>Review time off requests</Text>
-                  </View>
-                </View>
-              </View>
-            </View>
+          <UserDetails user={user || defaultUser} />
+          <View>
+            <Text>Hi!, {user?.userName || "User Name"}!</Text>
           </View>
-          <View style={styles.buttonCont}>
-            <Pressable style={styles.button}>
-              <Text style={styles.buttonTxt}>Log out</Text>
-            </Pressable>
-          </View>
-        </ScrollView>
-        <View>
         </View>
-      </>
+        <View style={styles.border}>
+          <View style={styles.schedule}>
+            {links.map((link, index) => (
+              <Pressable key={index} style={styles.linkContainer} onPress={link.action}>
+                <Feather name={link.icon} size={24} color="blue" />
+                <Text style={styles.linkText}>{link.label}</Text>
+              </Pressable>
+            ))}
+          </View>
+        </View>
+        <View style={styles.buttonCont}>
+          <Pressable style={styles.button}>
+            <Text style={styles.buttonTxt}>Log out</Text>
+          </Pressable>
+        </View>
+      </ScrollView>
+    </>
   );
 }
 
@@ -78,7 +83,7 @@ const styles = StyleSheet.create({
     height: 100,
     borderRadius: 50,
     overflow: "hidden",
-    marginBottom: 10, 
+    marginBottom: 10,
     justifyContent: "center",
     alignItems: "center",
   },
@@ -92,19 +97,22 @@ const styles = StyleSheet.create({
     borderRadius: 10,
     marginLeft: 10,
     marginRight: 10,
-    height: 140,
+    padding: 10,
     marginTop: 40,
   },
   schedule: {
     flex: 1,
     justifyContent: "center",
-    alignItems: "center",
+    alignItems: "flex-start",
   },
-  grid: {
+  linkContainer: {
     flexDirection: "row",
+    alignItems: "center",
+    marginVertical: 10,
   },
-  txt: {
-    justifyContent: "space-around"
+  linkText: {
+    marginLeft: 10,
+    fontSize: 16,
   },
   buttonCont: {
     marginTop: 200,
@@ -117,7 +125,7 @@ const styles = StyleSheet.create({
     backgroundColor: "#000",
     borderRadius: 5,
     justifyContent: "center",
-    alignItems: "center"
+    alignItems: "center",
   },
   buttonTxt: {
     color: "#fff",
