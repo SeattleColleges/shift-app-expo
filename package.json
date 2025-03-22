@@ -13,8 +13,10 @@
     "unit:tests": "jest --coverage",
     "lint": "expo lint",
     "compile": "tsc",
+    "db:start": "npx supabase start",
     "db:backup": "rm ./supabase/*.sql; npx supabase db dump --local --data-only --file=supabase/db/seed.sql && npx supabase db diff --local -f migrate_file",
-    "db:push": "npx supabase db push --db-url \"postgresql://postgres:postgres@127.0.0.1:54322/postgres\""
+    "db:push": "cross-env dotenv -- npx supabase db push --db-url \"$DATABASE_URL\"",
+    "db:reset": "supabase stop --no-backup && (docker ps -a -q --filter \"name=supabase_*_shift-app-expo\" | xargs -r docker rm) && (docker volume ls -q --filter \"label=com.supabase.cli.project=shift-app-expo\" | xargs -r docker volume rm)"
   },
   "jest": {
     "preset": "jest-expo"
@@ -62,6 +64,8 @@
     "@types/react": "~18.3.12",
     "@types/react-native": "0.72.8",
     "@types/react-test-renderer": "18.3.0",
+    "cross-env": "^7.0.3",
+    "dotenv-cli": "^8.0.0",
     "jest": "^29.7.0",
     "jest-expo": "^52.0.4",
     "react-test-renderer": "18.3.1",
