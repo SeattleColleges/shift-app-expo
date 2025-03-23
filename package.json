@@ -18,7 +18,7 @@
     "db:clear-docker": "supabase stop --no-backup; (docker ps -a -q --filter \"name=supabase_*_shift-app-expo\" | xargs -r docker rm) && (docker volume ls -q --filter \"label=com.supabase.cli.project=shift-app-expo\" | xargs -r docker volume rm)",
     "db:stop": "npx supabase stop",
     "db:status": "npx supabase status",
-    "db:reset": "npx supabase reset",
+    "db:reset": "npx supabase db reset",
     "db:studio": "npx supabase studio"
   },
   "jest": {
