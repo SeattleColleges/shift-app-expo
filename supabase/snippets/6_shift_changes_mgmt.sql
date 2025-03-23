@@ -131,7 +131,7 @@ $$
 DECLARE
     shift_change_rec RECORD;
 BEGIN -- Check supervisor privileges, update shift, update needs_coverage to false
-    SELECT covering_profile_id
+    SELECT covering_profile_id,shift_change_id
     INTO shift_change_rec
     FROM shift_changes
     WHERE shift_id = shift_id_param;
