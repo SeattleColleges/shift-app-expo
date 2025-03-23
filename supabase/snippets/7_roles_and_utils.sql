@@ -5,17 +5,21 @@ Roles, Permissions, and Policies
 
 Note:
 - RLS and policies will be implemented once we are close to alpha testing
-*/
+
+DROP ROLE IF EXISTS shift_supervisor;
+DROP ROLE IF EXISTS shift_employee;
+DROP ROLE IF EXISTS shift_admin;
+
 -- Roles
-CREATE ROLE shift_supervisor;
-CREATE ROLE shift_employee;
-CREATE ROLE shift_admin;
+CREATE ROLE IF NOT EXISTS shift_supervisor;
+CREATE ROLE IF NOT EXISTS shift_employee;
+CREATE ROLE IF NOT EXISTS shift_admin;
+
 -- Permissions
 GRANT SELECT, INSERT, UPDATE, DELETE ON shifts TO shift_admin;
 GRANT SELECT, INSERT, UPDATE, DELETE ON shifts TO shift_supervisor;
 GRANT SELECT, INSERT, UPDATE, DELETE ON shifts TO shift_employee;
-
-
+*/
 /* RLS will be enabled last
 -- Policies -- Enable RLS first before running policies
 ALTER TABLE shift enable ROW LEVEL SECURITY;
