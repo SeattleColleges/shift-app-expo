@@ -5,8 +5,8 @@
 ** Using profile_int_id instead of profile_id for testing
 
 DROP TABLE IF EXISTS supervisors;
-DROP FUNCTION IF EXISTS add_supervisor();
 DROP TRIGGER IF EXISTS supervisor_role_change ON profiles;
+DROP FUNCTION IF EXISTS add_supervisor();
 */
 
 CREATE TABLE supervisors
@@ -44,3 +44,5 @@ CREATE TRIGGER supervisor_role_change
     ON profiles
     FOR EACH ROW
 EXECUTE FUNCTION add_supervisor();
+
+-- SELECT * FROM supervisors;
