@@ -1,6 +1,4 @@
-import * as React from 'react';
-
-
+import React, { useState } from 'react';
 import {
   View,
   Text,
@@ -42,8 +40,10 @@ export default function ForgotPasswordPage() {
 
   return (
     <View style={styles.container}>
+      
       <Text style={styles.title}>Forgot Password</Text>
 
+      
       <View style={styles.inputContainer}>
         <Text style={styles.label}>Email</Text>
         <TextInput
@@ -61,6 +61,7 @@ export default function ForgotPasswordPage() {
         {emailError ? <Text style={styles.errorText}>{emailError}</Text> : null}
       </View>
 
+      
       <TouchableOpacity
         style={[styles.submitButton, isSubmitting && styles.disabledButton]}
         onPress={handlePasswordReset}
@@ -71,9 +72,10 @@ export default function ForgotPasswordPage() {
         </Text>
       </TouchableOpacity>
 
+      
       {message !== '' && <Text style={styles.feedback}>{message}</Text>}
 
-      <Link href="/loginpage" style={styles.link}>
+      <Link href="/(auth)" style={styles.link}>
         <Text style={{ textDecorationLine: 'none', color: '#007BFF' }}>Back to Login</Text>
       </Link>
     </View>
