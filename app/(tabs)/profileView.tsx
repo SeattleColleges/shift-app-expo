@@ -1,10 +1,11 @@
 import React, { useState } from "react";
 import { Pressable, StyleSheet, Text, View } from "react-native";
 import { ScrollView } from "react-native";
-import { Image } from "expo-image";
 import Feather from "@expo/vector-icons/Feather";
 import { UserDetails } from "@/components/UserDetails";
+import { ProfileImage } from "@/components/ProfileImage"; // Import ProfileImage component
 import { User } from "@/types/User";
+import * as Linking from "expo-linking"; // Import Linking from expo
 
 const defaultUser: User = {
   firstName: "firstname",
@@ -15,7 +16,7 @@ const defaultUser: User = {
   email: "email@example.com",
   phone: "555-555-5555",
   pronouns: "they/them",
-  role: "role", // Change this to "admin" or "user" to test
+  role: "user", // Change this to "admin" or "user" to test
   supervisor: "supervisor",
   userName: "user_name",
 };
@@ -23,7 +24,10 @@ const defaultUser: User = {
 export default function AdminDashboard() {
   const [user, setUser] = useState<User | null>(defaultUser);
 
-  // Define links based on the user's role
+  const handleLogout = () => {
+    Linking.openURL("/"); // Navigate to the root of your app (index.tsx)
+  };
+
   const links: { label: string; icon: "alert-circle" | "grid" | "repeat" | "send" | "download" | "calendar" | "clock" | "user"; action: () => void }[] =
     user?.role === "admin"
       ? [
@@ -45,7 +49,9 @@ export default function AdminDashboard() {
       <ScrollView contentContainerStyle={{ justifyContent: "space-between" }}>
         <View style={styles.container}>
           <View style={styles.profile}>
-            <Image style={styles.image} source="../assets/images/profileImg.jpg" />
+            <ProfileImage
+              initialImageSource={require("../../assets/images/profileImg.jpg")} // Replace with the actual image URL or logic
+            />
           </View>
           <UserDetails user={user || defaultUser} />
           <View>
@@ -63,7 +69,7 @@ export default function AdminDashboard() {
           </View>
         </View>
         <View style={styles.buttonCont}>
-          <Pressable style={styles.button}>
+          <Pressable style={styles.button} onPress={handleLogout}>
             <Text style={styles.buttonTxt}>Log out</Text>
           </Pressable>
         </View>
@@ -86,10 +92,6 @@ const styles = StyleSheet.create({
     marginBottom: 10,
     justifyContent: "center",
     alignItems: "center",
-  },
-  image: {
-    width: "100%",
-    height: "100%",
   },
   border: {
     borderColor: "#80808",
