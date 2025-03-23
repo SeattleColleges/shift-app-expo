@@ -115,15 +115,37 @@ CREATE
 )
     RETURNS BOOLEAN AS
 $$
-BEGIN -- Change shift status to pending when shift claimed
-    UPDATE shift_changes
-    SET covering_profile_id = covering_profile_id_param,
-        status              = 'pending'
+DECLARE
+    shift_rec    RECORD;
+    has_conflict BOOLEAN;
+BEGIN -- Check for shift conflicts before changing shift status to pending when shift claimed
+    SELECT slot
+    INTO shift_rec
+    FROM shifts
     WHERE shift_id = shift_id_param;
-    RETURN TRUE;
+    -- Handle missing record
+    IF
+        NOT FOUND THEN
+        RAISE EXCEPTION 'Shift w/ ID % not found', shift_id_param;
+    END IF;
+
+    SELECT EXISTS(SELECT 1
+                  FROM shifts
+                  WHERE assigned_user_id = covering_profile_id_param
+                    AND slot && shift_rec.slot)
+    INTO has_conflict;
+
+    IF NOT has_conflict THEN
+        UPDATE shift_changes
+        SET covering_profile_id = covering_profile_id_param,
+            status              = 'pending'
+        WHERE shift_id = shift_id_param;
+        RETURN TRUE;
+    ELSE
+        RAISE EXCEPTION 'Cannot pick up shift - schedule conflicts with existing shift';
+    END IF;
 END;
-$$
-    LANGUAGE plpgsql;
+$$ LANGUAGE plpgsql;
 
 -- Add supervisor who approved shift coverage, update with new profile id
 CREATE OR REPLACE FUNCTION update_shift_w_profile_ids(
