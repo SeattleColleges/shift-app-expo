@@ -1,13 +1,27 @@
-import React, { ReactElement } from "react";
-import { Image, StyleSheet } from "react-native";
+import React, { ReactElement, useState } from "react";
+import { Image, Button, StyleSheet, Switch } from "react-native";
 import { HelloWave } from "@/components/HelloWave";
 import ParallaxScrollView from "@/components/ParallaxScrollView";
 import { ThemedText } from "@/components/ThemedText";
 import { ThemedView } from "@/components/ThemedView";
-import { Link } from "expo-router";
+import TestButton from "@/components/TestButton";
+import { Link, useRouter } from "expo-router";
 import { useColorScheme } from "react-native";
+import TabLayout from "./(tabs)/_layout";
 
 export default function HomeScreen(): ReactElement {
+  const [userRole, setUserRole] = useState<string | null>(null);
+
+  const handleAdminLogin = () => {
+    console.log("Logging in as Admin");
+    setUserRole("admin");
+  };
+
+  const handleUserLogin = () => {
+    console.log("Logging in as User");
+    setUserRole("user");
+  };
+
   const colorScheme = useColorScheme();
   const linkStyle = [
     styles.link,
@@ -27,6 +41,17 @@ export default function HomeScreen(): ReactElement {
       <ThemedView style={styles.stepContainer}>
         <ThemedText type="subtitle">Database Message:</ThemedText>
         <HelloWave />
+        <TestButton />
+        <Button onPress={handleAdminLogin} title="Login as Admin" />
+        <Button onPress={handleUserLogin} title="Login as User" />
+
+        {userRole ? (
+          <TabLayout userRole={userRole} />
+        ) : (
+          <ThemedText type="subtitle">
+            Please log in to access the app.
+          </ThemedText>
+        )}
 
         <Link href="/(tabs)" style={linkStyle}>
           Go to main app features after login
