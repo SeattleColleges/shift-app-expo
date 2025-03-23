@@ -1,13 +1,12 @@
 /*
 Create user profile table
 
-
 DROP TABLE IF EXISTS profiles;
 DROP TYPE IF EXISTS user_role;
 */
 
 -- Create Enums for roles
-CREATE TYPE user_role AS ENUM ('employee', 'supervisor', 'admin');
+CREATE TYPE USER_ROLE AS ENUM ('employee', 'supervisor', 'admin');
 
 -- Create a table for public profiles
 CREATE TABLE profiles
@@ -16,9 +15,9 @@ CREATE TABLE profiles
     profile_int_id SERIAL UNIQUE,
     name           TEXT,
     email          TEXT UNIQUE,
-    role           user_role                                    NOT NULL DEFAULT 'employee',
+    role           USER_ROLE                                    NOT NULL DEFAULT 'employee',
     position       INT                                          NULL REFERENCES positions (position_id),
-    supervisor     UUID REFERENCES profiles (profile_id),
+    supervisor     UUID REFERENCES profiles (profile_id) DEFERRABLE INITIALLY DEFERRED,
 
     CONSTRAINT name_length CHECK (CHAR_LENGTH(name) >= 3)
 );
@@ -39,7 +38,7 @@ CREATE POLICY "Users can update own profile." ON profiles
 
 -- Trigger function to create a profile when a new user signs up
 CREATE OR REPLACE FUNCTION public.handle_new_user()
-    RETURNS trigger
+    RETURNS TRIGGER
 AS
 $$
 BEGIN
