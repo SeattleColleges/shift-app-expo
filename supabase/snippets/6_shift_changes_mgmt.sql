@@ -164,13 +164,19 @@ $$
     LANGUAGE plpgsql;
 
 /*
-Testing, simulate user pressing give up or removing shift
+Testing: simulate user pressing give up or removing shift
+-- Run query first, then run line with function, then query to see changes
+-- Use supabase studio to see the data
 
-SELECT add_shift_to_shift_change(1);
+SELECT add_shift_to_shift_change(1);    -- Adds shift to shift_changes,
 SELECT add_shift_to_shift_change(2,'test 1');
 SELECT add_shift_to_shift_change(999);
-SELECT shift_owner_removed_shift(1);
+
+SELECT shift_owner_removed_shift(1);  -- Changes status to removed
 SELECT shift_owner_removed_shift(999);
+
+select add_covering_id_to_shift_change(2,3);
+select update_shift_w_profile_ids(2,2); -- Validates ids in previous query, 3 fails, 5 passes
 
 -- Query
 SELECT *, convert_pacific_tz(requested_at) AS pacific_time FROM shift_changes;
