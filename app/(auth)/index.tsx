@@ -45,11 +45,11 @@ export default function LoginPage() {
   }
 
   const goToForgotPassword = () => {
-    router.push('/(auth)/forgot-password');
+    router.replace('/(auth)/forgot-password');
   }
 
   const goToSignupPage = () => {
-    router.push('/(auth)/signuppage');
+    router.replace('/(auth)/signuppage');
   }
 
   return (
