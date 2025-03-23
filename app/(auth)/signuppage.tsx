@@ -95,42 +95,42 @@ export default function SignUpPage() {
         />
       </View>
 
-      {/* Confirm Password Input */}
-      <View style={styles.inputContainer}>
-        <Text style={styles.label}>Confirm Password</Text>
-        <TextInput
-          style={styles.input}
-          placeholder="value"
-          placeholderTextColor="#888"
-          value={confirmPassword}
-          onChangeText={setConfirmPassword}
-          secureTextEntry
-        />
-      </View>
+      {/*/!* Confirm Password Input *!/*/}
+      {/*<View style={styles.inputContainer}>*/}
+      {/*  <Text style={styles.label}>Confirm Password</Text>*/}
+      {/*  <TextInput*/}
+      {/*    style={styles.input}*/}
+      {/*    placeholder="value"*/}
+      {/*    placeholderTextColor="#888"*/}
+      {/*    value={confirmPassword}*/}
+      {/*    onChangeText={setConfirmPassword}*/}
+      {/*    secureTextEntry*/}
+      {/*  />*/}
+      {/*</View>*/}
 
-      {/* Department Input */}
-      <View style={styles.inputContainer}>
-        <Text style={styles.label}>Department</Text>
-        <TextInput
-          style={styles.input}
-          placeholder="value"
-          placeholderTextColor="#888"
-          value={department}
-          onChangeText={setDepartment}
-        />
-      </View>
+      {/*/!* Department Input *!/*/}
+      {/*<View style={styles.inputContainer}>*/}
+      {/*  <Text style={styles.label}>Department</Text>*/}
+      {/*  <TextInput*/}
+      {/*    style={styles.input}*/}
+      {/*    placeholder="value"*/}
+      {/*    placeholderTextColor="#888"*/}
+      {/*    value={department}*/}
+      {/*    onChangeText={setDepartment}*/}
+      {/*  />*/}
+      {/*</View>*/}
 
-      {/* Supervisor Input */}
-      <View style={styles.inputContainer}>
-        <Text style={styles.label}>Supervisor</Text>
-        <TextInput
-          style={styles.input}
-          placeholder="value"
-          placeholderTextColor="#888"
-          value={supervisor}
-          onChangeText={setSupervisor}
-        />
-      </View>
+      {/*/!* Supervisor Input *!/*/}
+      {/*<View style={styles.inputContainer}>*/}
+      {/*  <Text style={styles.label}>Supervisor</Text>*/}
+      {/*  <TextInput*/}
+      {/*    style={styles.input}*/}
+      {/*    placeholder="value"*/}
+      {/*    placeholderTextColor="#888"*/}
+      {/*    value={supervisor}*/}
+      {/*    onChangeText={setSupervisor}*/}
+      {/*  />*/}
+      {/*</View>*/}
 
       {/* Sign Up Button */}
       <TouchableOpacity style={styles.signUpButton} onPress={handleSignUp}>
