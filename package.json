@@ -14,9 +14,12 @@
     "lint": "expo lint",
     "compile": "tsc",
     "db:start": "npx supabase start",
-    "db:backup": "rm ./supabase/*.sql; npx supabase db dump --local --data-only --file=supabase/db/seed.sql && npx supabase db diff --local -f migrate_file",
-    "db:push": "cross-env dotenv -- npx supabase db push --db-url \"$DATABASE_URL\"",
-    "db:reset": "supabase stop --no-backup && (docker ps -a -q --filter \"name=supabase_*_shift-app-expo\" | xargs -r docker rm) && (docker volume ls -q --filter \"label=com.supabase.cli.project=shift-app-expo\" | xargs -r docker volume rm)"
+    "db:backup": "rm -f ./supabase/*.sql; npx supabase db dump --local --data-only --file=supabase/db/seed.sql && echo 'SET session_replication_role = replica;' | cat - supabase/db/seed.sql > temp && mv temp supabase/db/seed.sql && npx supabase db diff --local -f migrate_file",
+    "db:clear-docker": "supabase stop --no-backup; (docker ps -a -q --filter \"name=supabase_*_shift-app-expo\" | xargs -r docker rm) && (docker volume ls -q --filter \"label=com.supabase.cli.project=shift-app-expo\" | xargs -r docker volume rm)",
+    "db:stop": "npx supabase stop",
+    "db:status": "npx supabase status",
+    "db:reset": "npx supabase reset",
+    "db:studio": "npx supabase studio"
   },
   "jest": {
     "preset": "jest-expo"
