@@ -75,7 +75,7 @@ export default function ForgotPasswordPage() {
       
       {message !== '' && <Text style={styles.feedback}>{message}</Text>}
 
-      <Link href="/loginpage" style={styles.link}>
+      <Link href="/(auth)" style={styles.link}>
         <Text style={{ textDecorationLine: 'none', color: '#007BFF' }}>Back to Login</Text>
       </Link>
     </View>

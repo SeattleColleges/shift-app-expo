@@ -40,7 +40,7 @@ export default function HomeScreen(): ReactElement {
         <Link href="/landing" style={linkStyle}>
           Landing page
         </Link>
-        <Link href="/(auth)/loginpage" style={linkStyle}>
+        <Link href="/(auth)" style={linkStyle}>
           Login
         </Link>
         <Link href="/(auth)/signuppage" style={linkStyle}>
