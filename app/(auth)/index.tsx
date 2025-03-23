@@ -13,10 +13,17 @@ import {supabase} from "@/lib/supabaseClient";
 
 const { width } = Dimensions.get('window'); // Get the current screen width
 
-export default function Index() {
+export default function LoginPage() {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
-  const router = useRouter()
+  const router = useRouter();
+
+  const isValidEmail = (email: string) => {
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    return emailRegex.test(email);
+  };
+
+  const isFormValid = isValidEmail(email) && password.length > 0;
 
   const handleSignIn = ():void => {
     async function signInWithEmail() {
@@ -30,8 +37,7 @@ export default function Index() {
         Alert.alert(error.message)
       }
       if (data) {
-        Alert.alert(JSON.stringify(data, null, 2))
-        console.log("Sign in page: "+JSON.stringify(data, null, 2))
+        console.log("Signin page: "+JSON.stringify(data, null, 2))
         router.replace('/(tabs)')
       }
     }
@@ -39,11 +45,11 @@ export default function Index() {
   }
 
   const goToForgotPassword = () => {
-    router.push('/(auth)/forgot-password');
+    router.replace('/(auth)/forgot-password');
   }
 
   const goToSignupPage = () => {
-    router.push('/(auth)/signuppage');
+    router.replace('/(auth)/signuppage');
   }
 
   return (
@@ -78,7 +84,7 @@ export default function Index() {
       </View>
 
       {/* Login Button */}
-      <TouchableOpacity style={styles.loginButton} onPress={handleSignIn}>
+      <TouchableOpacity style={[styles.loginButton, !isFormValid && styles.disabledButton]} onPress={handleSignIn} disabled={!isFormValid}>
         <Text style={styles.loginButtonText}>Login</Text>
       </TouchableOpacity>
 
@@ -148,6 +154,9 @@ const styles = StyleSheet.create({
     color: '#fff',
     fontSize: 16,
     fontWeight: 'bold',
+  },
+  disabledButton: {
+    backgroundColor: '#ccc',
   },
   link: {
     color: '#007BFF',

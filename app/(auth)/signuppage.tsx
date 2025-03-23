@@ -42,9 +42,7 @@ export default function SignUpPage() {
       } else { // @ts-ignore
         if (data) {
                 // @ts-ignore
-          Alert.alert(JSON.stringify(data, null, 2))
-          // @ts-ignore
-          console.log("Sign up page: "+JSON.stringify(data, null, 2))
+          console.log("Signin page: "+JSON.stringify(data, null, 2))
                 router.push('/(tabs)')
               }
       }
@@ -97,7 +95,7 @@ export default function SignUpPage() {
         />
       </View>
 
-      {/* Confirm Password Input */}
+      {/*/!* Confirm Password Input *!/*/}
       {/*<View style={styles.inputContainer}>*/}
       {/*  <Text style={styles.label}>Confirm Password</Text>*/}
       {/*  <TextInput*/}

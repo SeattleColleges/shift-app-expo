@@ -5,15 +5,23 @@ import {ThemedView} from "@/components/ThemedView";
 import {weekdays, months} from "moment";
 import Ionicons from "@expo/vector-icons/Ionicons";
 import {Colors} from '@/constants/Colors'
+import {useShiftNavigation} from "@/app/shift-navigation";
 
 export default function ShiftDetailsPage () {
     const item = useLocalSearchParams();
     const colorScheme = useColorScheme() || 'light';
-    const date = new Date(item.date as string) || new Date()
+
+    const currentShiftId = parseInt(item.id as string);
+
+    const { currentShift, goToPreviousShift, goToNextShift } = useShiftNavigation(currentShiftId);
+
+    const date = currentShift ? new Date(currentShift.date) : new Date();
+
     const day = date.getDate();
     const month = months()[date.getMonth()];
     const dayOfWeek = weekdays()[date.getDay()];
     const formattedDate = `${dayOfWeek}, ${month} ${day}`
+
     type PressableIconProps = {
         name: keyof typeof Ionicons.glyphMap;
         size?: number;
@@ -59,9 +67,9 @@ export default function ShiftDetailsPage () {
     return (
         <ThemedView style={styles.container}>
             <View style={styles.dateHeader}>
-                <PressableIcon name={'arrow-back'} onPress={() => console.log('prev')} />
+                <PressableIcon name={'arrow-back'} onPress={goToPreviousShift} />
                 <ThemedText type={'default'}>{formattedDate}</ThemedText>
-                <PressableIcon name={'arrow-forward'} onPress={() => console.log('next')} />
+                <PressableIcon name={'arrow-forward'} onPress={goToNextShift} />
             </View>
             <ThemedView style={styles.detailsContainer}>
                 <Text style={{alignSelf: 'center', fontWeight:'500', fontSize: 18}}>
