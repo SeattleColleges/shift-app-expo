@@ -10,18 +10,28 @@ import {
 import { Link } from 'expo-router';
 
 const { width } = Dimensions.get('window');
+
+const isValidEmail = (email: string) => {
+  const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+  return emailRegex.test(email);
+};
+
 export default function ForgotPasswordPage() {
-  const [email, setEmail] = useState('');
-  const [isSubmitting, setIsSubmitting] = useState(false);
-  const [message, setMessage] = useState('');
+  const [email, setEmail] = React.useState('');
+  const [isSubmitting, setIsSubmitting] = React.useState(false);
+  const [message, setMessage] = React.useState('');
+  const [emailError, setEmailError] = React.useState('');
 
   const handlePasswordReset = () => {
-    if (!email.includes('@')) {
-      setMessage('Please enter a valid email address.');
+    if (!isValidEmail(email)) {
+      setEmailError('Invalid email address');
       return;
     }
+
+    setEmailError('');
     setIsSubmitting(true);
     setMessage('');
+
     setTimeout(() => {
       setIsSubmitting(false);
       setMessage('If this email is registered, you will receive a reset link.');
@@ -30,10 +40,10 @@ export default function ForgotPasswordPage() {
 
   return (
     <View style={styles.container}>
-
+      
       <Text style={styles.title}>Forgot Password</Text>
 
-
+      
       <View style={styles.inputContainer}>
         <Text style={styles.label}>Email</Text>
         <TextInput
@@ -41,12 +51,17 @@ export default function ForgotPasswordPage() {
           placeholder="Enter your email"
           placeholderTextColor="#888"
           value={email}
-          onChangeText={setEmail}
+          onChangeText={(text) => {
+            setEmail(text);
+            setEmailError('');
+          }}
           keyboardType="email-address"
           autoCapitalize="none"
         />
+        {emailError ? <Text style={styles.errorText}>{emailError}</Text> : null}
       </View>
 
+      
       <TouchableOpacity
         style={[styles.submitButton, isSubmitting && styles.disabledButton]}
         onPress={handlePasswordReset}
@@ -57,11 +72,12 @@ export default function ForgotPasswordPage() {
         </Text>
       </TouchableOpacity>
 
-
+      
       {message !== '' && <Text style={styles.feedback}>{message}</Text>}
 
-
-      <Link href="/(auth)" style={styles.link}>Back to Login</Link>
+      <Link href="/loginpage" style={styles.link}>
+        <Text style={{ textDecorationLine: 'none', color: '#007BFF' }}>Back to Login</Text>
+      </Link>
     </View>
   );
 }
@@ -99,6 +115,11 @@ const styles = StyleSheet.create({
     fontSize: 16,
     backgroundColor: '#f9f9f9',
   },
+  errorText: {
+    color: 'red',
+    fontSize: 14,
+    marginTop: 5,
+  },
   submitButton: {
     width: '85%',
     maxWidth: 400,
@@ -124,9 +145,7 @@ const styles = StyleSheet.create({
     textAlign: 'center',
   },
   link: {
-    color: '#007BFF',
     fontSize: 14,
     marginTop: 5,
-    textDecorationLine: 'underline',
   },
 });
