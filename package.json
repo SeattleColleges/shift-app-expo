@@ -22,8 +22,7 @@
     "db:delete:docker": "echo 'Checking Supabase status...' && (docker ps -q --filter \"name=supabase_*_shift-app-expo\" > /dev/null && echo 'Stopping running Supabase containers...' && supabase stop --no-backup || echo 'No running Supabase containers found') && echo 'Removing any existing Supabase containers...' && (docker ps -a -q --filter \"name=supabase_*_shift-app-expo\" | xargs -r docker rm -f || echo 'No containers to remove') && echo 'Removing any existing Supabase volumes...' && (docker volume ls -q --filter \"label=com.supabase.cli.project=shift-app-expo\" | xargs -r docker volume rm || echo 'No volumes to remove') && echo 'Cleanup completed successfully'",
     "db:stop": "npx supabase stop",
     "db:status": "npx supabase status",
-    "db:reset": "npx supabase db reset",
-    "db:studio": "npx supabase studio"
+    "db:reset": "npx supabase db reset"
   },
   "jest": {
     "preset": "jest-expo"
