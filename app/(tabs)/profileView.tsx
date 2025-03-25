@@ -16,7 +16,7 @@ const defaultUser: User = {
   email: "email@example.com",
   phone: "555-555-5555",
   pronouns: "they/them",
-  role: "user", // Change this to "admin" or "user" to test
+  role: "admin", // Change this to "admin" or "user" to test
   supervisor: "supervisor",
   userName: "user_name",
 };
