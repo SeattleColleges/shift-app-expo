@@ -2,7 +2,7 @@
 Create shift table
 - use tstzrange to handle shift's time slot
   - exclude the end of shift to allow subsiquent shifts
-- only shifts after current time can be entered
+- only future shifts can be entered
 - no overlaps between shifts for an assigned user
 
 Notes:
