@@ -1,7 +1,7 @@
 /*
 Create shift table
 - use tstzrange to handle shift's time slot
-  - exclude the end of shift to allow subsiquent shifts
+  - exclude the end of shift to allow subsequent shifts
 - only future shifts can be entered
 - no overlaps between shifts for an assigned user
 
@@ -10,7 +10,7 @@ Notes:
 - Serial used for testing, will be UUID so each shift ID will be unique
 
 (Error code): message
-- Violation when user tries to add overlaping shifts to their schedule
+- Violation when user tries to add overlapping shifts to their schedule
   - (23P01): conflicting key value violates exclusion constraint "shift_assigned_userid_slot_excl"
 - Violation when user tries to add a shift before the current time
   - (23514): new row for relation "shift" violates check constraint "shift_slot_check"
