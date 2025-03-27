@@ -275,13 +275,18 @@ Testing: simulate user pressing give up or removing shift
 
 SELECT add_shift_to_shift_change(1);    -- Adds shift to shift_changes,
 SELECT add_shift_to_shift_change(2,'test 1');
+SELECT add_shift_to_shift_change(3,'test 1');
 SELECT add_shift_to_shift_change(999);
 
 SELECT shift_owner_removed_shift(1);  -- Changes status to removed
 SELECT shift_owner_removed_shift(999);
 
-SELECT add_covering_id_to_shift_change(2,3);
-SELECT update_shift_w_profile_ids(2,2); -- Validates ids in previous query, 3 fails, 5 passes
+SELECT add_covering_id_to_shift_change(2,5);
+SELECT approve_update_shift_w_profile_ids(2,2); -- Validates ids in previous query, 3 fails, 5 passes
+
+SELECT add_covering_id_to_shift_change(3,5);
+SELECT deny_shift_change(3,1);
+SELECT * FROM shifts WHERE shift_id = 3;
 
 -- Query
 SELECT *, convert_pacific_tz(requested_at) AS pacific_time FROM shift_changes;
