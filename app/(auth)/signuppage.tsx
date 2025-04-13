@@ -1,4 +1,3 @@
-import { Link } from 'expo-router';
 import React, { useState, useEffect, useCallback } from 'react';
 import {
   View,
@@ -10,7 +9,8 @@ import {
   Alert,
   KeyboardTypeOptions,
 } from 'react-native';
-
+import {supabase} from "@/lib/supabaseClient";
+import {router} from "expo-router";
 const { width } = Dimensions.get('window');
 
 export default function SignUpPage() {
@@ -176,9 +176,9 @@ export default function SignUpPage() {
 
       <View style={styles.signInContainer}>
         <Text style={styles.text}>Already have an account? </Text>
-        <Link href="/loginpage" style={styles.link}>
-          Login
-        </Link>
+        <TouchableOpacity onPress={()=> router.replace('/(auth)')}>
+          <Text style={styles.link}>Sign In</Text>
+          </TouchableOpacity>
       </View>
     </View>
   );

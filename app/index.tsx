@@ -1,25 +1,25 @@
-import React, { ReactElement } from 'react';
-import { Image, StyleSheet } from 'react-native';
-import { HelloWave } from '@/components/HelloWave';
-import ParallaxScrollView from '@/components/ParallaxScrollView';
-import { ThemedText } from '@/components/ThemedText';
-import { ThemedView } from '@/components/ThemedView';
-import { Link } from 'expo-router';
-import { useColorScheme } from 'react-native';
+import React, { ReactElement } from "react";
+import { Image, StyleSheet } from "react-native";
+import { HelloWave } from "@/components/HelloWave";
+import ParallaxScrollView from "@/components/ParallaxScrollView";
+import { ThemedText } from "@/components/ThemedText";
+import { ThemedView } from "@/components/ThemedView";
+import { Link } from "expo-router";
+import { useColorScheme } from "react-native";
 
 export default function HomeScreen(): ReactElement {
   const colorScheme = useColorScheme();
   const linkStyle = [
     styles.link,
-    { color: colorScheme === 'dark' ? '#ddd' : '#007bff' }
+    { color: colorScheme === "dark" ? "#ddd" : "#007bff" },
   ];
 
   return (
     <ParallaxScrollView
-      headerBackgroundColor={{ light: '#A1CEDC', dark: '#1D3D47' }}
+      headerBackgroundColor={{ light: "#A1CEDC", dark: "#1D3D47" }}
       headerImage={
         <Image
-          source={require('@/assets/images/partial-react-logo.png')}
+          source={require("@/assets/images/partial-react-logo.png")}
           style={styles.reactLogo}
         />
       }
@@ -28,16 +28,33 @@ export default function HomeScreen(): ReactElement {
         <ThemedText type="subtitle">Database Message:</ThemedText>
         <HelloWave />
 
-        <Link href="/(tabs)" style={linkStyle}>Go to main app features after login</Link>
-        <Link href="/user-dashboard" style={linkStyle}>User Dashboard Page</Link>
-        <Link href="/(auth)/forgot-password" style={linkStyle}>Forgot Password Page</Link>
-        <Link href="/help" style={linkStyle}>Help Page</Link>
-        <Link href="/landing" style={linkStyle}>Landing page</Link>
-        <Link href="/(auth)/loginpage" style={linkStyle}>Login</Link>
-        <Link href="/(auth)/signuppage" style={linkStyle}>Signup</Link>
-        <Link href="/(tabs)/notifications" style={linkStyle}>Notifications Page</Link>
-        <Link href="/add-schedule" style={linkStyle}>Add Schedule</Link>
-        <Link href="/request-time-off" style={linkStyle}>Go to Request Time Off Page</Link>
+        <Link href="/(tabs)" style={linkStyle}>
+          Go to main app features after login
+        </Link>
+        <Link href="/(auth)/forgot-password" style={linkStyle}>
+          Forgot Password Page
+        </Link>
+        <Link href="/help" style={linkStyle}>
+          Help Page
+        </Link>
+        <Link href="/landing" style={linkStyle}>
+          Landing page
+        </Link>
+        <Link href="/(auth)" style={linkStyle}>
+          Login
+        </Link>
+        <Link href="/(auth)/signuppage" style={linkStyle}>
+          Signup
+        </Link>
+        <Link href="/(tabs)/notifications" style={linkStyle}>
+          Notifications Page
+        </Link>
+        <Link href="/add-schedule" style={linkStyle}>
+          Add Schedule
+        </Link>
+        <Link href="/request-time-off" style={linkStyle}>
+          Go to Request Time Off Page
+        </Link>
       </ThemedView>
     </ParallaxScrollView>
   );
@@ -45,8 +62,8 @@ export default function HomeScreen(): ReactElement {
 
 const styles = StyleSheet.create({
   titleContainer: {
-    flexDirection: 'row',
-    alignItems: 'center',
+    flexDirection: "row",
+    alignItems: "center",
     gap: 8,
   },
   stepContainer: {
@@ -58,7 +75,7 @@ const styles = StyleSheet.create({
     width: 290,
     bottom: 0,
     left: 0,
-    position: 'absolute',
+    position: "absolute",
   },
   message: {
     fontSize: 24,
@@ -66,8 +83,8 @@ const styles = StyleSheet.create({
   },
   link: {
     fontSize: 16,
-    textDecorationLine: 'underline',
-    textAlign: 'left',
+    textDecorationLine: "underline",
+    textAlign: "left",
     marginTop: 20,
   },
 });

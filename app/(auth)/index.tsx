@@ -1,4 +1,3 @@
-import { useRouter } from 'expo-router';
 import React, { useState } from 'react';
 import {
   View,
@@ -9,6 +8,8 @@ import {
   Dimensions,
   Alert,
 } from 'react-native';
+import {useRouter} from "expo-router";
+import {supabase} from "@/lib/supabaseClient";
 
 const { width } = Dimensions.get('window'); // Get the current screen width
 
@@ -17,16 +18,38 @@ export default function LoginPage() {
   const [password, setPassword] = useState('');
   const router = useRouter();
 
-  const handleLogin = () => {
-    Alert.alert('Login', `Email: ${email}\nPassword: ${password}`);
+  const isValidEmail = (email: string) => {
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    return emailRegex.test(email);
   };
 
+  const isFormValid = isValidEmail(email) && password.length > 0;
+
+  const handleSignIn = ():void => {
+    async function signInWithEmail() {
+      // @ts-ignore For now
+      const { error, data } = await supabase?.auth.signInWithPassword({
+        email: email,
+        password: password,
+      })
+
+      if (error) {
+        Alert.alert(error.message)
+      }
+      if (data) {
+        console.log("Signin page: "+JSON.stringify(data, null, 2))
+        router.replace('/(tabs)')
+      }
+    }
+    signInWithEmail()
+  }
+
   const goToForgotPassword = () => {
-    router.push('/(auth)/forgot-password');
+    router.replace('/(auth)/forgot-password');
   }
 
   const goToSignupPage = () => {
-    router.push('/(auth)/signuppage');
+    router.replace('/(auth)/signuppage');
   }
 
   return (
@@ -61,7 +84,7 @@ export default function LoginPage() {
       </View>
 
       {/* Login Button */}
-      <TouchableOpacity style={styles.loginButton} onPress={handleLogin}>
+      <TouchableOpacity style={[styles.loginButton, !isFormValid && styles.disabledButton]} onPress={handleSignIn} disabled={!isFormValid}>
         <Text style={styles.loginButtonText}>Login</Text>
       </TouchableOpacity>
 
@@ -131,6 +154,9 @@ const styles = StyleSheet.create({
     color: '#fff',
     fontSize: 16,
     fontWeight: 'bold',
+  },
+  disabledButton: {
+    backgroundColor: '#ccc',
   },
   link: {
     color: '#007BFF',
