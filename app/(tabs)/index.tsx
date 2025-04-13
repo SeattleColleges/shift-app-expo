@@ -1,7 +1,5 @@
-import { View, Text } from "react-native";
 import React, { useCallback, useEffect, useRef, useState } from "react";
 import { StyleSheet, SectionList } from "react-native";
-import { supabase } from "@/supabaseClient";
 import { OptionToggle } from "@/components/dashboard/OptionToggle";
 import {
   AgendaList,

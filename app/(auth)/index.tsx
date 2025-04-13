@@ -1,4 +1,3 @@
-import { useRouter } from 'expo-router';
 import React, { useState } from 'react';
 import {
   View,
@@ -9,6 +8,8 @@ import {
   Dimensions,
   Alert,
 } from 'react-native';
+import {useRouter} from "expo-router";
+import {supabase} from "@/lib/supabaseClient";
 
 const { width } = Dimensions.get('window'); // Get the current screen width
 
@@ -24,20 +25,31 @@ export default function LoginPage() {
 
   const isFormValid = isValidEmail(email) && password.length > 0;
 
-  const handleLogin = () => {
-    if (!isFormValid) {
-      Alert.alert('Error', 'Please enter a valid email address and password.');
-      return;
+  const handleSignIn = ():void => {
+    async function signInWithEmail() {
+      // @ts-ignore For now
+      const { error, data } = await supabase?.auth.signInWithPassword({
+        email: email,
+        password: password,
+      })
+
+      if (error) {
+        Alert.alert(error.message)
+      }
+      if (data) {
+        console.log("Signin page: "+JSON.stringify(data, null, 2))
+        router.replace('/(tabs)')
+      }
     }
-    Alert.alert('Login', `Email: ${email}\nPassword: ${password}`);
-  };
+    signInWithEmail()
+  }
 
   const goToForgotPassword = () => {
-    router.push('/(auth)/forgot-password');
+    router.replace('/(auth)/forgot-password');
   }
 
   const goToSignupPage = () => {
-    router.push('/(auth)/signuppage');
+    router.replace('/(auth)/signuppage');
   }
 
   return (
@@ -72,7 +84,7 @@ export default function LoginPage() {
       </View>
 
       {/* Login Button */}
-      <TouchableOpacity style={[styles.loginButton, !isFormValid && styles.disabledButton]} onPress={handleLogin} disabled={!isFormValid}>
+      <TouchableOpacity style={[styles.loginButton, !isFormValid && styles.disabledButton]} onPress={handleSignIn} disabled={!isFormValid}>
         <Text style={styles.loginButtonText}>Login</Text>
       </TouchableOpacity>
 
