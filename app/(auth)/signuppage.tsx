@@ -1,4 +1,3 @@
-import { Link } from 'expo-router';
 import React, { useState } from 'react';
 import {
   View,
@@ -9,10 +8,8 @@ import {
   Dimensions,
   Alert,
 } from 'react-native';
-
-
-
-
+import {supabase} from "@/lib/supabaseClient";
+import {router} from "expo-router";
 
 const { width } = Dimensions.get('window'); // Get the current screen width
 
@@ -24,10 +21,35 @@ export default function SignUpPage() {
   const [department, setDepartment] = useState('');
   const [supervisor, setSupervisor] = useState('');
 
+  const handleSignUp = ():void => {
+    async function signUpWithEmail():Promise<void> {
+      // @ts-ignore
+      const { error, data:{user,session} } = await supabase?.auth.signUp({
+        email: email,
+        password: password,
+        options: {
+          data: {
+            name: name,
+          },
+        },
+      })
 
-  const handleSignUp = () => {
-    Alert.alert('Sign Up', `Name: ${name}\nEmail: ${email}`);
-    // Add sign-up logic here
+      if (error) {
+        Alert.alert(error.message)
+        if(error.message === 'User already registered') {
+          router.replace('/(auth)')
+        }
+      } else { // @ts-ignore
+        if (data) {
+                // @ts-ignore
+          console.log("Signin page: "+JSON.stringify(data, null, 2))
+                router.push('/(tabs)')
+              }
+      }
+    }
+    signUpWithEmail().then(r => {
+        console.log('Sign up promise: '+r)
+    });
   };
 
   return (
@@ -73,42 +95,42 @@ export default function SignUpPage() {
         />
       </View>
 
-      {/* Confirm Password Input */}
-      <View style={styles.inputContainer}>
-        <Text style={styles.label}>Confirm Password</Text>
-        <TextInput
-          style={styles.input}
-          placeholder="value"
-          placeholderTextColor="#888"
-          value={confirmPassword}
-          onChangeText={setConfirmPassword}
-          secureTextEntry
-        />
-      </View>
+      {/*/!* Confirm Password Input *!/*/}
+      {/*<View style={styles.inputContainer}>*/}
+      {/*  <Text style={styles.label}>Confirm Password</Text>*/}
+      {/*  <TextInput*/}
+      {/*    style={styles.input}*/}
+      {/*    placeholder="value"*/}
+      {/*    placeholderTextColor="#888"*/}
+      {/*    value={confirmPassword}*/}
+      {/*    onChangeText={setConfirmPassword}*/}
+      {/*    secureTextEntry*/}
+      {/*  />*/}
+      {/*</View>*/}
 
-      {/* Department Input */}
-      <View style={styles.inputContainer}>
-        <Text style={styles.label}>Department</Text>
-        <TextInput
-          style={styles.input}
-          placeholder="value"
-          placeholderTextColor="#888"
-          value={department}
-          onChangeText={setDepartment}
-        />
-      </View>
+      {/*/!* Department Input *!/*/}
+      {/*<View style={styles.inputContainer}>*/}
+      {/*  <Text style={styles.label}>Department</Text>*/}
+      {/*  <TextInput*/}
+      {/*    style={styles.input}*/}
+      {/*    placeholder="value"*/}
+      {/*    placeholderTextColor="#888"*/}
+      {/*    value={department}*/}
+      {/*    onChangeText={setDepartment}*/}
+      {/*  />*/}
+      {/*</View>*/}
 
-      {/* Supervisor Input */}
-      <View style={styles.inputContainer}>
-        <Text style={styles.label}>Supervisor</Text>
-        <TextInput
-          style={styles.input}
-          placeholder="value"
-          placeholderTextColor="#888"
-          value={supervisor}
-          onChangeText={setSupervisor}
-        />
-      </View>
+      {/*/!* Supervisor Input *!/*/}
+      {/*<View style={styles.inputContainer}>*/}
+      {/*  <Text style={styles.label}>Supervisor</Text>*/}
+      {/*  <TextInput*/}
+      {/*    style={styles.input}*/}
+      {/*    placeholder="value"*/}
+      {/*    placeholderTextColor="#888"*/}
+      {/*    value={supervisor}*/}
+      {/*    onChangeText={setSupervisor}*/}
+      {/*  />*/}
+      {/*</View>*/}
 
       {/* Sign Up Button */}
       <TouchableOpacity style={styles.signUpButton} onPress={handleSignUp}>
@@ -118,9 +140,9 @@ export default function SignUpPage() {
       {/* Sign In Link */}
       <View style={styles.signInContainer}>
         <Text style={styles.text}>Already have an account? </Text>
-        <Link href="/loginpage" style={styles.link}>
-        Login
-      </Link>
+        <TouchableOpacity onPress={()=> router.replace('/(auth)')}>
+          <Text style={styles.link}>Sign In</Text>
+        </TouchableOpacity>
       </View>
     </View>
   );

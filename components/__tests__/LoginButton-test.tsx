@@ -1,6 +1,6 @@
 import React from 'react';
 import { Alert } from 'react-native';
-import LoginPage from '../../app/(auth)/loginpage';
+import LoginPage from '../../app/(auth)/index';
 
 jest.mock('expo-router', () => ({
   useRouter: () => ({
