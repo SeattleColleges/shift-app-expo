@@ -37,7 +37,8 @@ export default function LoginPage() {
         Alert.alert(error.message)
       }
       if (data) {
-        console.log("Signin page: "+JSON.stringify(data, null, 2))
+          Alert.alert(JSON.stringify(data, null, 2))
+          console.log("Signin page: "+JSON.stringify(data, null, 2))
         router.replace('/(tabs)')
       }
     }
