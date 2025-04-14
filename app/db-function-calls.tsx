@@ -21,7 +21,9 @@ type FunctionParamMap = {
     };
 };
 
-const paramObj: FunctionParamMap = {
+const paramObj: {
+    [key: string]: { [key: number]: string };
+} = {
     add_shift_to_shift_change: { 1: 'shift_id_param', 2: 'coverage_reason_param' },
     shift_owner_removed_shift: { 1: 'shift_id_param' },
     add_covering_id_to_shift_change: { 1: 'shift_id_param', 2: 'covering_profile_id_param' },
@@ -30,12 +32,13 @@ const paramObj: FunctionParamMap = {
     get_shift_data: { 1: 'shift_id_param' }
 };
 
+
 type ToggleOptionProps = {
     name: string;
     setToggleValue: (value: string) => void;
 };
 
-const ToggleOption = ({ name, setToggleValue }: ToggleOptionProps) => {
+const ToggleOption: React.FC<ToggleOptionProps> = ({ name, setToggleValue }) => {
     return (
         <View>
             <Pressable
@@ -50,23 +53,24 @@ const ToggleOption = ({ name, setToggleValue }: ToggleOptionProps) => {
     );
 };
 
+
 export default function DBFunctionCalls() {
     const colorScheme = useColorScheme();
     const [result, setResult] = useState<any>(null);
-    const [idA, setIdA] = useState('');
-    const [idB, setIdB] = useState('');
-    const [toggleValue, setToggleValue] = useState('');
+    const [idA, setIdA] = useState<string>('');
+    const [idB, setIdB] = useState<string>('');
+    const [toggleValue, setToggleValue] = useState<string>('');
 
     const get_data = async (funcName: string, paramsObj: Record<string, any>) => {
         const { data, error } = await supabaseAdmin.rpc(funcName, { ...paramsObj });
 
         if (error) {
-            setResult(error);
+            setResult(error as unknown as string); // or define `result` as `any`
         } else {
             setResult(data);
         }
     };
-
+    
     return (
         <ScrollView>
             <View style={styles.titleContainer}>
