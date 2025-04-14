@@ -55,9 +55,6 @@ export default function HomeScreen(): ReactElement {
         <Link href="/request-time-off" style={linkStyle}>
           Go to Request Time Off Page
         </Link>
-        <Link href={"/db-function-calls"} style={linkStyle}>
-          DB Function Calls
-        </Link>
       </ThemedView>
     </ParallaxScrollView>
   );

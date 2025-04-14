@@ -1,8 +1,0 @@
-# supabase/config/vector.toml
-[sources.my_source]
-type = "stdin"
-
-[sinks.my_sink]
-type = "console"
-inputs = ["my_source"]
-encoding.codec = "text"
