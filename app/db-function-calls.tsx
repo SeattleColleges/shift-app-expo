@@ -10,13 +10,11 @@ import {
 import React, { useState } from "react";
 import { createClient, PostgrestError } from '@supabase/supabase-js';
 
-// Create admin client to connect w/ server
 const SUPABASE_URL = process.env.EXPO_PUBLIC_SUPABASE_URL!;
 const SERVICE_ROLE_KEY = process.env.EXPO_PUBLIC_SUPABASE_SERVICE_ROLE_KEY!;
 const supabaseAdmin = createClient(SUPABASE_URL, SERVICE_ROLE_KEY);
 
-// Parameter mapping
-const paramObj: Record<string, { [key: number]: string }> = {
+const paramObj: Record<string, Record<number, string>> = {
     add_shift_to_shift_change: { 1: 'shift_id_param', 2: 'coverage_reason_param' },
     shift_owner_removed_shift: { 1: 'shift_id_param' },
     add_covering_id_to_shift_change: { 1: 'shift_id_param', 2: 'covering_profile_id_param' },
@@ -25,13 +23,12 @@ const paramObj: Record<string, { [key: number]: string }> = {
     get_shift_data: { 1: 'shift_id_param' }
 };
 
-// ToggleOption props
 type ToggleOptionProps = {
     name: string;
     setToggleValue: (value: string) => void;
 };
 
-const ToggleOption: React.FC<ToggleOptionProps> = ({ name, setToggleValue }) => {
+const ToggleOption = ({ name, setToggleValue }: ToggleOptionProps) => {
     return (
         <View>
             <Pressable
@@ -48,19 +45,18 @@ const ToggleOption: React.FC<ToggleOptionProps> = ({ name, setToggleValue }) => 
 
 export default function DBFunctionCalls() {
     const colorScheme = useColorScheme();
-    const [result, setResult] = useState<string | null>(null);
-    const [idA, setIdA] = useState<string>('');
-    const [idB, setIdB] = useState<string>('');
-    const [toggleValue, setToggleValue] = useState<string>('');
+    const [result, setResult] = useState<null | any>(null);
+    const [idA, setIdA] = useState('');
+    const [idB, setIdB] = useState('');
+    const [toggleValue, setToggleValue] = useState('');
 
-    // Execute RPC
     const get_data = async (funcName: string, paramsObj: Record<string, any>) => {
         const { data, error } = await supabaseAdmin.rpc(funcName, { ...paramsObj });
 
         if (error) {
-            setResult(error.message); // Safely assign error message
+            setResult(error.message);
         } else {
-            setResult(JSON.stringify(data, null, 2));
+            setResult(data);
         }
     };
 
@@ -88,38 +84,36 @@ export default function DBFunctionCalls() {
                 </View>
 
                 <View style={{ flexDirection: 'column', justifyContent: 'space-between', gap: 2 }}>
-                    {Object.keys(paramObj).map((key) => (
-                        <ToggleOption key={key} name={key} setToggleValue={setToggleValue} />
-                    ))}
+                    <ToggleOption name={'add_shift_to_shift_change'} setToggleValue={setToggleValue} />
+                    <ToggleOption name={'shift_owner_removed_shift'} setToggleValue={setToggleValue} />
+                    <ToggleOption name={'add_covering_id_to_shift_change'} setToggleValue={setToggleValue} />
+                    <ToggleOption name={'approve_update_shift_w_profile_ids'} setToggleValue={setToggleValue} />
+                    <ToggleOption name={'deny_shift_change'} setToggleValue={setToggleValue} />
+                    <ToggleOption name={'get_shift_data'} setToggleValue={setToggleValue} />
                 </View>
 
                 <Pressable
                     style={styles.button}
                     onPress={() => {
                         console.log('Call ' + toggleValue + ' pressed');
-                        const inputParams: Record<string, string> = {};
+                        let inputParams: Record<string, any> = {};
                         const params = paramObj[toggleValue];
 
-                        if (params) {
-                            if (Object.keys(params).length === 1) {
-                                inputParams[params[1]] = idA;
-                            } else {
-                                inputParams[params[1]] = idA;
-                                inputParams[params[2]] = idB;
-                            }
-                            get_data(toggleValue, inputParams);
+                        if (Object.keys(params).length === 1) {
+                            inputParams[params[1]] = idA;
                         } else {
-                            setResult('Invalid function selected');
+                            inputParams[params[1]] = idA;
+                            inputParams[params[2]] = idB;
                         }
+
+                        get_data(toggleValue, inputParams);
                     }}>
-                    <Text style={{ margin: 10 }}>
-                        {toggleValue ? 'Call ' + toggleValue : 'Press functions above'}
-                    </Text>
+                    <Text style={{ margin: 10 }}>{toggleValue ? 'Call ' + toggleValue : 'Press functions above'}</Text>
                 </Pressable>
 
                 <View style={styles.resultContainer}>
                     <Text style={styles.resultText}>
-                        {result ?? 'No result'}
+                        {result ? JSON.stringify(result, null, 2) : 'No result'}
                     </Text>
                 </View>
             </View>
