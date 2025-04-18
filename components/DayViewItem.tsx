@@ -22,17 +22,17 @@ export const DayViewItem = ({item}: DayViewItemProps) => {
                 pathname: `./shift-details-page/${item.id}`,
                 params: {
                     id: item.id,
-                    assignedUser:item.assignedUser,
-                    departmentId:item.departmentId,
-                    supervisorId:item.supervisorId,
+                    assignedUser: item.assignedUser,
+                    departmentId: item.departmentId,
+                    supervisorId: item.supervisorId,
                     title: item.title,
                     date: item.date,
                     startTime: item.startTime,
                     endTime: item.endTime,
                     duration: item.duration,
-                    needsCoverage:item.needsCoverage,
-                    coverageReason:item.coverageReason,
-                    notes:item.notes,
+                    needsCoverage: item.needsCoverage,
+                    coverageReason: item.coverageReason,
+                    notes: item.notes,
                     createdOn: item.createdOn,
                 }
             }}>
