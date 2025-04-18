@@ -21,7 +21,7 @@ interface DateProps {
   timestamp: number;
   year: number;
 }
-interface AgendaListProps {
+interface AgendaListItem {
   title: string;
   data: any[];
 }
@@ -87,7 +87,7 @@ export default function UserDashboard() {
     string | undefined
   >(approvalStatusOptions[0]);
   const [selectedDate, setSelectedDate] = useState<string>(today);
-  const [agendaListItems, setAgendaListItems] = useState<any[]>([]);
+  const [agendaListItems, setAgendaListItems] = useState<AgendaListItem[]>([]);
   const [markedDates, setMarkedDates] = useState<MarkedDates>();
   const [shiftData, setShiftData] = useState<Shift[]>([]);
   useEffect(() => {
@@ -117,7 +117,7 @@ export default function UserDashboard() {
     }
   }, [selectedTimeframe]);
   const initializeAgendaItems = () => {
-    const items: AgendaListProps[] = [];
+    const items: AgendaListItem[] = [];
     shiftData.forEach((shift) => {
       const slot = shift.slot;
       const cleanedSlot = cleanSlotDate(slot)
@@ -128,6 +128,7 @@ export default function UserDashboard() {
         startTime: cleanedSlot.startTime,
         endTime: cleanedSlot.endTime,
         title: shift.shift_name,
+        duration: shift.duration,
       };
       if (existing === -1) {
         items.push({
@@ -225,7 +226,7 @@ export default function UserDashboard() {
             selectedTimeframe === Timeframes.Month
               ? agendaListItems
               : agendaListItems.filter((item) => {
-                  return isDateInCurrentWeek(item.title);
+                  return isDateInCurrentWeek(item.title); //TODO use real date
                 })
           }
           avoidDateUpdates={selectedTimeframe === Timeframes.Week}
