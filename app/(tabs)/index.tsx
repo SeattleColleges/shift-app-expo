@@ -13,7 +13,7 @@ import { ThemedView } from "@/components/ThemedView";
 import { ThemedText } from "@/components/ThemedText";
 import {supabase} from "@/lib/supabaseClient";
 import {Shift} from "@/types/Shift";
-import {getAllFromTable} from "@/queries/supabaseQueries";
+import {getAllFromTable} from "@/queries/getQueries";
 
 interface DateProps {
   dateString: string;
