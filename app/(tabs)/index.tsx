@@ -132,11 +132,18 @@ export default function UserDashboard() {
       const existing = items.findIndex((item) => item.title === shift.shift_name);
       const shiftItem = {
         id: shift.shift_id,
-        date: cleanedSlot.startDate,
+        assignedUser: shift.assigned_user_id,
+        departmentId: shift.department_id,
+        supervisorId: shift.supervisor_id,
+        title: shift.shift_name,
         startTime: cleanedSlot.startTime,
         endTime: cleanedSlot.endTime,
-        title: shift.shift_name,
+        date: cleanedSlot.startDate,
         duration: shift.duration,
+        needsCoverage: shift.needs_coverage,
+        coverageReason: shift.coverage_reason,
+        notes: shift.notes,
+        createdOn: shift.created_on,
       };
       if (existing === -1) {
         items.push({

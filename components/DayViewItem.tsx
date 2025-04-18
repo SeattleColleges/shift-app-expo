@@ -21,11 +21,19 @@ export const DayViewItem = ({item}: DayViewItemProps) => {
             href={{
                 pathname: `./shift-details-page/${item.id}`,
                 params: {
+                    id: item.id,
+                    assignedUser:item.assignedUser,
+                    departmentId:item.departmentId,
+                    supervisorId:item.supervisorId,
+                    title: item.title,
                     date: item.date,
                     startTime: item.startTime,
                     endTime: item.endTime,
                     duration: item.duration,
-                    title: item.title
+                    needsCoverage:item.needsCoverage,
+                    coverageReason:item.coverageReason,
+                    notes:item.notes,
+                    createdOn: item.createdOn,
                 }
             }}>
         <ThemedView style={{width:'100%'}}>
