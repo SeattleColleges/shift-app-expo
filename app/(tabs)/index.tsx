@@ -7,11 +7,12 @@ import {
   CalendarProvider,
   WeekCalendar,
 } from "react-native-calendars";
-import { shiftData, ShiftData } from "@/data/dummyShiftData";
 import { MarkedDates } from "react-native-calendars/src/types";
 import { DayViewItem } from "@/components/DayViewItem";
 import { ThemedView } from "@/components/ThemedView";
 import { ThemedText } from "@/components/ThemedText";
+import {supabase} from "@/lib/supabaseClient";
+import {Shift} from "@/types/Shift";
 
 interface DateProps {
   dateString: string;
@@ -24,26 +25,33 @@ interface AgendaListProps {
   title: string;
   data: any[];
 }
+interface CleanedSlot {
+  startDate: string,
+  endDate: string,
+  startTime: string,
+  endTime: string
+}
 enum Timeframes {
   Week = "Week",
   Month = "Month",
 }
-const getMarkedDates = (shifts: ShiftData[], selectedDate: string) => {
+const getMarkedDates = (shifts: Shift[], selectedDate: string) => {
   let marked: MarkedDates = {};
-  shifts.forEach(({ date, id }) => {
-    if (!marked[date]) {
-      marked[date] = {
+  shifts.forEach(({ slot, shift_id }) => {
+    const cleanedSlot = cleanSlotDate(slot);
+    if (!marked[cleanedSlot.startDate]) {
+      marked[cleanedSlot.startDate] = {
         marked: true,
         dots: [
           {
-            key: `${date}-${id}`,
+            key: `${cleanedSlot.startDate}-${shift_id}`,
             color: "black",
           },
         ],
       };
     } else {
-      marked[date].dots?.push({
-        key: `${date}-${id}`,
+      marked[cleanedSlot.startDate].dots?.push({
+        key: `${cleanedSlot.startDate}-${shift_id}`,
         color: "black",
       });
     }
@@ -57,6 +65,17 @@ const getMarkedDates = (shifts: ShiftData[], selectedDate: string) => {
 
   return marked;
 };
+const cleanSlotDate = (slot: string) : CleanedSlot => {
+  const [start, end] = slot
+      .slice(0, -1)
+      .slice(1)
+      .split(',')
+      .map(s => s.replace(/^"|"$/g, ''));
+  const [startDate, startTime] = start.split(" ");
+  const [endDate, endTime] = end.split(" ");
+  return {startDate, endDate, startTime, endTime}
+};
+
 export default function UserDashboard() {
   const today = new Intl.DateTimeFormat("en-CA").format(new Date());
   const timeframeOptions = [Timeframes.Month, Timeframes.Week];
@@ -70,11 +89,24 @@ export default function UserDashboard() {
   const [selectedDate, setSelectedDate] = useState<string>(today);
   const [agendaListItems, setAgendaListItems] = useState<any[]>([]);
   const [markedDates, setMarkedDates] = useState<MarkedDates>();
-
+  const [shiftData, setShiftData] = useState<Shift[]>([]);
   useEffect(() => {
-    initializeAgendaItems();
+    const getAllShifts = async () => {
+      if (supabase != null) {
+          try {
+            const { data: shifts } = await supabase.from('shifts').select();
+            setShiftData(shifts as Shift[])
+          } catch (e) {
+            console.log(e)
+          }
+      }
+    }
+    getAllShifts();
   }, []);
-
+  useEffect(() => {
+    if (shiftData)
+      initializeAgendaItems();
+  }, [shiftData]);
   useEffect(() => {
     setMarkedDates(getMarkedDates(shiftData, selectedDate));
   }, [selectedDate]);
@@ -87,20 +119,19 @@ export default function UserDashboard() {
   const initializeAgendaItems = () => {
     const items: AgendaListProps[] = [];
     shiftData.forEach((shift) => {
-      const existing = items.findIndex((item) => item.title === shift.date);
+      const slot = shift.slot;
+      const cleanedSlot = cleanSlotDate(slot)
+      const existing = items.findIndex((item) => item.title === shift.shift_name);
       const shiftItem = {
-        id: shift.id,
-        date: shift.date,
-        startTime: shift.startTime,
-        endTime: shift.endTime,
-        role: shift.role,
-        roomNumber: shift.roomNumber,
-        building: shift.building,
-        title: "Shift",
+        id: shift.shift_id,
+        date: cleanedSlot.startDate,
+        startTime: cleanedSlot.startTime,
+        endTime: cleanedSlot.endTime,
+        title: shift.shift_name,
       };
       if (existing === -1) {
         items.push({
-          title: shift.date,
+          title: shift.shift_name,
           data: [...[shiftItem]],
         });
       } else {
@@ -129,6 +160,7 @@ export default function UserDashboard() {
   };
 
   const renderItem = useCallback(({ item }: any) => {
+    console.log(item)
     return <DayViewItem item={item} />;
   }, []);
 
