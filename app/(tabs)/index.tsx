@@ -13,6 +13,7 @@ import { ThemedView } from "@/components/ThemedView";
 import { ThemedText } from "@/components/ThemedText";
 import {supabase} from "@/lib/supabaseClient";
 import {Shift} from "@/types/Shift";
+import {getAllFromTable} from "@/queries/supabaseQueries";
 
 interface DateProps {
   dateString: string;
@@ -98,17 +99,14 @@ export default function UserDashboard() {
   const [markedDates, setMarkedDates] = useState<MarkedDates>();
   const [shiftData, setShiftData] = useState<Shift[]>([]);
   useEffect(() => {
-    const getAllShifts = async () => {
+    const fetchShiftData = async () => {
       if (supabase != null) {
-          try {
-            const { data: shifts } = await supabase.from('shifts').select();
-            setShiftData(shifts as Shift[])
-          } catch (e) {
-            console.log(e)
-          }
+        const shifts = await getAllFromTable(supabase, 'shifts');
+        if (shifts)
+          setShiftData(shifts as Shift[]);
       }
     }
-    getAllShifts();
+    fetchShiftData();
   }, []);
   useEffect(() => {
     if (shiftData)
@@ -124,7 +122,7 @@ export default function UserDashboard() {
     }
   }, [selectedTimeframe]);
   useEffect(() => {
-    console.log(agendaListItems)
+    // console.log(agendaListItems)
   }, [agendaListItems]);
   const initializeAgendaItems = () => {
     const items: AgendaListItem[] = [];
@@ -235,7 +233,7 @@ export default function UserDashboard() {
             selectedTimeframe === Timeframes.Month
               ? agendaListItems
               : agendaListItems.filter((item) => {
-                  return isDateInCurrentWeek(item.title); //TODO use real date
+                  return isDateInCurrentWeek(item.title);
                 })
           }
           avoidDateUpdates={selectedTimeframe === Timeframes.Week}
@@ -243,7 +241,7 @@ export default function UserDashboard() {
           onLayout={() => scrollToEvent(0, 0)}
           contentContainerStyle={{ paddingBottom: 50 }}
           infiniteListProps={{
-            itemHeight: 115,
+            itemHeight: 75,
             titleHeight: 45,
             visibleIndicesChangedDebounce: 250,
           }}

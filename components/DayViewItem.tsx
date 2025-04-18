@@ -40,7 +40,7 @@ export const DayViewItem = ({item}: DayViewItemProps) => {
                     <ThemedText>{item.title}: </ThemedText>
                 </ThemedText>
                 <ThemedText style={{flexDirection: 'row', justifyContent: 'flex-start', fontSize: 16, marginVertical: 4}}>
-                    <ThemedText style={{fontWeight: 'bold'}}>{item.duration / 60} HR</ThemedText>
+                    <ThemedText style={{fontWeight: 'bold'}}>{Math.floor(item.duration / 60)} HR</ThemedText>
                     <ThemedText> | {`${startFormatted} - ${endFormatted}`}</ThemedText>
                 </ThemedText>
             </ThemedView>
