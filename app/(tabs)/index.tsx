@@ -71,9 +71,16 @@ const cleanSlotDate = (slot: string) : CleanedSlot => {
       .slice(1)
       .split(',')
       .map(s => s.replace(/^"|"$/g, ''));
-  const [startDate, startTime] = start.split(" ");
-  const [endDate, endTime] = end.split(" ");
-  return {startDate, endDate, startTime, endTime}
+  let [startDate, startTime] = start.split(" ");
+  let [endDate, endTime] = end.split(" ");
+  startTime = startTime.split('+')[0]
+  endTime = endTime.split('+')[0]
+  return {
+    startDate,
+    endDate,
+    startTime,
+    endTime
+  }
 };
 
 export default function UserDashboard() {
@@ -116,6 +123,9 @@ export default function UserDashboard() {
       setSelectedDate(today);
     }
   }, [selectedTimeframe]);
+  useEffect(() => {
+    console.log(agendaListItems)
+  }, [agendaListItems]);
   const initializeAgendaItems = () => {
     const items: AgendaListItem[] = [];
     shiftData.forEach((shift) => {
@@ -132,7 +142,7 @@ export default function UserDashboard() {
       };
       if (existing === -1) {
         items.push({
-          title: shift.shift_name,
+          title: cleanedSlot.startDate,
           data: [...[shiftItem]],
         });
       } else {
@@ -161,7 +171,6 @@ export default function UserDashboard() {
   };
 
   const renderItem = useCallback(({ item }: any) => {
-    console.log(item)
     return <DayViewItem item={item} />;
   }, []);
 
