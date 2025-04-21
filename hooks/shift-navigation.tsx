@@ -1,6 +1,6 @@
 import { useRouter } from "expo-router";
 import { Platform, Alert } from "react-native";
-import { shiftData, ShiftData } from "@/data/dummyShiftData";
+import { shiftData} from "@/data/dummyShiftData";
 
 export const useShiftNavigation = (currentShiftId: number) => {
   const router = useRouter();
