@@ -84,12 +84,12 @@ export default function EditProfile () {
                 />
                 <View style={styles.buttonsContainer}>
                     <Pressable onPress={() => console.log('submit')} style={[styles.button, {backgroundColor: Colors[colorScheme || 'light'].text,}]}>
-                        <Text style={{color: colorScheme == 'light' ? Colors.dark.text: Colors.light.text}}>
+                        <Text style={{color: colorScheme === 'light' ? Colors.dark.text: Colors.light.text}}>
                             Submit
                         </Text>
                     </Pressable>
                     <Pressable onPress={handleCancelPressed} style={[styles.button, {backgroundColor: Colors.cancel,}]}>
-                        <Text style={{color: colorScheme == 'light' ? Colors.dark.text: Colors.light.text}}>
+                        <Text style={{color: colorScheme === 'light' ? Colors.dark.text: Colors.light.text}}>
                             Cancel
                         </Text>
                     </Pressable>
@@ -127,7 +127,7 @@ const styles = StyleSheet.create({
         borderRadius: 5,
         alignItems: 'center',
         justifyContent: 'center',
-        height: device == 'web' ? 36 : 'auto'
+        height: device === 'web' ? 36 : 'auto'
     },
     buttonsContainer: {
         flex:1,

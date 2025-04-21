@@ -4,7 +4,7 @@ import { ScrollView } from "react-native";
 import Feather from "@expo/vector-icons/Feather";
 import { UserDetails } from "@/components/UserDetails";
 import { ProfileImage } from "@/components/ProfileImage"; // Import ProfileImage component
-import { User } from "@/types/User";
+import type { User } from "@/types/User";
 import * as Linking from "expo-linking"; // Import Linking from expo
 
 const defaultUser: User = {
@@ -61,7 +61,7 @@ export default function AdminDashboard() {
         <View style={styles.border}>
           <View style={styles.schedule}>
             {links.map((link, index) => (
-              <Pressable key={index} style={styles.linkContainer} onPress={link.action}>
+              <Pressable key={link.label} style={styles.linkContainer} onPress={link.action}>
                 <Feather name={link.icon} size={24} color="blue" />
                 <Text style={styles.linkText}>{link.label}</Text>
               </Pressable>
