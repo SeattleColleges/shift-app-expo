@@ -13,7 +13,7 @@ import { ThemedView } from "@/components/ThemedView";
 import { ThemedText } from "@/components/ThemedText";
 import {supabase} from "@/lib/supabaseClient";
 import {Shift} from "@/types/Shift";
-import {getAllFromTable} from "@/queries/getQueries";
+import {getAll} from "@/queries/getQueries";
 
 interface DateProps {
   dateString: string;
@@ -101,7 +101,7 @@ export default function UserDashboard() {
   useEffect(() => {
     const fetchShiftData = async () => {
       if (supabase != null) {
-        const shifts = await getAllFromTable(supabase, 'shifts');
+        const shifts = await getAll(supabase, 'shifts');
         if (shifts)
           setShiftData(shifts as Shift[]);
       }
