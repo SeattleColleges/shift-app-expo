@@ -7,9 +7,15 @@ import Ionicons from "@expo/vector-icons/Ionicons";
 import {Colors} from '@/constants/Colors'
 import {useShiftNavigation} from "@/app/shift-navigation";
 import {ShiftDetail} from "@/types/ShiftDetail";
-
+const isShiftDetail = (obj: any): obj is ShiftDetail => {
+    return typeof obj.id === 'string' && typeof obj.name === 'string';
+}
 export default function ShiftDetailsPage () {
-    const item = useLocalSearchParams() as unknown as ShiftDetail;
+    const params = useLocalSearchParams();
+    if (!isShiftDetail(params)) {
+        throw new Error('Invalid shift detail parameters');
+    }
+    const item: ShiftDetail = params;
     const colorScheme = useColorScheme() || 'light';
     const { currentShift, goToPreviousShift, goToNextShift } = useShiftNavigation(item.id);
     const date = currentShift ? new Date(currentShift.date) : new Date();
