@@ -6,17 +6,13 @@ import {weekdays, months} from "moment";
 import Ionicons from "@expo/vector-icons/Ionicons";
 import {Colors} from '@/constants/Colors'
 import {useShiftNavigation} from "@/app/shift-navigation";
+import {ShiftDetail} from "@/types/ShiftDetail";
 
 export default function ShiftDetailsPage () {
-    const item = useLocalSearchParams();
+    const item = useLocalSearchParams() as unknown as ShiftDetail;
     const colorScheme = useColorScheme() || 'light';
-
-    const currentShiftId = parseInt(item.id as string);
-
-    const { currentShift, goToPreviousShift, goToNextShift } = useShiftNavigation(currentShiftId);
-
+    const { currentShift, goToPreviousShift, goToNextShift } = useShiftNavigation(item.id);
     const date = currentShift ? new Date(currentShift.date) : new Date();
-
     const day = date.getDate();
     const month = months()[date.getMonth()];
     const dayOfWeek = weekdays()[date.getDay()];
@@ -75,12 +71,16 @@ export default function ShiftDetailsPage () {
                 <Text style={{alignSelf: 'center', fontWeight:'500', fontSize: 18}}>
                     Shift Details
                 </Text>
-                <ShiftDetailItem title={'Hours Scheduled'} value={item.numHoursScheduled}/>
+                <ShiftDetailItem title={'Assigned User'} value={item.assignedUser} />
+                <ShiftDetailItem title={'Department ID'} value={item.departmentId} />
+                <ShiftDetailItem title={'Supervisor ID'} value={item.supervisorId}/>
+                <ShiftDetailItem title={'Title'} value={item.title}/>
+                <ShiftDetailItem title={'Date'} value={item.date}/>
+                <ShiftDetailItem title={'Hours Scheduled'} value={Math.floor(item.duration / 60)}/>
+                <ShiftDetailItem title={'Needs Coverage'} value={item.needsCoverage}/>
+                <ShiftDetailItem title={'Coverage Reason'} value={item.coverageReason}/>
                 <ShiftDetailItem title={'Time'} value={`${item.startTime} - ${item.endTime}`}/>
-                <ShiftDetailItem title={'Role'} value={item.role}/>
-                <ShiftDetailItem title={'Building'} value={`${item.building} - ${item.roomNumber}`}/>
-                <ShiftDetailItem title={'Supervisor'} value={''}/>
-                <ShiftDetailItem title={'Coworkers'} value={''}/>
+                <ShiftDetailItem title={'Notes'} value={item.notes} />
             </ThemedView>
             <ThemedView style={{flexDirection: 'row', gap: 25}}>
                 <ShiftRequestButton onPress={() => console.log('give up shift')} text={'GIVE UP SHIFT'}/>
