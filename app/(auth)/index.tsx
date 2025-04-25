@@ -68,6 +68,7 @@ export default function LoginPage() {
           value={email}
           onChangeText={setEmail}
           keyboardType="email-address"
+          autoCapitalize="none" // Add this prop
         />
       </View>
 
