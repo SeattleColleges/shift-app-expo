@@ -12,7 +12,6 @@ export const DayViewItem = ({item}: DayViewItemProps) => {
     const to12Hours = (time: number) =>  time > 12 ? time - 12 : time;
     const start = Number(item.startTime.split(':')[0]);
     const end = Number(item.endTime.split(':')[0]);
-    const numHoursScheduled = end - start;
     const startFormatted = `${to12Hours(start)}${setAMOrPM(start)}`
     const endFormatted = `${to12Hours(end)}${setAMOrPM(end)}`
     return (
@@ -22,14 +21,19 @@ export const DayViewItem = ({item}: DayViewItemProps) => {
             href={{
                 pathname: `./shift-details-page/${item.id}`,
                 params: {
+                    id: item.id,
+                    assignedUser: item.assignedUser,
+                    departmentId: item.departmentId,
+                    supervisorId: item.supervisorId,
+                    title: item.title,
                     date: item.date,
-                    startTime: startFormatted,
-                    endTime: endFormatted,
-                    role: item.role,
-                    roomNumber: item.roomNumber,
-                    building: item.building,
-                    numHoursScheduled,
-                    title: "Shift"
+                    startTime: item.startTime,
+                    endTime: item.endTime,
+                    duration: item.duration,
+                    needsCoverage: item.needsCoverage,
+                    coverageReason: item.coverageReason,
+                    notes: item.notes,
+                    createdOn: item.createdOn,
                 }
             }}>
         <ThemedView style={{width:'100%'}}>
@@ -40,15 +44,12 @@ export const DayViewItem = ({item}: DayViewItemProps) => {
                 paddingLeft: 20,
                 borderRadius: 20
             }}>
-                <ThemedText style={{fontSize: 16}}>{item.role}</ThemedText>
                 <ThemedText style={{flexDirection: 'row', justifyContent: 'flex-start', fontSize: 12, color: '#3e3e3e'}}>
-                    <ThemedText>{item.building}: </ThemedText>
-                    <ThemedText>{item.roomNumber}</ThemedText>
+                    <ThemedText>{item.title}: </ThemedText>
                 </ThemedText>
                 <ThemedText style={{flexDirection: 'row', justifyContent: 'flex-start', fontSize: 16, marginVertical: 4}}>
-                    <ThemedText style={{fontWeight: 'bold'}}>{numHoursScheduled} HR</ThemedText>
+                    <ThemedText style={{fontWeight: 'bold'}}>{Math.floor(item.duration / 60)} HR</ThemedText>
                     <ThemedText> | {`${startFormatted} - ${endFormatted}`}</ThemedText>
-                    <ThemedText>{item.duration}</ThemedText>
                 </ThemedText>
             </ThemedView>
         </ThemedView>

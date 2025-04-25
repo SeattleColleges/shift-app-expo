@@ -7,11 +7,13 @@ import {
   CalendarProvider,
   WeekCalendar,
 } from "react-native-calendars";
-import { shiftData, ShiftData } from "@/data/dummyShiftData";
 import { MarkedDates } from "react-native-calendars/src/types";
 import { DayViewItem } from "@/components/DayViewItem";
 import { ThemedView } from "@/components/ThemedView";
 import { ThemedText } from "@/components/ThemedText";
+import {supabase} from "@/lib/supabaseClient";
+import {Shift} from "@/types/Shift";
+import {getAll} from "@/queries/getQueries";
 
 interface DateProps {
   dateString: string;
@@ -20,30 +22,37 @@ interface DateProps {
   timestamp: number;
   year: number;
 }
-interface AgendaListProps {
+interface AgendaListItem {
   title: string;
   data: any[];
+}
+interface CleanedSlot {
+  startDate: string,
+  endDate: string,
+  startTime: string,
+  endTime: string
 }
 enum Timeframes {
   Week = "Week",
   Month = "Month",
 }
-const getMarkedDates = (shifts: ShiftData[], selectedDate: string) => {
+const getMarkedDates = (shifts: Shift[], selectedDate: string) => {
   let marked: MarkedDates = {};
-  shifts.forEach(({ date, id }) => {
-    if (!marked[date]) {
-      marked[date] = {
+  shifts.forEach(({ slot, shift_id }) => {
+    const cleanedSlot = cleanSlotDate(slot);
+    if (!marked[cleanedSlot.startDate]) {
+      marked[cleanedSlot.startDate] = {
         marked: true,
         dots: [
           {
-            key: `${date}-${id}`,
+            key: `${cleanedSlot.startDate}-${shift_id}`,
             color: "black",
           },
         ],
       };
     } else {
-      marked[date].dots?.push({
-        key: `${date}-${id}`,
+      marked[cleanedSlot.startDate].dots?.push({
+        key: `${cleanedSlot.startDate}-${shift_id}`,
         color: "black",
       });
     }
@@ -57,6 +66,24 @@ const getMarkedDates = (shifts: ShiftData[], selectedDate: string) => {
 
   return marked;
 };
+const cleanSlotDate = (slot: string) : CleanedSlot => {
+  const [start, end] = slot
+      .slice(0, -1)
+      .slice(1)
+      .split(',')
+      .map(s => s.replace(/^"|"$/g, ''));
+  let [startDate, startTime] = start.split(" ");
+  let [endDate, endTime] = end.split(" ");
+  startTime = startTime.split('+')[0]
+  endTime = endTime.split('+')[0]
+  return {
+    startDate,
+    endDate,
+    startTime,
+    endTime
+  }
+};
+
 export default function UserDashboard() {
   const today = new Intl.DateTimeFormat("en-CA").format(new Date());
   const timeframeOptions = [Timeframes.Month, Timeframes.Week];
@@ -68,13 +95,23 @@ export default function UserDashboard() {
     string | undefined
   >(approvalStatusOptions[0]);
   const [selectedDate, setSelectedDate] = useState<string>(today);
-  const [agendaListItems, setAgendaListItems] = useState<any[]>([]);
+  const [agendaListItems, setAgendaListItems] = useState<AgendaListItem[]>([]);
   const [markedDates, setMarkedDates] = useState<MarkedDates>();
-
+  const [shiftData, setShiftData] = useState<Shift[]>([]);
   useEffect(() => {
-    initializeAgendaItems();
+    const fetchShiftData = async () => {
+      if (supabase != null) {
+        const shifts = await getAll(supabase, 'shifts');
+        if (shifts)
+          setShiftData(shifts as Shift[]);
+      }
+    }
+    fetchShiftData();
   }, []);
-
+  useEffect(() => {
+    if (shiftData)
+      initializeAgendaItems();
+  }, [shiftData]);
   useEffect(() => {
     setMarkedDates(getMarkedDates(shiftData, selectedDate));
   }, [selectedDate]);
@@ -84,23 +121,33 @@ export default function UserDashboard() {
       setSelectedDate(today);
     }
   }, [selectedTimeframe]);
+  useEffect(() => {
+    // console.log(agendaListItems)
+  }, [agendaListItems]);
   const initializeAgendaItems = () => {
-    const items: AgendaListProps[] = [];
+    const items: AgendaListItem[] = [];
     shiftData.forEach((shift) => {
-      const existing = items.findIndex((item) => item.title === shift.date);
+      const slot = shift.slot;
+      const cleanedSlot = cleanSlotDate(slot)
+      const existing = items.findIndex((item) => item.title === shift.shift_name);
       const shiftItem = {
-        id: shift.id,
-        date: shift.date,
-        startTime: shift.startTime,
-        endTime: shift.endTime,
-        role: shift.role,
-        roomNumber: shift.roomNumber,
-        building: shift.building,
-        title: "Shift",
+        id: shift.shift_id,
+        assignedUser: shift.assigned_user_id,
+        departmentId: shift.department_id,
+        supervisorId: shift.supervisor_id,
+        title: shift.shift_name,
+        startTime: cleanedSlot.startTime,
+        endTime: cleanedSlot.endTime,
+        date: cleanedSlot.startDate,
+        duration: shift.duration,
+        needsCoverage: shift.needs_coverage,
+        coverageReason: shift.coverage_reason,
+        notes: shift.notes,
+        createdOn: shift.created_on,
       };
       if (existing === -1) {
         items.push({
-          title: shift.date,
+          title: cleanedSlot.startDate,
           data: [...[shiftItem]],
         });
       } else {
@@ -201,7 +248,7 @@ export default function UserDashboard() {
           onLayout={() => scrollToEvent(0, 0)}
           contentContainerStyle={{ paddingBottom: 50 }}
           infiniteListProps={{
-            itemHeight: 115,
+            itemHeight: 75,
             titleHeight: 45,
             visibleIndicesChangedDebounce: 250,
           }}
