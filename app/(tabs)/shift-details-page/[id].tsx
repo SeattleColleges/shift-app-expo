@@ -8,7 +8,23 @@ import {Colors} from '@/constants/Colors'
 import {useShiftNavigation} from "@/app/shift-navigation";
 import {ShiftDetail} from "@/types/ShiftDetail";
 const isShiftDetail = (obj: any): obj is ShiftDetail => {
-    return typeof obj.id === 'string' && typeof obj.name === 'string';
+    return (
+        typeof obj === 'object' &&
+        obj !== null &&
+        typeof obj.id === 'number' &&
+        typeof obj.assignedUser === 'number' &&
+        typeof obj.departmentId === 'number' &&
+        typeof obj.supervisorId === 'number' &&
+        typeof obj.title === 'string' &&
+        typeof obj.date === 'string' &&
+        typeof obj.startTime === 'string' &&
+        typeof obj.endTime === 'string' &&
+        typeof obj.duration === 'number' &&
+        typeof obj.needsCoverage === 'boolean' &&
+        typeof obj.createdOn === 'string' &&
+        (typeof obj.coverageReason === 'undefined' || typeof obj.coverageReason === 'string') &&
+        (typeof obj.notes === 'undefined' || typeof obj.notes === 'string')
+    );
 }
 export default function ShiftDetailsPage () {
     const params = useLocalSearchParams();
@@ -22,7 +38,7 @@ export default function ShiftDetailsPage () {
     const day = date.getDate();
     const month = months()[date.getMonth()];
     const dayOfWeek = weekdays()[date.getDay()];
-    const formattedDate = `${dayOfWeek}, ${month} ${day}`
+    const formattedDate = `${dayOfWeek}, ${month} ${day}`;
 
     type PressableIconProps = {
         name: keyof typeof Ionicons.glyphMap;
