@@ -1,138 +1,198 @@
-import {ScrollView, StyleSheet, View, Text, Pressable, useColorScheme, Platform} from "react-native";
-import {ThemedText} from "@/components/ThemedText";
-import {ThemedView} from "@/components/ThemedView";
-import {useLocalSearchParams, useRouter} from "expo-router";
-import {useState} from "react";
-import {DropdownWithLabel, TextFieldWithLabel} from "@/components/CustomInputFields";
-import {Colors} from "@/constants/Colors";
-import {ProfileImage} from "@/components/ProfileImage";
-
-type SearchParams = {
-    firstName: string,
-    middleName: string,
-    lastName: string,
-    email: string,
-    pronouns: string,
-    role: string
-}
-
-const device = Platform.OS;
-export default function EditProfile () {
-    const {firstName, lastName, email, pronouns, role, middleName} = useLocalSearchParams<SearchParams>();
-    const userProfileImageUrl = null; // Replace with the actual image URL or fetch logic if available
-    const [firstNameText, setFirstNameText] = useState(firstName);
-    const [middleNameText, setMiddleNameText] = useState(middleName);
-    const [lastNameText, setLastNameText] = useState(lastName);
-    const [emailText, setEmailText] = useState(email);
-    const [pronounsText, setPronounsText] = useState(pronouns);
-    const [studentStatus, setStudentStatus] = useState('Full-Time');
+import {
+    ScrollView,
+    StyleSheet,
+    View,
+    Text,
+    Pressable,
+    useColorScheme,
+    Platform,
+    TextInput,
+  } from 'react-native';
+  import { ThemedText } from '@/components/ThemedText'; // Assuming this exists
+  import { ThemedView } from '@/components/ThemedView'; // Assuming this exists
+  import { useRouter, useLocalSearchParams } from 'expo-router';
+  import { useState, useEffect } from 'react';
+  import { Colors } from '@/constants/Colors'; // Assuming this exists
+  import { ProfileImage } from '@/components/ProfileImage'; // Ensure this path is correct
+  import { supabase } from '../../lib/supabaseClient'; // Adjust the import path if needed
+  
+  interface Profile {
+    profile_id: string | null; // UUID from auth.users
+    profile_int_id: number | null;
+    name: string | null;
+    email: string | null;
+    role: 'employee' | 'supervisor' | 'admin' | null;
+    position: number | null;
+    supervisor: string | null; // UUID of the supervisor
+  }
+  
+  type SearchParams = Profile; // Align SearchParams with Profile
+  
+  const device = Platform.OS;
+  export default function EditProfile() {
+    const { profile_id, profile_int_id, name: initialName, email: initialEmail, pronouns: initialPronouns, role: initialRole } = useLocalSearchParams<SearchParams>();
+    const [profile, setProfile] = useState<Profile>({
+      profile_id: profile_id || null,
+      profile_int_id: profile_int_id || null,
+      name: initialName || null,
+      email: initialEmail || null,
+      role: initialRole || null,
+      position: null, // Not editable in this UI
+      supervisor: null, // Not editable in this UI
+    });
+    const [loading, setLoading] = useState(true);
+    const [error, setError] = useState<string | null>(null);
     const router = useRouter();
     const colorScheme = useColorScheme();
-    const studentStatuses = ['Full-Time', 'Part-Time', 'Intern', 'Work-Study', "Leave Of Absence"];
-
+  
+    const profileIntId = 5; // Hardcoded for fetching, replace with dynamic ID later
+  
+    useEffect(() => {
+      const fetchProfileById = async () => {
+        setLoading(true);
+        setError(null);
+  
+        try {
+          if (supabase) {
+            const { data, error } = await supabase
+              .from('profiles')
+              .select('*')
+              .eq('profile_int_id', profileIntId)
+              .single();
+  
+            if (error) {
+              console.error('Error fetching profile:', error);
+              setError(error.message);
+            } else if (data) {
+              setProfile(data as Profile);
+            }
+          } else {
+            setError('Supabase client is not initialized.');
+          }
+        } catch (err) {
+          console.error('An unexpected error occurred:', err);
+          setError('An unexpected error occurred.');
+        } finally {
+          setLoading(false);
+        }
+      };
+  
+      fetchProfileById();
+    }, [profileIntId, supabase]);
+  
     const handleCancelPressed = () => {
-        setFirstNameText(firstName);
-        setMiddleNameText(middleName);
-        setLastNameText(lastName);
-        setEmailText(email);
-        setPronounsText(pronouns);
-        // TODO: Handle student status
-        router.navigate('/(tabs)/profileView')
+      router.push('/(tabs)/profileView');
+    };
+  
+    const handleInputChange = (name: keyof Profile, text: string) => {
+      setProfile((prevProfile) => ({
+        ...prevProfile,
+        [name]: text,
+      }));
+    };
+  
+    const handleSubmitPressed = () => {
+      console.log('Submit pressed with data:', profile);
+      // In a real application, you would send this data to your backend to update the profile
+    };
+  
+    if (loading) {
+      return <Text>Loading profile...</Text>;
     }
+  
+    if (error) {
+      return <Text>Error loading profile: {error}</Text>;
+    }
+  
     return (
-        <ScrollView style={{backgroundColor: Colors[colorScheme || 'light'].background}}>
-            <View style={styles.headerContainer}>
-            <ThemedText type={'title'}>Edit Profile</ThemedText>
-            <ProfileImage
-            initialImageSource={""} // Replace with the actual image URL if available
+      <ScrollView style={{ backgroundColor: Colors[colorScheme || 'light'].background }}>
+        <View style={styles.headerContainer}>
+          <ThemedText type={'title'}>Edit Profile</ThemedText>
+          <ProfileImage
+            initialImageSource={require('../../assets/images/profileImg.jpg')} // Replace with the actual image URL if available
+          />
+          <ThemedText style={{ fontSize: 24 }} type={'default'}>
+            {`Role: ${profile.role || 'N/A'}`}
+          </ThemedText>
+        </View>
+        <View style={styles.editFieldsContainer}>
+          <View>
+            <Text style={styles.label}>First Name</Text>
+            <TextInput
+              style={styles.input}
+              value={profile.name?.split(' ')[0] || ''}
+              onChangeText={(text) => handleInputChange('name', `${text} ${profile.name?.split(' ').slice(1).join(' ') || ''}`)}
             />
-    <ThemedText style={{ fontSize: 24 }} type={'default'}>
-        {`Role: ${role}`}
-    </ThemedText>
-</View>
-            <View style={styles.editFieldsContainer}>
-                <TextFieldWithLabel
-                    label={'First Name'}
-                    onChangeText={setFirstNameText}
-                    value={firstNameText}
-                />
-                <TextFieldWithLabel
-                    label={'Middle Name'}
-                    onChangeText={setMiddleNameText}
-                    value={middleNameText}
-                />
-                <TextFieldWithLabel
-                    label={'Last Name'}
-                    onChangeText={setLastNameText}
-                    value={lastNameText}
-                />
-                <TextFieldWithLabel
-                    label={'Email'}
-                    onChangeText={setEmailText}
-                    value={emailText}
-                />
-                <TextFieldWithLabel
-                    label={'Pronouns'}
-                    onChangeText={setPronounsText}
-                    value={pronounsText}
-                />
-                <DropdownWithLabel
-                    label={'Student Status'}
-                    values={studentStatuses}
-                    selectedValue={studentStatus}
-                    onValueChange={setStudentStatus}
-                />
-                <View style={styles.buttonsContainer}>
-                    <Pressable onPress={() => console.log('submit')} style={[styles.button, {backgroundColor: Colors[colorScheme || 'light'].text,}]}>
-                        <Text style={{color: colorScheme == 'light' ? Colors.dark.text: Colors.light.text}}>
-                            Submit
-                        </Text>
-                    </Pressable>
-                    <Pressable onPress={handleCancelPressed} style={[styles.button, {backgroundColor: Colors.cancel,}]}>
-                        <Text style={{color: colorScheme == 'light' ? Colors.dark.text: Colors.light.text}}>
-                            Cancel
-                        </Text>
-                    </Pressable>
-                </View>
-            </View>
-        </ScrollView>
-    )
-}
-const circleSize = 125;
-const styles = StyleSheet.create({
+          </View>
+          <View>
+            <Text style={styles.label}>Last Name</Text>
+            <TextInput
+              style={styles.input}
+              value={profile.name?.split(' ').slice(1).join(' ') || ''}
+              onChangeText={(text) => handleInputChange('name', `${profile.name?.split(' ')[0] || ''} ${text}`)}
+            />
+          </View>
+          <View>
+            <Text style={styles.label}>Email</Text>
+            <TextInput
+              style={styles.input}
+              value={profile.email || ''}
+              onChangeText={(text) => handleInputChange('email', text)}
+              keyboardType="email-address"
+            />
+          </View>
+          {/* You can add a Pronouns field here if you decide to include it in your Profile interface */}
+          <View style={styles.buttonsContainer}>
+            <Pressable onPress={handleSubmitPressed} style={[styles.button, { backgroundColor: Colors[colorScheme || 'light'].text }]}>
+              <Text style={{ color: colorScheme === 'light' ? Colors.dark.text : Colors.light.text }}>
+                Submit
+              </Text>
+            </Pressable>
+            <Pressable onPress={handleCancelPressed} style={[styles.button, { backgroundColor: Colors.cancel }]}>
+              <Text style={{ color: colorScheme === 'light' ? Colors.dark.text : Colors.light.text }}>
+                Cancel
+              </Text>
+            </Pressable>
+          </View>
+        </View>
+      </ScrollView>
+    );
+  }
+  
+  const circleSize = 125;
+  const styles = StyleSheet.create({
     headerContainer: {
-        flex:1,
-        alignItems:'center',
-        gap:15,
-        paddingVertical: 16
-    },
-    circle: {
-        borderRadius: circleSize / 2,
-        height: circleSize,
-        width: circleSize,
-        justifyContent: 'center',
-        alignItems: 'center',
-    },
-    userText: {
-        fontSize: 20
+      flex: 1, // Fixed the issue by providing a valid value for flex
+      alignItems: 'center',
+      justifyContent: 'center',
+      padding: 16,
     },
     editFieldsContainer: {
-        flex: 1,
-        paddingHorizontal: 20,
-        gap: 10
+      flex: 1,
+      padding: 16,
     },
-    button: {
-        flex: 1,
-        padding: 12,
-        borderRadius: 5,
-        alignItems: 'center',
-        justifyContent: 'center',
-        height: device == 'web' ? 36 : 'auto'
+    label: {
+      fontSize: 16,
+      marginBottom: 8,
+      color: '#333',
+    },
+    input: {
+      borderWidth: 1,
+      borderColor: '#ccc',
+      borderRadius: 8,
+      padding: 8,
+      marginBottom: 16,
     },
     buttonsContainer: {
-        flex:1,
-        flexDirection:'row',
-        justifyContent:'center',
-        gap: 5,
-    }
-})
+      flexDirection: 'row',
+      justifyContent: 'space-between',
+      marginTop: 16,
+    },
+    button: {
+      flex: 1,
+      padding: 12,
+      borderRadius: 8,
+      alignItems: 'center',
+      marginHorizontal: 8,
+    },
+  });
