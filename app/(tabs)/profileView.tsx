@@ -1,20 +1,20 @@
 import React, { useState, useEffect } from 'react';
 import { View, Text, StyleSheet, Pressable } from 'react-native';
-import { supabase } from '../../lib/supabaseClient'; // Adjust the import path if needed
+import { supabase } from '../../lib/supabaseClient'; 
 import { ScrollView } from 'react-native';
 import Feather from '@expo/vector-icons/Feather';
-import { ProfileImage } from '@/components/ProfileImage'; // Ensure this path is correct
-import * as Linking from 'expo-linking'; // Import Linking from expo
-import { useRouter } from 'expo-router'; // Import useRouter
+import { ProfileImage } from '@/components/ProfileImage'; 
+import * as Linking from 'expo-linking'; 
+import { useRouter } from 'expo-router'; 
 
 interface Profile {
-  profile_id: string | null; // UUID from auth.users
+  profile_id: string | null; 
   profile_int_id: number | null;
   name: string | null;
   email: string | null;
   role: 'employee' | 'supervisor' | 'admin' | null;
   position: number | null;
-  supervisor: string | null; // UUID of the supervisor
+  supervisor: string | null; 
 }
 
 const ProfileView = () => {
@@ -74,7 +74,7 @@ const ProfileView = () => {
           name: profile.name || '',
           email: profile.email || '',
           role: profile.role || '',
-          // Add other profile properties if needed
+          
         },
       });
     }
