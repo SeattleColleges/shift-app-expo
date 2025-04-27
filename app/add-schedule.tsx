@@ -1,3 +1,3 @@
-import AddSchedule from '../components/AddSchedule';
+import AddShift from '../components/AddShift';
 
-export default AddSchedule;
+export default AddShift;

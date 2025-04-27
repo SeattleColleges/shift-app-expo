@@ -12,9 +12,9 @@ export default function TabLayout() {
                 }}
             />
             <Tabs.Screen
-                name="addShift"
+                name="add-shift"
                 options={{
-                    title: 'Add shift',
+                    title: 'Add Shift',
                     tabBarIcon: ({ color }) => <FontAwesome size={28} name="calendar-plus-o" color={color} />,
                 }}
             />
