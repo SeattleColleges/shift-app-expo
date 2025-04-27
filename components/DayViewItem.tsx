@@ -3,9 +3,10 @@ import {ThemedText} from "@/components/ThemedText";
 import {ThemedView} from "@/components/ThemedView";
 import {Link} from "expo-router";
 import {setAMOrPM, to12Hours} from "@/util/dateUtils";
+import {ShiftDetail} from "@/types/ShiftDetail";
 
 interface DayViewItemProps {
-    item: any,
+    item: ShiftDetail,
 }
 
 export const DayViewItem = ({item}: DayViewItemProps) => {
@@ -29,7 +30,7 @@ export const DayViewItem = ({item}: DayViewItemProps) => {
                     startTime: startFormatted,
                     endTime: endFormatted,
                     duration: item.duration,
-                    needsCoverage: item.needsCoverage,
+                    needsCoverage: Number(item.needsCoverage),
                     coverageReason: item.coverageReason,
                     notes: item.notes,
                     createdOn: item.createdOn,
