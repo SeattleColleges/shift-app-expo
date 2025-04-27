@@ -18,7 +18,7 @@ import { times } from "../data/times";
 
 type PickerType = "role" | "location" | "startTime" | "endTime" | null;
 
-const AddSchedule: React.FC = () => {
+const AddShift: React.FC = () => {
   const [role, setRole] = useState<string>(roles[0].value);
   const [location, setLocation] = useState<string>(locations[0].value);
   const [date, setDate] = useState<Date>(new Date());
@@ -56,7 +56,7 @@ const AddSchedule: React.FC = () => {
     <KeyboardAvoidingView behavior="padding" style={styles.container}>
       <ScrollView contentContainerStyle={styles.scrollContainer} keyboardShouldPersistTaps="handled">
         <View style={styles.innerContainer}>
-          <Text style={styles.title}>Add Schedule</Text>
+          <Text style={styles.title}>Add Shift</Text>
 
           {/* Role Picker */}
           <Text style={styles.label}>Role</Text>
@@ -167,4 +167,4 @@ const styles = StyleSheet.create({
   webInput: { fontSize: 16, padding: 12, borderWidth: 1, borderColor: "#ccc", borderRadius: 10, backgroundColor: "#fff", marginBottom: 20, width: "92%" },
 });
 
-export default AddSchedule;
+export default AddShift;
