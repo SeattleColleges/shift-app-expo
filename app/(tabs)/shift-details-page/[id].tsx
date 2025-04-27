@@ -7,20 +7,22 @@ import Ionicons from "@expo/vector-icons/Ionicons";
 import {Colors} from '@/constants/Colors'
 import {useShiftNavigation} from "@/app/shift-navigation";
 import {ShiftDetail} from "@/types/ShiftDetail";
+import {useEffect, useState} from "react";
+import {useIsSupervisor} from "@/hooks/userRoleService";
 const isShiftDetail = (obj: any): obj is ShiftDetail => {
     return (
         typeof obj === 'object' &&
         obj !== null &&
-        typeof obj.id === 'number' &&
-        typeof obj.assignedUser === 'number' &&
-        typeof obj.departmentId === 'number' &&
-        typeof obj.supervisorId === 'number' &&
+        typeof obj.id === 'string' &&
+        typeof obj.assignedUser === 'string' &&
+        typeof obj.departmentId === 'string' &&
+        typeof obj.supervisorId === 'string' &&
         typeof obj.title === 'string' &&
         typeof obj.date === 'string' &&
         typeof obj.startTime === 'string' &&
         typeof obj.endTime === 'string' &&
-        typeof obj.duration === 'number' &&
-        typeof obj.needsCoverage === 'boolean' &&
+        typeof obj.duration === 'string' &&
+        typeof obj.needsCoverage === 'string' &&
         typeof obj.createdOn === 'string' &&
         (typeof obj.coverageReason === 'undefined' || typeof obj.coverageReason === 'string') &&
         (typeof obj.notes === 'undefined' || typeof obj.notes === 'string')
@@ -39,7 +41,7 @@ export default function ShiftDetailsPage () {
     const month = months()[date.getMonth()];
     const dayOfWeek = weekdays()[date.getDay()];
     const formattedDate = `${dayOfWeek}, ${month} ${day}`;
-
+    const [isSupervisor, setIsSupervisor] = useState<boolean | null>(false);
     type PressableIconProps = {
         name: keyof typeof Ionicons.glyphMap;
         size?: number;
@@ -82,6 +84,17 @@ export default function ShiftDetailsPage () {
             </View>
         )
     }
+    const currentUserId = 2;
+    useEffect(() => {
+        const checkIsSupervisor = async () => {
+            const isSupervisor = useIsSupervisor(currentUserId);
+            setIsSupervisor(isSupervisor);
+        }
+        checkIsSupervisor()
+    }, []);
+    useEffect(() => {
+        console.log(isSupervisor)
+    }, [isSupervisor]);
     return (
         <ThemedView style={styles.container}>
             <View style={styles.dateHeader}>
