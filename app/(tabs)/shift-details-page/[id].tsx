@@ -1,5 +1,5 @@
 import {Pressable, StyleSheet, Text, useColorScheme, View} from "react-native";
-import {useLocalSearchParams} from "expo-router";
+import {useFocusEffect, useLocalSearchParams} from "expo-router";
 import {ThemedText} from "@/components/ThemedText";
 import {ThemedView} from "@/components/ThemedView";
 import {weekdays, months} from "moment";
@@ -7,8 +7,8 @@ import Ionicons from "@expo/vector-icons/Ionicons";
 import {Colors} from '@/constants/Colors'
 import {useShiftNavigation} from "@/app/shift-navigation";
 import {ShiftDetail} from "@/types/ShiftDetail";
-import {useEffect, useState} from "react";
-import {useIsSupervisor} from "@/hooks/userRoleService";
+import {useCallback, useEffect, useState} from "react";
+import {supabaseAdmin} from "@/lib/supabaseAdminClient";
 const isShiftDetail = (obj: any): obj is ShiftDetail => {
     return (
         typeof obj === 'object' &&
@@ -85,13 +85,25 @@ export default function ShiftDetailsPage () {
         )
     }
     const currentUserId = 2;
-    useEffect(() => {
-        const checkIsSupervisor = async () => {
-            const isSupervisor = useIsSupervisor(currentUserId);
-            setIsSupervisor(isSupervisor);
-        }
-        checkIsSupervisor()
-    }, []);
+    useFocusEffect(
+        useCallback(() => {
+            async function fetchRole() {
+                if (!supabaseAdmin) throw new Error('Supabase is invalid.');
+                const { data, error } = await supabaseAdmin.rpc('is_supervisor', { supervisor_id_param: currentUserId });
+                if (error) {
+                    console.error(error);
+                    setIsSupervisor(false);
+                } else {
+                    setIsSupervisor(data);
+                }
+            }
+            fetchRole();
+            return () => {
+                console.log('Shift details page unfocused');
+                setIsSupervisor(false);
+            };
+        }, [])
+    );
     useEffect(() => {
         console.log(isSupervisor)
     }, [isSupervisor]);
