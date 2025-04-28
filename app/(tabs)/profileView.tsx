@@ -1,32 +1,32 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { View, Text, StyleSheet, Pressable } from 'react-native';
-import { supabase } from '../../lib/supabaseClient'; 
+import { supabase } from '../../lib/supabaseClient';
 import { ScrollView } from 'react-native';
 import Feather from '@expo/vector-icons/Feather';
-import { ProfileImage } from '@/components/ProfileImage'; 
-import * as Linking from 'expo-linking'; 
-import { useRouter } from 'expo-router'; 
+import { ProfileImage } from '@/components/ProfileImage';
+import * as Linking from 'expo-linking';
+import { useRouter } from 'expo-router';
 
 interface Profile {
-  profile_id: string | null; 
+  profile_id: string | null;
   profile_int_id: number | null;
   name: string | null;
   email: string | null;
   role: 'employee' | 'supervisor' | 'admin' | null;
   position: number | null;
-  supervisor: string | null; 
+  supervisor: string | null;
 }
 
 const ProfileView = () => {
   const [profile, setProfile] = useState<Profile | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
-  const router = useRouter(); // Initialize useRouter
+  const router = useRouter();
 
   // Using the profile_int_id provided
   const profileIntId = 5;
 
-  const fetchProfileById = async () => {
+  const fetchProfileById = useCallback(async () => {
     setLoading(true);
     setError(null);
 
@@ -53,11 +53,11 @@ const ProfileView = () => {
     } finally {
       setLoading(false);
     }
-  };
+  }, []); // Empty dependency array
 
   useEffect(() => {
     fetchProfileById();
-  }, [profileIntId, supabase]);
+  }, [fetchProfileById]);
 
   const handleLogout = () => {
     router.replace('/(auth)'); // Navigate to the login page
@@ -74,7 +74,7 @@ const ProfileView = () => {
           name: profile.name || '',
           email: profile.email || '',
           role: profile.role || '',
-          
+
         },
       });
     }
@@ -111,8 +111,10 @@ const ProfileView = () => {
           <View style={styles.topProfileContainer}>
             <View style={styles.profileImageContainer}>
               <ProfileImage
-                initialImageSource={require('../../assets/images/profileImg.jpg')} // Replace with the actual image URL or logic
-                size={80} // Adjust size as needed
+                initialImageSource={require('../../assets/images/profileImg.jpg')}
+                width={80}
+                height={80}
+                borderRadius={40}
               />
             </View>
             <View style={styles.profileInfo}>
