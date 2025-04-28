@@ -24,13 +24,14 @@ import {
     role: 'employee' | 'supervisor' | 'admin' | null;
     position: number | null;
     supervisor: string | null; // UUID of the supervisor
+    pronouns?: string | null; // Add pronouns, making it optional with '?' or allowing null
   }
   
   type SearchParams = Profile; // Align SearchParams with Profile
   
   const device = Platform.OS;
   export default function EditProfile() {
-    const { profile_id, profile_int_id, name: initialName, email: initialEmail, pronouns: initialPronouns, role: initialRole } = useLocalSearchParams<SearchParams>();
+    const { profile_id, profile_int_id, name: initialName, email: initialEmail, role: initialRole } = useLocalSearchParams<SearchParams>();
     const [profile, setProfile] = useState<Profile>({
       profile_id: profile_id || null,
       profile_int_id: profile_int_id || null,
