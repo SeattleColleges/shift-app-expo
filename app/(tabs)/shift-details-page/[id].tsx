@@ -28,12 +28,14 @@ const isShiftDetail = (obj: any): obj is ShiftDetail => {
         (typeof obj.notes === 'undefined' || typeof obj.notes === 'string')
     );
 }
+const currentUserId = 4; // Change me to test role privileges
 export default function ShiftDetailsPage () {
     const params = useLocalSearchParams();
     if (!isShiftDetail(params)) {
         throw new Error('Invalid shift detail parameters');
     }
     const item: ShiftDetail = params;
+    const currentUserIsAssignedUser = currentUserId == item.assignedUser;
     const colorScheme = useColorScheme() || 'light';
     const { currentShift, goToPreviousShift, goToNextShift } = useShiftNavigation(item.id);
     const date = currentShift ? new Date(currentShift.date) : new Date();
@@ -76,7 +78,6 @@ export default function ShiftDetailsPage () {
         )
     }
     const ShiftDetailItem = ({title, value}: ShiftDetailItemProps) => {
-
         return (
             <View style={{flexDirection:'row', gap:5, alignItems:'center'}}>
                 <Text style={{fontSize:12}}>{title}:</Text>
@@ -84,7 +85,7 @@ export default function ShiftDetailsPage () {
             </View>
         )
     }
-    const currentUserId = 2;
+
     useFocusEffect(
         useCallback(() => {
             async function fetchRole() {
@@ -129,10 +130,13 @@ export default function ShiftDetailsPage () {
                 <ShiftDetailItem title={'Time'} value={`${item.startTime} - ${item.endTime}`}/>
                 <ShiftDetailItem title={'Notes'} value={item.notes} />
             </ThemedView>
-            <ThemedView style={{flexDirection: 'row', gap: 25}}>
-                <ShiftRequestButton onPress={() => console.log('give up shift')} text={'GIVE UP SHIFT'}/>
-                <ShiftRequestButton onPress={() => console.log('take shift')} text={'TAKE SHIFT'}/>
-            </ThemedView>
+            {
+                (isSupervisor || currentUserIsAssignedUser) &&
+                <ThemedView style={{flexDirection: 'row', gap: 25}}>
+                    <ShiftRequestButton onPress={() => console.log('give up shift')} text={'GIVE UP SHIFT'}/>
+                    <ShiftRequestButton onPress={() => console.log('take shift')} text={'TAKE SHIFT'}/>
+                </ThemedView>
+            }
         </ThemedView>
     )
 }
