@@ -89,7 +89,7 @@ export default function ShiftDetailsPage () {
     useFocusEffect(
         useCallback(() => {
             async function fetchRole() {
-                if (!supabaseAdmin) throw new Error('Supabase is invalid.');
+                if (!supabaseAdmin) throw new Error('Supabase admin is invalid.');
                 const { data, error } = await supabaseAdmin.rpc('is_supervisor', { supervisor_id_param: currentUserId });
                 if (error) {
                     console.error(error);
