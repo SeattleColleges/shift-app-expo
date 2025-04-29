@@ -28,7 +28,7 @@ const isShiftDetail = (obj: any): obj is ShiftDetail => {
         (typeof obj.notes === 'undefined' || typeof obj.notes === 'string')
     );
 }
-const currentUserId = 4; // Change me to test role privileges
+const currentUserId = 2; // Change me to test role privileges
 export default function ShiftDetailsPage () {
     const params = useLocalSearchParams();
     if (!isShiftDetail(params)) {
@@ -131,10 +131,17 @@ export default function ShiftDetailsPage () {
                 <ShiftDetailItem title={'Notes'} value={item.notes} />
             </ThemedView>
             {
-                (isSupervisor || currentUserIsAssignedUser) &&
+                currentUserIsAssignedUser &&
                 <ThemedView style={{flexDirection: 'row', gap: 25}}>
                     <ShiftRequestButton onPress={() => console.log('give up shift')} text={'GIVE UP SHIFT'}/>
                     <ShiftRequestButton onPress={() => console.log('take shift')} text={'TAKE SHIFT'}/>
+                </ThemedView>
+            }
+            {
+                isSupervisor && !currentUserIsAssignedUser &&
+                <ThemedView style={{flexDirection: 'row', gap: 25}}>
+                    <ShiftRequestButton onPress={() => console.log('approve')} text={'APPROVE'}/>
+                    <ShiftRequestButton onPress={() => console.log('deny')} text={'DENY'}/>
                 </ThemedView>
             }
         </ThemedView>
