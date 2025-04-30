@@ -31,7 +31,7 @@ import {
   
   const device = Platform.OS;
   export default function EditProfile() {
-    const { profile_id, profile_int_id, name: initialName, email: initialEmail, role: initialRole } = useLocalSearchParams<SearchParams>();
+    const { profile_id, profile_int_id, name: initialName, email: initialEmail, role: initialRole } = useLocalSearchParams<SearchParams & { [key: string]: string }>();
     const [profile, setProfile] = useState<Profile>({
       profile_id: profile_id || null,
       profile_int_id: profile_int_id || null,
@@ -79,7 +79,7 @@ import {
       };
   
       fetchProfileById();
-    }, [profileIntId, supabase]);
+    }, []);
   
     const handleCancelPressed = () => {
       router.push('/(tabs)/profileView');
