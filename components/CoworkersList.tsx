@@ -1,15 +1,18 @@
 import {FlatList, ListRenderItem, StyleSheet, View} from "react-native";
 import {coworkersDummyData} from "@/data/dummyCoworkerData";
-import {CoworkerListItem, CoworkerProps} from "@/components/CoworkerListItem";
+import {CoworkerListItem} from "@/components/CoworkerListItem";
 import React from "react";
+import {Coworker} from "@/types/Coworker";
 
 export default function CoworkersList() {
-    const renderCoworker: ListRenderItem<CoworkerProps> = ({ item }) =>
+    const renderCoworker: ListRenderItem<Coworker> = ({ item }) =>
         <CoworkerListItem
             id={item.id}
             name={item.name}
             role={item.role}
             profileImageUrl={item.profileImageUrl}
+            positionId={item.positionId}
+            departmentId={item.departmentId}
         />;
     interface ItemSeparatorProps {
         height?: number;  // Optional prop to control the spacing height
