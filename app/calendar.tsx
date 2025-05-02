@@ -15,6 +15,8 @@ import renderHeaderUtils from '@/components/ref/renderHeaderUtils';
 import { getTheme, themeColor, lightThemeColor } from '../constants/theme';
 import dummyItems from "@/data/dummyItems";
 import {dateTimeFormatter} from "@/data/utils";
+import {supabaseAdmin} from "@/lib/supabaseAdminClient";
+import {useShifts} from "@/hooks/useShifts";
 
 // @ts-ignore -- Default props no longer supported
 (ExpandableCalendar).defaultProps = undefined;
@@ -25,6 +27,7 @@ const ForwardedExpandableCalendar = forwardRef((props, ref) => (
 ));
 
 const ITEMS = dummyItems
+
 
 
 const eventColors = {
@@ -44,11 +47,11 @@ const getDotColor = (event: any) => {
     return event.status === 'pending' ? eventColors.pending : eventColors.confirmed;
 };
 
-const getMarkedDates = (): Record<string, any> => {
+const getMarkedDates = (ITEMS:any): Record<string, any> => {
     const marked: Record<string, any> = {};
 
     // Process each item
-    ITEMS.forEach((item) => {
+    ITEMS.forEach((item:any) => {
         const date = item.dayHeader;
         const MAX_DOTS = 3
 
@@ -77,7 +80,7 @@ const getMarkedDates = (): Record<string, any> => {
     return marked;
 };
 
-const processSections = () => {
+const processSections = (ITEMS:any) => {
     const groupedByDate = new Map();
 
     // Group all events by date for agenda list
@@ -128,11 +131,16 @@ const EventItem = ({ item }: { item: any }) => {
 const CalendarRework: React.FC<CalendarReworkProps> = ({ weekView = false, style }) => {
     const today = new Date().toISOString().split('T')[0];
 
+
     const [selected, setSelected] = useState<string>(today);
-    const markedDates = useRef(getMarkedDates());
-    const sections = useRef(processSections());
+    const markedDates = useRef(getMarkedDates(ITEMS));
+    const sections = useRef(processSections(ITEMS));
     const theme = useRef(getTheme());
     const todayBtnTheme = useRef({ todayButtonTextColor: themeColor });
+    const {items,loading,error } = useShifts()
+    console.log("Load: ",loading)
+    console.log("Error: ",error)
+    console.log(JSON.stringify(items,null,2))
 
     const calendarRef = useRef(null);
     const rotation = useRef(new Animated.Value(0)).current;
@@ -161,9 +169,13 @@ const CalendarRework: React.FC<CalendarReworkProps> = ({ weekView = false, style
 
     const renderItem = useCallback(({ item }: any) => <EventItem item={item} key= {item.id} />, []);
 
+
+
+
     return (
         <View style={[styles.container, style]}>
-            <CalendarProvider date={today} showTodayButton theme={todayBtnTheme.current}>
+            <CalendarProvider
+                date={today} showTodayButton theme={todayBtnTheme.current}>
                 {weekView ? (
                     <WeekCalendar
                         firstDay={1}
