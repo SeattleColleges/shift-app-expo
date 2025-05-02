@@ -4,7 +4,7 @@ import React, {
     useState,
     forwardRef
 } from 'react';
-import { Animated, Easing, StyleSheet, Text, View } from 'react-native';
+import {Animated, Easing, Pressable, StyleSheet, Text, View} from 'react-native';
 import {
     ExpandableCalendar,
     AgendaList,
@@ -15,13 +15,11 @@ import {
 } from 'react-native-calendars';
 import renderHeaderUtils from '@/components/ref/renderHeaderUtils';
 import { getTheme, themeColor, lightThemeColor } from '../constants/theme';
-import AgendaItem from '../components/AgendaItem';
+import id from "ajv/lib/vocabularies/core/id";
 
 // Remove deprecated defaultProps hack
 // @ts-ignore
 (ExpandableCalendar).defaultProps = undefined;
-
-
 
 // Wrapper forwards React ref into the library's forwardedRef API
 const ForwardedExpandableCalendar = forwardRef((props, ref) => (
@@ -29,19 +27,75 @@ const ForwardedExpandableCalendar = forwardRef((props, ref) => (
 ));
 
 const ITEMS = [
-    { title: '2023-05-01', data: [{ id: '1', title: 'First event' }] },
-    { title: '2023-05-02', data: [{ id: '2', title: 'Second event' }] },
-    { title: '2023-05-03', data: [{ id: '2', title: 'Second event' }] },
+    { dayHeader: '2025-05-01', data: [{ id: '1', title: 'First event', status: 'confirmed' }] },
+    { dayHeader: '2025-05-01', data: [{ id: '2', title: 'Second event', status: 'pending' }] },
+    { dayHeader: '2025-05-01', data: [{ id: '3', title: 'Third event', status: 'confirmed' }] },
+    { dayHeader: '2025-05-01', data: [{ id: '4', title: 'Fourth event', status: 'pending' }] },
+    { dayHeader: '2025-05-02', data: [{ id: '5', title: 'Fifth event', status: 'confirmed' }] },
+    { dayHeader: '2025-05-03', data: [{ id: '6', title: 'Sixth event', status: 'pending' }] },
+    { dayHeader: '2025-05-03', data: [{ id: '67', title: 'Seventh event', status: 'pending' }] },
 ];
 
-type MarkedDatesMap = Record<string, { marked?: boolean; dots?: Array<{ key: string; color: string }> }>;
-const getMarkedDates = (): MarkedDatesMap => {
-    const marked: MarkedDatesMap = {};
-    ITEMS.forEach(item => {
-        marked[item.title] = {
-            marked: true, dots: item.data.map(evt => ({ key: evt.id, color: themeColor })) };
+const eventColors = {
+    confirmed: 'black',
+    pending: 'grey',
+};
+
+// Get dot color by event status
+const getDotColor = (event: any) => {
+    return event.status === 'pending' ? eventColors.pending : eventColors.confirmed;
+};
+
+const getMarkedDates = (): Record<string, any> => {
+    const marked: Record<string, any> = {};
+
+    // Process each item
+    ITEMS.forEach((item) => {
+        const date = item.dayHeader;
+        const MAX_DOTS = 3
+
+        //  Initialize dots
+        if (!marked[date]) {
+            marked[date] = {
+                dots: []
+            };
+        }
+
+        // Only add dots if we haven't reached the maximum
+        if (marked[date].dots.length < MAX_DOTS) {
+            // Add dots for each item
+            item.data.forEach((event) => {
+                // Skip adding more dots if we've reached the maximum
+                if (marked[date].dots.length < MAX_DOTS) {
+                    marked[date].dots.push({
+                        key: event.id,
+                        color: getDotColor(event),
+                        selectedDotColor: 'white'
+                    });
+                }
+            });
+        }
     });
     return marked;
+};
+
+const processSections = () => {
+    const groupedByDate = new Map();
+
+    // Group all events by date for agenda list
+    ITEMS.forEach(item => {
+        const date = item.dayHeader;
+        if (!groupedByDate.has(date)) {
+            groupedByDate.set(date, { title: date, data: [] });
+        }
+
+        // Add all events of item to group
+        item.data.forEach(event => {
+            groupedByDate.get(date).data.push(event);
+        })
+    })
+    //console.log(Array.from(groupedByDate.values()))
+    return Array.from(groupedByDate.values())
 };
 
 const CHEVRON = { uri: 'https://cdn-icons-png.flaticon.com/512/271/271228.png' };
@@ -53,16 +107,37 @@ interface CalendarReworkProps {
     style?: any;
 }
 
+const EventItem = ({ item }: { item: any }) => {
+    const isPending = item.status === 'pending'
+
+    return (
+        <Pressable
+            key={item.id}
+            style={[
+            styles.itemContainer,
+            isPending && styles.pendingItemContainer
+        ]} onPress={()=>console.log("Pressed: ",item.id)}>
+            <Text style={[
+                styles.itemTitle,
+                isPending && styles.pendingItemTitle
+            ]}>
+                {JSON.stringify(item,null,2)} {"Pending: "+isPending}
+            </Text>
+        </Pressable>
+    )
+};
+
 const CalendarRework: React.FC<CalendarReworkProps> = ({ weekView = false, style }) => {
     const today = new Date().toISOString().split('T')[0];
 
     const [selected, setSelected] = useState<string>(today);
-    const markedDates = useRef<MarkedDatesMap>(getMarkedDates());
+    const markedDates = useRef(getMarkedDates());
+    const sections = useRef(processSections());
     const theme = useRef(getTheme());
     const todayBtnTheme = useRef({ todayButtonTextColor: themeColor });
 
     const calendarRef = useRef(null);
-    const rotation = useRef(new Animated.Value(0));
+    const rotation = useRef(new Animated.Value(0)).current;
 
     const onDayPress = useCallback((day: any) => {
         setSelected(day.dateString);
@@ -72,26 +147,30 @@ const CalendarRework: React.FC<CalendarReworkProps> = ({ weekView = false, style
         if (!calendarRef.current) return;
         // @ts-ignore
         const isOpen = calendarRef.current.toggleCalendarPosition();
-        Animated.timing(rotation.current, {
+        Animated.timing(rotation, {
             toValue: isOpen ? 1 : 0,
             duration: 200,
             useNativeDriver: true,
             easing: Easing.out(Easing.ease)
         }).start();
-    }, []);
+    }, [rotation]);
 
     const onCalendarToggled = useCallback((isOpen: boolean) => {
-        rotation.current.setValue(isOpen ? 1 : 0);
-    }, []);
+        rotation.setValue(isOpen ? 1 : 0);
+    }, [rotation]);
 
     const headerRenderer = renderHeaderUtils({ rotation, toggleCalendarExpansion, CHEVRON, styles });
-    const renderItem = useCallback(({ item }: any) => <AgendaItem item={item} />, []);
+
+    const renderItem = useCallback(({ item }: any) => <EventItem item={item} key = {item.id} />, []);
 
     return (
         <View style={[styles.container, style]}>
             <CalendarProvider date={today} showTodayButton theme={todayBtnTheme.current}>
                 {weekView ? (
-                    <WeekCalendar firstDay={1} markedDates={markedDates.current} />
+                    <WeekCalendar
+                        firstDay={1}
+                        markedDates={markedDates.current}
+                    />
                 ) : (
                     <ForwardedExpandableCalendar
                         ref={calendarRef}
@@ -102,12 +181,14 @@ const CalendarRework: React.FC<CalendarReworkProps> = ({ weekView = false, style
                         markedDates={markedDates.current}
                         leftArrowImageSource={leftArrowIcon}
                         rightArrowImageSource={rightArrowIcon}
+                        markingType={'multi-dot'}
                     />
                 )}
                 <AgendaList
-                    sections={ITEMS}
+                    sections={sections.current}
                     renderItem={renderItem}
                     sectionStyle={styles.section}
+                    keyExtractor={(item) => item.id}
                 />
             </CalendarProvider>
         </View>
@@ -138,12 +219,27 @@ const styles = StyleSheet.create({
     section: {
         backgroundColor: lightThemeColor,
         color: 'grey',
-        textTransform: 'capitalize'
+        textTransform: 'capitalize',
     },
-    text: {
-        textAlign: 'center',
-        padding: 10,
-        backgroundColor: 'lightgrey',
-        fontSize: 16
+    itemContainer: {
+        backgroundColor: 'white',
+        padding: 15,
+        borderRadius: 8,
+        marginVertical: 8,
+        marginHorizontal: 10,
+        borderStyle: 'solid',
+        borderBottomWidth: 1,
+        borderBottomColor: 'silver'
+    },
+    pendingItemContainer: {
+        backgroundColor: '#f9f9f9',
+        borderBottomColor: '#d0d0d0'
+    },
+    itemTitle: {
+        fontSize: 16,
+        color: '#333'
+    },
+    pendingItemTitle: {
+        color: '#777' // Lighter text for pending items
     }
 });
