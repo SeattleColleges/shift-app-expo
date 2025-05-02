@@ -6,8 +6,8 @@ import {Coworker} from "@/types/Coworker";
 import {mockCurrentUser as currUser} from "@/context/MockCurrentUser";
 
 export default function CoworkersList() {
-    const filteredList = coworkersDummyData.filter(coworker => {
-        return coworker.position_id == currUser.positionId && coworker.department_id == currUser.departmentId
+    const filteredList = coworkersDummyData.filter(c => {
+        return (c.position_id == currUser.positionId) && (c.department_id == currUser.departmentId)
     });
     const renderCoworker: ListRenderItem<Coworker> = ({ item }) =>
         <CoworkerListItem
