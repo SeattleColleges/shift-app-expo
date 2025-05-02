@@ -15,6 +15,7 @@ DROP FUNCTION IF EXISTS shift_owner_removed_shift;
 DROP FUNCTION IF EXISTS add_covering_id_to_shift_change;
 DROP FUNCTION IF EXISTS approve_update_shift_w_profile_ids;
 DROP FUNCTION IF EXISTS deny_shift_change;
+DROP FUNCTION IF EXISTS get_employee_shifts;
 */
 
 -- Create Enums for shift_status
@@ -268,6 +269,42 @@ BEGIN
 END;
 $$ LANGUAGE plpgsql;
 
+-- Get employees shifts and shift change details
+CREATE OR REPLACE FUNCTION get_employee_shifts(profile_id_param INT)
+    RETURNS TABLE
+            (
+                shift_id INTEGER,
+                ASSIGNED_USER_ID INTEGER,
+                DEPARTMENT_ID    INTEGER,
+                SUPERVISOR_ID    INTEGER,
+                SHIFT_NAME       TEXT,
+                SLOT             TSTZRANGE,
+                DURATION         INTEGER,
+                NEEDS_COVERAGE   BOOLEAN,
+                COVERAGE_REASON  TEXT,
+                NOTES            TEXT,
+                CREATED_ON       TIMESTAMPTZ
+            )
+AS
+$$
+BEGIN
+    RETURN QUERY
+        SELECT s.shift_id,
+               s.assigned_user_id,
+               s.department_id,
+               s.supervisor_id,
+               s.shift_name,
+               s.slot,
+               s.duration,
+               s.needs_coverage,
+               s.coverage_reason,
+               s.notes,
+               s.created_on
+        FROM shifts s
+        WHERE s.assigned_user_id = profile_id_param;
+END;
+$$ LANGUAGE plpgsql;
+
 /*
 Testing: simulate user pressing give up or removing shift
 -- Run query first, then run line with function, then query to see changes
@@ -290,4 +327,6 @@ SELECT * FROM shifts WHERE shift_id = 3;
 
 -- Query
 SELECT *, convert_pacific_tz(requested_at) AS pacific_time FROM shift_changes;
+
+SELECT get_employee_shifts(3);
 */
