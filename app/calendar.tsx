@@ -1,7 +1,3 @@
-// ------------------------------
-// CALENDAR REWORK (with Margin Top)
-// ------------------------------
-
 import React, {
     useRef,
     useCallback,
@@ -33,15 +29,17 @@ const ForwardedExpandableCalendar = forwardRef((props, ref) => (
 ));
 
 const ITEMS = [
-    { title: '2023-05-01', data: [{ id: '1', text: 'First event' }] },
-    { title: '2023-05-02', data: [{ id: '2', text: 'Second event' }] }
+    { title: '2023-05-01', data: [{ id: '1', title: 'First event' }] },
+    { title: '2023-05-02', data: [{ id: '2', title: 'Second event' }] },
+    { title: '2023-05-03', data: [{ id: '2', title: 'Second event' }] },
 ];
 
 type MarkedDatesMap = Record<string, { marked?: boolean; dots?: Array<{ key: string; color: string }> }>;
 const getMarkedDates = (): MarkedDatesMap => {
     const marked: MarkedDatesMap = {};
     ITEMS.forEach(item => {
-        marked[item.title] = { marked: true, dots: item.data.map(evt => ({ key: evt.id, color: themeColor })) };
+        marked[item.title] = {
+            marked: true, dots: item.data.map(evt => ({ key: evt.id, color: themeColor })) };
     });
     return marked;
 };
