@@ -273,10 +273,12 @@ $$ LANGUAGE plpgsql;
 CREATE OR REPLACE FUNCTION get_employee_shifts(profile_id_param INT)
     RETURNS TABLE
             (
-                shift_id INTEGER,
+                SHIFT_ID         INTEGER,
                 ASSIGNED_USER_ID INTEGER,
+                PROFILE_NAME             TEXT,
                 DEPARTMENT_ID    INTEGER,
                 SUPERVISOR_ID    INTEGER,
+                SUPER_NAME TEXT,
                 SHIFT_NAME       TEXT,
                 SLOT             TSTZRANGE,
                 DURATION         INTEGER,
@@ -291,8 +293,10 @@ BEGIN
     RETURN QUERY
         SELECT s.shift_id,
                s.assigned_user_id,
+               p.name AS user_name,
                s.department_id,
                s.supervisor_id,
+               x.name AS super_name,
                s.shift_name,
                s.slot,
                s.duration,
@@ -301,8 +305,9 @@ BEGIN
                s.notes,
                s.created_on
         FROM shifts s
-        WHERE s.assigned_user_id = profile_id_param;
-END;
+                 INNER JOIN profiles p ON s.assigned_user_id = p.profile_int_id
+            INNER JOIN profiles x ON s.supervisor_id = x.profile_int_id;
+    END;
 $$ LANGUAGE plpgsql;
 
 /*
