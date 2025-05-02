@@ -4,18 +4,18 @@ import {Calendar, CalendarUtils} from 'react-native-calendars';
 
 export default function CalendarRework() {
     const date = new Date()
-    const getDateString = date.toISOString().split("T")[0]
-    console.log("Date str:", date.toISOString().split("T")[0])
+    const getCurrentDate = date.toISOString().split("T")[0]
 
-    const [selected, setSelected] = useState(getDateString);
+    const [selected, setSelected] = useState(getCurrentDate);
 
     const getDate = (count:number) => {
-        const date = new Date(getDateString);
+        const date = new Date(getCurrentDate);
         const newDate = date.setDate(date.getDate() + count);
         return CalendarUtils.getCalendarDateString(newDate);
     };
 
     const onDayPress = useCallback((day) => {
+        console.log("Pressed day:",day);
         setSelected(day.dateString);
     }, []);
 
@@ -43,7 +43,7 @@ export default function CalendarRework() {
                 <Text style={styles.text}>Selectable date</Text>
                 <Calendar
                     enableSwipeMonths
-                    current={getDateString}
+                    current={getCurrentDate}
                     style={styles.calendar}
                     onDayPress={onDayPress}
                     markedDates={marked}
