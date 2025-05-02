@@ -10,11 +10,11 @@ import {
     AgendaList,
     CalendarProvider,
     WeekCalendar,
-    Calendar,
-    type ExpandableCalendarProps
 } from 'react-native-calendars';
 import renderHeaderUtils from '@/components/ref/renderHeaderUtils';
 import { getTheme, themeColor, lightThemeColor } from '../constants/theme';
+import dummyItems from "@/data/dummyItems";
+import {dateTimeFormatter} from "@/data/utils";
 
 // @ts-ignore -- Default props no longer supported
 (ExpandableCalendar).defaultProps = undefined;
@@ -24,31 +24,8 @@ const ForwardedExpandableCalendar = forwardRef((props, ref) => (
     <ExpandableCalendar {...props} forwardedRef={ref} />
 ));
 
-const dateTimeFormatter= (date) => {
-    return new Intl.DateTimeFormat("en-US", {
-        timeZone: "America/Los_Angeles",
-        year: 'numeric',
-        month: '2-digit',
-        day: '2-digit',
-        hour: '2-digit',
-        minute: '2-digit',
-        second: '2-digit',
-        fractionalSecondDigits: 3,
-        hour12: true
-    }).format(date);
-}
+const ITEMS = dummyItems
 
-const ITEMS = [
-    { dayHeader: '2025-05-01', data: [{ id: '1', title: 'First event', status: 'confirmed', date:'2025-05-01' }] },
-    { dayHeader: '2025-05-01', data: [{ id: '2', title: 'Second event', status: 'pending', date:'2025-05-01' }] },
-    { dayHeader: '2025-05-01', data: [{ id: '3', title: 'Third event', status: 'confirmed', date:'2025-05-01' }] },
-    { dayHeader: '2025-05-01', data: [{ id: '4', title: 'Fourth event', status: 'pending', date:'2025-05-01' }] },
-    { dayHeader: '2025-05-02', data: [{ id: '5', title: 'Fifth event', status: 'confirmed', date:'2025-05-02' }] },
-    { dayHeader: '2025-05-03', data: [{ id: '6', title: 'Sixth event', status: 'pending', date:'2025-05-03' }] },
-    { dayHeader: '2025-05-03', data: [{ id: '7', title: 'Seventh event', status: 'pending', date:'2025-05-03' }] },
-    { dayHeader: '2025-05-03', data: [{ id: '8', title: 'Eighth event', status: 'confirmed', date:'2025-05-03' }] },
-    { dayHeader: '2025-05-03', data: [{ id: '9', title: 'Ninth event', status: 'confirmed', date:'2025-05-03' }] },
-];
 
 const eventColors = {
     confirmed: 'black',
@@ -182,7 +159,7 @@ const CalendarRework: React.FC<CalendarReworkProps> = ({ weekView = false, style
 
     const headerRenderer = renderHeaderUtils({ rotation, toggleCalendarExpansion, CHEVRON, styles });
 
-    const renderItem = useCallback(({ item }: any) => <EventItem item={item} key = {item.id} />, []);
+    const renderItem = useCallback(({ item }: any) => <EventItem item={item} key= {item.id} />, []);
 
     return (
         <View style={[styles.container, style]}>
