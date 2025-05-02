@@ -15,10 +15,8 @@ import {
 } from 'react-native-calendars';
 import renderHeaderUtils from '@/components/ref/renderHeaderUtils';
 import { getTheme, themeColor, lightThemeColor } from '../constants/theme';
-import id from "ajv/lib/vocabularies/core/id";
 
-// Remove deprecated defaultProps hack
-// @ts-ignore
+// @ts-ignore -- Default props no longer supported
 (ExpandableCalendar).defaultProps = undefined;
 
 // Wrapper forwards React ref into the library's forwardedRef API
@@ -26,23 +24,46 @@ const ForwardedExpandableCalendar = forwardRef((props, ref) => (
     <ExpandableCalendar {...props} forwardedRef={ref} />
 ));
 
+const dateTimeFormatter= (date) => {
+    return new Intl.DateTimeFormat("en-US", {
+        timeZone: "America/Los_Angeles",
+        year: 'numeric',
+        month: '2-digit',
+        day: '2-digit',
+        hour: '2-digit',
+        minute: '2-digit',
+        second: '2-digit',
+        fractionalSecondDigits: 3,
+        hour12: true
+    }).format(date);
+}
+
 const ITEMS = [
-    { dayHeader: '2025-05-01', data: [{ id: '1', title: 'First event', status: 'confirmed' }] },
-    { dayHeader: '2025-05-01', data: [{ id: '2', title: 'Second event', status: 'pending' }] },
-    { dayHeader: '2025-05-01', data: [{ id: '3', title: 'Third event', status: 'confirmed' }] },
-    { dayHeader: '2025-05-01', data: [{ id: '4', title: 'Fourth event', status: 'pending' }] },
-    { dayHeader: '2025-05-02', data: [{ id: '5', title: 'Fifth event', status: 'confirmed' }] },
-    { dayHeader: '2025-05-03', data: [{ id: '6', title: 'Sixth event', status: 'pending' }] },
-    { dayHeader: '2025-05-03', data: [{ id: '67', title: 'Seventh event', status: 'pending' }] },
+    { dayHeader: '2025-05-01', data: [{ id: '1', title: 'First event', status: 'confirmed', date:'2025-05-01' }] },
+    { dayHeader: '2025-05-01', data: [{ id: '2', title: 'Second event', status: 'pending', date:'2025-05-01' }] },
+    { dayHeader: '2025-05-01', data: [{ id: '3', title: 'Third event', status: 'confirmed', date:'2025-05-01' }] },
+    { dayHeader: '2025-05-01', data: [{ id: '4', title: 'Fourth event', status: 'pending', date:'2025-05-01' }] },
+    { dayHeader: '2025-05-02', data: [{ id: '5', title: 'Fifth event', status: 'confirmed', date:'2025-05-02' }] },
+    { dayHeader: '2025-05-03', data: [{ id: '6', title: 'Sixth event', status: 'pending', date:'2025-05-03' }] },
+    { dayHeader: '2025-05-03', data: [{ id: '7', title: 'Seventh event', status: 'pending', date:'2025-05-03' }] },
+    { dayHeader: '2025-05-03', data: [{ id: '8', title: 'Eighth event', status: 'confirmed', date:'2025-05-03' }] },
+    { dayHeader: '2025-05-03', data: [{ id: '9', title: 'Ninth event', status: 'confirmed', date:'2025-05-03' }] },
 ];
 
 const eventColors = {
     confirmed: 'black',
-    pending: 'grey',
+    pending: 'orange',
+    past: 'gray'
 };
 
 // Get dot color by event status
 const getDotColor = (event: any) => {
+    const eventDate = dateTimeFormatter(new Date(event.date))
+    const today = dateTimeFormatter(new Date())
+    //console.log(today," : ",eventDate)
+    if(eventDate < today) {
+        return eventColors.past;
+    }
     return event.status === 'pending' ? eventColors.pending : eventColors.confirmed;
 };
 
@@ -240,6 +261,6 @@ const styles = StyleSheet.create({
         color: '#333'
     },
     pendingItemTitle: {
-        color: '#777' // Lighter text for pending items
+        color: 'orange'
     }
 });
