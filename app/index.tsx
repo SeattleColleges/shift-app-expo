@@ -58,6 +58,9 @@ export default function HomeScreen(): ReactElement {
         <Link href={"/db-function-calls"} style={linkStyle}>
           DB Function Calls
         </Link>
+        <Link href={"/calendar"} style={linkStyle}>
+          Calendar Page
+        </Link>
       </ThemedView>
     </ParallaxScrollView>
   );
