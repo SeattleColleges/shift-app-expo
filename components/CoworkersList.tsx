@@ -15,8 +15,8 @@ export default function CoworkersList() {
             name={item.name}
             role={item.role}
             profileImageUrl={item.profileImageUrl}
-            positionId={item.positionId}
-            departmentId={item.departmentId}
+            position_id={item.position_id}
+            department_id={item.department_id}
         />;
     interface ItemSeparatorProps {
         height?: number;  // Optional prop to control the spacing height

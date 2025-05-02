@@ -3,6 +3,6 @@ export type Coworker = {
     name: string,
     role?: string | undefined
     profileImageUrl?: string | undefined | null,
-    positionId?: string | undefined,
-    departmentId?: string | undefined,
+    position_id?: number | undefined,
+    department_id?: number | undefined,
 }

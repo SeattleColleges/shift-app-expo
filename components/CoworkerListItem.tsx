@@ -15,8 +15,8 @@ export const CoworkerListItem: FC<Coworker> = (
         name,
         role,
         profileImageUrl,
-        positionId,
-        departmentId
+        position_id,
+        department_id
     }) => (
     <ThemedView style={styles.container}>
         <View style={styles.coworkerContainer}>
@@ -29,7 +29,7 @@ export const CoworkerListItem: FC<Coworker> = (
                     {name}
                 </ThemedText>
                 <ThemedText type={'role'}>
-                    {role || "User"}
+                    {`${role || "User"} Position ${position_id} - Department ${department_id}`}
                 </ThemedText>
             </View>
         </View>
