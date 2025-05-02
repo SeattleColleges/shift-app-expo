@@ -3,8 +3,12 @@ import {coworkersDummyData} from "@/data/dummyCoworkerData";
 import {CoworkerListItem} from "@/components/CoworkerListItem";
 import React from "react";
 import {Coworker} from "@/types/Coworker";
+import {mockCurrentUser as currUser} from "@/context/MockCurrentUser";
 
 export default function CoworkersList() {
+    const filteredList = coworkersDummyData.filter(coworker => {
+        return coworker.position_id == currUser.positionId && coworker.department_id == currUser.departmentId
+    });
     const renderCoworker: ListRenderItem<Coworker> = ({ item }) =>
         <CoworkerListItem
             id={item.id}
@@ -24,7 +28,7 @@ export default function CoworkersList() {
     return (
         <View style={styles.coworkersList} >
             <FlatList
-                data={coworkersDummyData}
+                data={filteredList}
                 renderItem={renderCoworker}
                 ItemSeparatorComponent={() => <ItemSeparator height={30}/>}
                 contentContainerStyle={{paddingBottom: 80}}
