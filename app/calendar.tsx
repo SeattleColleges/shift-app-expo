@@ -2,7 +2,7 @@ import React, {
     useRef,
     useCallback,
     useState,
-    forwardRef
+    forwardRef, useMemo
 } from 'react';
 import {Animated, Easing, Pressable, StyleSheet, Text, View} from 'react-native';
 import {
@@ -32,20 +32,30 @@ const ITEMS = dummyItems
 
 const eventColors = {
     confirmed: 'black',
+    unconfirmed: 'gray',
     pending: 'orange',
     past: 'gray'
 };
 
+const getColorStatus = ( isGivingUp:boolean,isClaimed:boolean) => {
+    if (!isGivingUp && !isClaimed) {
+        return 'itemTitle';
+    } else if (isGivingUp && isClaimed) {
+        return 'unconfirmedItemTitle';
+    }
+    return 'pendingItemTitle';
+}
+
 // Get dot color by event status
 const getDotColor = (event: any) => {
-    console.log("event: ",event)
+    console.log("eventzzz: ",event)
     const eventDate = dateTimeFormatter(new Date(event.date))
     const today = dateTimeFormatter(new Date())
     //console.log(today," : ",eventDate)
     if(eventDate < today) {
         return eventColors.past;
     }
-    return event.needs_coverage ? eventColors.pending : eventColors.confirmed;
+    return event.needs_coverage ? eventColors.unconfirmed : eventColors.confirmed;
 };
 
 const getMarkedDates = (ITEMS:any): Record<string, any> => {
@@ -110,20 +120,23 @@ interface CalendarReworkProps {
 }
 
 const EventItem = ({ item }: { item: any }) => {
-    const isPending = item.status === 'pending'
+    // Pending only when need coverage and no one is covering
+    console.log('EventItem: '+JSON.stringify(item, null, 2));
+    const coveringId = item.shift_change_data?.covering_profile_id ?? null;
+    const containCoverId = item.needs_coverage && coveringId !== null
 
+    const colorStatus = getColorStatus(item.needs_coverage,containCoverId);
     return (
         <Pressable
             key={item.id}
             style={[
-            styles.itemContainer,
-            isPending && styles.pendingItemContainer
+            styles.itemContainer, styles[colorStatus]
         ]} onPress={()=>console.log("Pressed: ",item.id)}>
             <Text style={[
                 styles.itemTitle,
-                isPending && styles.pendingItemTitle
+                styles[colorStatus]
             ]}>
-                {JSON.stringify(item,null,2)} {"Pending: "+isPending}
+                {JSON.stringify(item,null,2)} {"ColorStatus: "+colorStatus}
             </Text>
         </Pressable>
     )
@@ -135,11 +148,19 @@ const CalendarRework: React.FC<CalendarReworkProps> = ({ weekView = false, style
     const {items,loading,error } = useShifts()
     console.log("Load: ",loading)
     console.log("Error: ",error)
-    console.log(JSON.stringify(items,null,2))
+    //console.log(items)
 
     const [selected, setSelected] = useState<string>(today);
-    const markedDates = useRef(getMarkedDates(ITEMS));
-    const sections = useRef(processSections(ITEMS));
+    const markedDates = useMemo(() => {
+        if (!items) return {};
+        return getMarkedDates(items);
+    }, [items]);
+
+    const sections = useMemo(() => {
+        if (!items) return [];
+        return processSections(items);
+    }, [items]);
+
     const theme = useRef(getTheme());
     const todayBtnTheme = useRef({ todayButtonTextColor: themeColor });
 
@@ -180,7 +201,7 @@ const CalendarRework: React.FC<CalendarReworkProps> = ({ weekView = false, style
                 {weekView ? (
                     <WeekCalendar
                         firstDay={1}
-                        markedDates={markedDates.current}
+                        markedDates={markedDates}
                     />
                 ) : (
                     <ForwardedExpandableCalendar
@@ -189,14 +210,14 @@ const CalendarRework: React.FC<CalendarReworkProps> = ({ weekView = false, style
                         onCalendarToggled={onCalendarToggled}
                         theme={theme.current}
                         firstDay={1}
-                        markedDates={markedDates.current}
+                        markedDates={markedDates}
                         leftArrowImageSource={leftArrowIcon}
                         rightArrowImageSource={rightArrowIcon}
                         markingType={'multi-dot'}
                     />
                 )}
                 <AgendaList
-                    sections={sections.current}
+                    sections={sections}
                     renderItem={renderItem}
                     sectionStyle={styles.section}
                     keyExtractor={(item) => item.id}
@@ -251,6 +272,10 @@ const styles = StyleSheet.create({
         color: '#333'
     },
     pendingItemTitle: {
-        color: 'orange'
+        color: 'gray'
+    },
+    unconfirmedItemTitle: {
+        color: 'orange',
     }
+
 });
