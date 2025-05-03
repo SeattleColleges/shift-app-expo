@@ -292,12 +292,41 @@ AS
 $$
 BEGIN
     RETURN QUERY
+        WITH shift_change_details AS (SELECT s.shift_id,
+                                             s.shift_change_id,
+                                             s.og_shift_profile_id,
+                                             s.covering_profile_id,
+                                             s.approved_by_supervisor_id,
+                                             s.denied_by_supervisor_id,
+                                             s.status,
+                                             s.coverage_reason,
+                                             s.requested_at,
+                                             s.denied_at,
+                                             s.approved_at,
+                                             s.covered_at,
+                                             s.removed_at,
+                                             assigned.name       AS og_employee_name,
+                                             covering.name       AS covering_employee_name,
+                                             approved_super.name AS approving_supervisor_name,
+                                             denied_super.name   AS denying_supervisor_name
+                                      FROM shift_changes s
+                                               INNER JOIN profiles assigned ON s.og_shift_profile_id = assigned.profile_int_id
+                                               LEFT JOIN profiles covering
+                                                         ON s.covering_profile_id = covering.profile_int_id
+                                               LEFT JOIN supervisors sup_approved
+                                                         ON s.approved_by_supervisor_id = sup_approved.supervisor_id
+                                               LEFT JOIN profiles approved_super
+                                                         ON sup_approved.supervisor_id = approved_super.profile_int_id
+                                               LEFT JOIN supervisors sup_denied
+                                                         ON s.denied_by_supervisor_id = sup_denied.supervisor_id
+                                               LEFT JOIN profiles denied_super
+                                                         ON sup_denied.supervisor_id = denied_super.profile_int_id)
         SELECT s.shift_id,
                s.assigned_user_id,
                p.name           AS user_name,
                s.department_id,
                s.supervisor_id,
-               sup.name           AS super_name,
+               sup.name         AS super_name,
                s.shift_name,
                s.slot,
                s.duration,
@@ -305,14 +334,15 @@ BEGIN
                s.coverage_reason,
                s.notes,
                s.created_on,
-               ROW_TO_JSON(z.*) AS shift_change_data
+               ROW_TO_JSON(D.*) AS shift_change_data
 
         FROM shifts s
                  INNER JOIN profiles p ON s.assigned_user_id = p.profile_int_id
-                 INNER JOIN profiles sup ON s.supervisor_id = sup.profile_int_id
-                 LEFT JOIN shift_changes z ON s.shift_id = z.shift_id
+                 INNER JOIN supervisors super ON s.supervisor_id = super.supervisor_id
+                 INNER JOIN profiles sup ON super.supervisor_id = sup.profile_int_id
+                 LEFT JOIN shift_change_details D ON s.shift_id = D.shift_id
         WHERE s.assigned_user_id = profile_id_param
-        ORDER BY SLOT;
+        ORDER BY s.SLOT;
 END;
 $$ LANGUAGE plpgsql;
 
