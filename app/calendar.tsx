@@ -38,13 +38,14 @@ const eventColors = {
 
 // Get dot color by event status
 const getDotColor = (event: any) => {
+    console.log("event: ",event)
     const eventDate = dateTimeFormatter(new Date(event.date))
     const today = dateTimeFormatter(new Date())
     //console.log(today," : ",eventDate)
     if(eventDate < today) {
         return eventColors.past;
     }
-    return event.status === 'pending' ? eventColors.pending : eventColors.confirmed;
+    return event.needs_coverage ? eventColors.pending : eventColors.confirmed;
 };
 
 const getMarkedDates = (ITEMS:any): Record<string, any> => {
@@ -131,16 +132,16 @@ const EventItem = ({ item }: { item: any }) => {
 const CalendarRework: React.FC<CalendarReworkProps> = ({ weekView = false, style }) => {
     const today = new Date().toISOString().split('T')[0];
 
+    const {items,loading,error } = useShifts()
+    console.log("Load: ",loading)
+    console.log("Error: ",error)
+    console.log(JSON.stringify(items,null,2))
 
     const [selected, setSelected] = useState<string>(today);
     const markedDates = useRef(getMarkedDates(ITEMS));
     const sections = useRef(processSections(ITEMS));
     const theme = useRef(getTheme());
     const todayBtnTheme = useRef({ todayButtonTextColor: themeColor });
-    const {items,loading,error } = useShifts()
-    console.log("Load: ",loading)
-    console.log("Error: ",error)
-    console.log(JSON.stringify(items,null,2))
 
     const calendarRef = useRef(null);
     const rotation = useRef(new Animated.Value(0)).current;
