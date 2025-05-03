@@ -273,19 +273,20 @@ $$ LANGUAGE plpgsql;
 CREATE OR REPLACE FUNCTION get_employee_shifts(profile_id_param INT)
     RETURNS TABLE
             (
-                SHIFT_ID         INTEGER,
-                ASSIGNED_USER_ID INTEGER,
-                PROFILE_NAME             TEXT,
-                DEPARTMENT_ID    INTEGER,
-                SUPERVISOR_ID    INTEGER,
-                SUPER_NAME TEXT,
-                SHIFT_NAME       TEXT,
-                SLOT             TSTZRANGE,
-                DURATION         INTEGER,
-                NEEDS_COVERAGE   BOOLEAN,
-                COVERAGE_REASON  TEXT,
-                NOTES            TEXT,
-                CREATED_ON       TIMESTAMPTZ
+                SHIFT_ID          INTEGER,
+                ASSIGNED_USER_ID  INTEGER,
+                PROFILE_NAME      TEXT,
+                DEPARTMENT_ID     INTEGER,
+                SUPERVISOR_ID     INTEGER,
+                SUPER_NAME        TEXT,
+                SHIFT_NAME        TEXT,
+                SLOT              TSTZRANGE,
+                DURATION          INTEGER,
+                NEEDS_COVERAGE    BOOLEAN,
+                COVERAGE_REASON   TEXT,
+                NOTES             TEXT,
+                CREATED_ON        TIMESTAMPTZ,
+                SHIFT_CHANGE_DATA JSON
             )
 AS
 $$
@@ -293,21 +294,26 @@ BEGIN
     RETURN QUERY
         SELECT s.shift_id,
                s.assigned_user_id,
-               p.name AS user_name,
+               p.name           AS user_name,
                s.department_id,
                s.supervisor_id,
-               x.name AS super_name,
+               sup.name           AS super_name,
                s.shift_name,
                s.slot,
                s.duration,
                s.needs_coverage,
                s.coverage_reason,
                s.notes,
-               s.created_on
+               s.created_on,
+               ROW_TO_JSON(z.*) AS shift_change_data
+
         FROM shifts s
                  INNER JOIN profiles p ON s.assigned_user_id = p.profile_int_id
-            INNER JOIN profiles x ON s.supervisor_id = x.profile_int_id;
-    END;
+                 INNER JOIN profiles sup ON s.supervisor_id = sup.profile_int_id
+                 LEFT JOIN shift_changes z ON s.shift_id = z.shift_id
+        WHERE s.assigned_user_id = profile_id_param
+        ORDER BY SLOT;
+END;
 $$ LANGUAGE plpgsql;
 
 /*
@@ -333,5 +339,5 @@ SELECT * FROM shifts WHERE shift_id = 3;
 -- Query
 SELECT *, convert_pacific_tz(requested_at) AS pacific_time FROM shift_changes;
 
-SELECT get_employee_shifts(3);
+SELECT get_employee_shifts(4);
 */
