@@ -11,10 +11,8 @@ export const useShifts = () => {
             try {
                 setLoading(true);
                 // @ts-ignore
-                const { data: shifts, error } = await supabaseAdmin
-                    .from('shifts')
-                    .select('*')
-                    .order('slot', { ascending: true });
+                const { data: shifts, error } = await supabaseAdmin.rpc('get_employee_shifts',{profile_id_param:3})
+
                 if (error) throw error;
                 if (shifts) setItems(shifts);
 
