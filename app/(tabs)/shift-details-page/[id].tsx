@@ -9,13 +9,15 @@ import { useShiftNavigation } from "@/app/shift-navigation";
 
 export default function ShiftDetailsPage() {
   const item = useLocalSearchParams();
+  console.log('item', item);
   const colorScheme = useColorScheme() || 'light';
-
+  const adminLogin = true; // TODO: remove after merging with the backend 
   const currentShiftId = parseInt(item.id as string);
 
   const { currentShift, goToPreviousShift, goToNextShift } = useShiftNavigation(currentShiftId);
 
   const date = currentShift ? new Date(currentShift.date) : new Date();
+  console.log('date', date);
 
   const day = date.getDate();
   const month = months()[date.getMonth()];
@@ -66,26 +68,71 @@ export default function ShiftDetailsPage() {
   }
   return (
     <ThemedView style={styles.container}>
-      <View style={styles.dateHeader}>
-        <PressableIcon name={'arrow-back'} onPress={goToPreviousShift} />
-        <ThemedText type={'default'}>{formattedDate}</ThemedText>
-        <PressableIcon name={'arrow-forward'} onPress={goToNextShift} />
-      </View>
-      <ThemedView style={styles.detailsContainer}>
-        <Text style={{ alignSelf: 'center', fontWeight: '500', fontSize: 18 }}>
-          Shift Details
-        </Text>
-        <ShiftDetailItem title={'Hours Scheduled'} value={item.numHoursScheduled} />
-        <ShiftDetailItem title={'Time'} value={`${item.startTime} - ${item.endTime}`} />
-        <ShiftDetailItem title={'Role'} value={item.role} />
-        <ShiftDetailItem title={'Building'} value={`${item.building} - ${item.roomNumber}`} />
-        <ShiftDetailItem title={'Supervisor'} value={''} />
-        <ShiftDetailItem title={'Coworkers'} value={''} />
-      </ThemedView>
-      <ThemedView style={{ flexDirection: 'row', gap: 25 }}>
-        <ShiftRequestButton onPress={() => console.log('give up shift')} text={'GIVE UP SHIFT'} />
-        <ShiftRequestButton onPress={() => console.log('take shift')} text={'TAKE SHIFT'} />
-      </ThemedView>
+      {adminLogin ? (
+        <View style={styles.dateHeader}>
+          <PressableIcon name={'arrow-back'} onPress={goToPreviousShift} />
+          <ThemedText type={'default'}>Shift Details</ThemedText>
+          <PressableIcon name={'arrow-forward'} onPress={goToNextShift} />
+        </View>
+      ) : (
+        <View style={styles.dateHeader}>
+          <PressableIcon name={'arrow-back'} onPress={goToPreviousShift} />
+          <ThemedText type={'default'}>{formattedDate}</ThemedText>
+          <PressableIcon name={'arrow-forward'} onPress={goToNextShift} />
+        </View>
+      )}
+      {adminLogin ? (
+        <ThemedView style={styles.detailsContainer} >
+          <Text style={{ alignSelf: 'center', fontWeight: '500', fontSize: 18 }}>
+            {formattedDate}
+          </Text>
+          <View style={{ flexDirection: 'row', justifyContent: 'space-between', width: '100%', paddingInline: 2 }}>
+            <View>
+              <ShiftDetailItem title={'Scheduled'} value={''} />
+              <Text style={{ fontSize: 12, fontWeight: '400' }}>
+                {item.title}
+              </Text>
+            </View>
+            <View>
+              <ShiftDetailItem title={'Status'} value={''} />
+              <Text style={{ fontSize: 12, fontWeight: '400' }}>
+                {item.needs_coverage ? 'Needs Coverage' : 'No Coverage Needed'}
+              </Text>
+            </View>
+          </View>
+          <View style={{ alignItems: 'center', width: '100%' }}>
+            <ShiftDetailItem title={'Time'} value={`${item.startTime} - ${item.endTime}`} />
+            <ShiftDetailItem title={'Hours Scheduled'} value={item.numHoursScheduled} />
+          </View>
+          <ShiftDetailItem title={'Person Covering'} value={item.assignedUser} />
+          <ShiftDetailItem title={'Role'} value={item.role} />
+          <ShiftDetailItem title={'Supervisor'} value={item.supervisorId} />
+          <ShiftDetailItem title={'Coverage Reason'} value={''} />
+        </ThemedView>
+      ) : (
+        <ThemedView style={styles.detailsContainer}>
+          <Text style={{ alignSelf: 'center', fontWeight: '500', fontSize: 18 }}>
+            Shift Details
+          </Text>
+          <ShiftDetailItem title={'Hours Scheduled'} value={item.numHoursScheduled} />
+          <ShiftDetailItem title={'Time'} value={`${item.startTime} - ${item.endTime}`} />
+          <ShiftDetailItem title={'Role'} value={item.role} />
+          <ShiftDetailItem title={'Building'} value={`${item.building} - ${item.roomNumber}`} />
+          <ShiftDetailItem title={'Supervisor'} value={''} />
+          <ShiftDetailItem title={'Coworkers'} value={''} />
+        </ThemedView>
+      )}
+      {adminLogin ? (
+        <ThemedView style={{ flexDirection: 'row', gap: 25 }}>
+          <ShiftRequestButton onPress={() => console.log('accept shift')} text={'ACCEPT'} />
+          <ShiftRequestButton onPress={() => console.log('decline shift')} text={'DECLINE'} />
+        </ThemedView>
+      ) : (
+        <ThemedView style={{ flexDirection: 'row', gap: 25 }}>
+          <ShiftRequestButton onPress={() => console.log('give up shift')} text={'GIVE UP SHIFT'} />
+          <ShiftRequestButton onPress={() => console.log('take shift')} text={'TAKE SHIFT'} />
+        </ThemedView>
+      )}
     </ThemedView>
   )
 }
