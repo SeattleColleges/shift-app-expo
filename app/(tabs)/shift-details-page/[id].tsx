@@ -11,7 +11,7 @@ export default function ShiftDetailsPage() {
   const item = useLocalSearchParams();
   console.log('item', item);
   const colorScheme = useColorScheme() || 'light';
-  const adminLogin = true; // TODO: remove after merging with the backend 
+  const adminLogin: boolean = true; // TODO: remove after merging with the backend 
   const currentShiftId = parseInt(item.id as string);
 
   const { currentShift, goToPreviousShift, goToNextShift } = useShiftNavigation(currentShiftId);
@@ -36,6 +36,7 @@ export default function ShiftDetailsPage() {
   type ShiftDetailItemProps = {
     title: string;
     value: any;
+    custom?: any;
   }
   const PressableIcon = ({ name, size = 20, onPress }: PressableIconProps) => {
     return (
@@ -57,12 +58,12 @@ export default function ShiftDetailsPage() {
       </Pressable>
     )
   }
-  const ShiftDetailItem = ({ title, value }: ShiftDetailItemProps) => {
+  const ShiftDetailItem = ({ title, value, custom }: ShiftDetailItemProps) => {
 
     return (
-      <View style={{ flexDirection: 'row', gap: 5, alignItems: 'center' }}>
-        <Text style={{ fontSize: 12 }}>{title}:</Text>
-        <Text style={{ fontSize: 16 }}>{value}</Text>
+      <View style={[styles.itemContainer, custom]}>
+        <Text style={custom}>{title}:</Text>
+        <Text style={custom}>{value}</Text>
       </View>
     )
   }
@@ -88,33 +89,36 @@ export default function ShiftDetailsPage() {
           </Text>
           <View style={{ flexDirection: 'row', justifyContent: 'space-between', width: '100%', paddingInline: 2 }}>
             <View>
-              <ShiftDetailItem title={'Scheduled'} value={''} />
+              <ShiftDetailItem title={'Scheduled'} value={''} custom={styles.alignCenter} />
               <Text style={{ fontSize: 12, fontWeight: '400' }}>
                 {item.title}
               </Text>
             </View>
             <View>
-              <ShiftDetailItem title={'Status'} value={''} />
+              <ShiftDetailItem title={'Status'} value={''} custom={styles.alignCenter} />
               <Text style={{ fontSize: 12, fontWeight: '400' }}>
                 {item.needs_coverage ? 'Needs Coverage' : 'No Coverage Needed'}
               </Text>
             </View>
           </View>
           <View style={{ alignItems: 'center', width: '100%' }}>
-            <ShiftDetailItem title={'Time'} value={`${item.startTime} - ${item.endTime}`} />
-            <ShiftDetailItem title={'Hours Scheduled'} value={item.numHoursScheduled} />
+            <ShiftDetailItem title={'Time'} value={`${item.startTime} - ${item.endTime}`} custom={{ paddingBlock: 5 }} />
+            <ShiftDetailItem title={'Hours Scheduled'} value={'8 hours'} />
           </View>
           <ShiftDetailItem title={'Person Covering'} value={item.assignedUser} />
           <ShiftDetailItem title={'Role'} value={item.role} />
           <ShiftDetailItem title={'Supervisor'} value={item.supervisorId} />
-          <ShiftDetailItem title={'Coverage Reason'} value={''} />
+          <ShiftDetailItem title={'Coverage Reason'} value={''} custom={{ padding: 0, marginBottom: -6 }} />
+          <Text style={{ paddingInline: 16, fontSize: 12 }}>
+            Coworker A stubbed his toe in a barefoot race & coworker B is home sick with a mild fever and will be unable to attend work for the next 3 days.
+          </Text>
         </ThemedView>
       ) : (
         <ThemedView style={styles.detailsContainer}>
           <Text style={{ alignSelf: 'center', fontWeight: '500', fontSize: 18 }}>
             Shift Details
           </Text>
-          <ShiftDetailItem title={'Hours Scheduled'} value={item.numHoursScheduled} />
+          <ShiftDetailItem title={'Hours Scheduled'} value={'8 hours'} />
           <ShiftDetailItem title={'Time'} value={`${item.startTime} - ${item.endTime}`} />
           <ShiftDetailItem title={'Role'} value={item.role} />
           <ShiftDetailItem title={'Building'} value={`${item.building} - ${item.roomNumber}`} />
@@ -141,16 +145,16 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     alignItems: "center",
-    gap: 50
+    gap: 50,
   },
   detailsContainer: {
     alignItems: "flex-start",
     borderRadius: 10,
     width: 300,
     backgroundColor: "#eee",
-    padding: 15,
+    padding: 25,
     paddingBottom: 20,
-    gap: 18
+    gap: 18,
   },
   dateHeader: {
     alignItems: 'center',
@@ -162,5 +166,15 @@ const styles = StyleSheet.create({
   button: {
     padding: 12,
     borderRadius: 5
+  },
+  itemContainer: {
+    flexDirection: 'row',
+    gap: 5,
+    alignItems: 'center',
+    fontSize: 16
+  },
+  alignCenter: {
+    alignItems: 'center',
+    justifyContent: 'center',
   }
 })
