@@ -1,81 +1,101 @@
-import React, { useState } from "react";
+import type React from "react";
+import { useState, useCallback } from "react";
 import {
   View,
   Text,
   StyleSheet,
   Platform,
-  TextInput,
   Pressable,
   ScrollView,
   Modal,
   KeyboardAvoidingView,
+  TouchableOpacity,
 } from "react-native";
-import { Picker } from "@react-native-picker/picker";
-import DateTimePicker from "@react-native-community/datetimepicker";
-import { roles } from "../data/roles"; 
-import { locations } from "../data/locations";
-import { times } from "../data/times";
+import DateTimePicker, { type DateTimePickerEvent } from "@react-native-community/datetimepicker";
 
-type PickerType = "role" | "location" | "startTime" | "endTime" | null;
+// Define a more subtle color palette
+const primaryColor = "#0056b3"; // A darker, less vibrant blue
+const secondaryColor = "#6c757d";
+const backgroundColor = "#f8f9fa";
+const cardBackgroundColor = "#fff";
+const textColor = "#343a40";
+const shadowColor = "#000";
+
+type PickerType = "startTime" | "endTime" | null;
 
 const AddShift: React.FC = () => {
-  const [role, setRole] = useState<string>(roles[0].value);
-  const [location, setLocation] = useState<string>(locations[0].value);
   const [date, setDate] = useState<Date>(new Date());
-  const [startTime, setStartTime] = useState<string>("Select start time");
-  const [endTime, setEndTime] = useState<string>("Select end time");
-  const [notes, setNotes] = useState<string>("");
-  const [activePicker, setActivePicker] = useState<PickerType>(null);
+  const [startTime, setStartTime] = useState<Date>(new Date());
+  const [endTime, setEndTime] = useState<Date>(new Date());
   const [showDatePicker, setShowDatePicker] = useState<boolean>(false);
-  const [tempValue, setTempValue] = useState<string>("");
+  const [showTimePicker, setShowTimePicker] = useState<boolean>(false);
+  const [currentTimePickerType, setCurrentTimePickerType] = useState<"start" | "end" | null>(null);
+  const [isAddingShift, setIsAddingShift] = useState<boolean>(false);
 
-  const onChangeDate = (event: any, selectedDate?: Date) => {
+  const onChangeDate = useCallback((event: DateTimePickerEvent, selectedDate?: Date) => {
     if (selectedDate) {
       setDate(selectedDate);
     }
     setShowDatePicker(false);
+  }, []);
+
+  const onChangeTime = useCallback((event: DateTimePickerEvent, selectedTime?: Date) => {
+    if (selectedTime) {
+      if (currentTimePickerType === "start") {
+        setStartTime(selectedTime);
+      } else if (currentTimePickerType === "end") {
+        setEndTime(selectedTime);
+      }
+    }
+    setShowTimePicker(false);
+    setCurrentTimePickerType(null);
+  }, [currentTimePickerType]);
+
+  const formatDate = (dateObject: Date): string => {
+    const year = dateObject.getFullYear();
+    const month = (dateObject.getMonth() + 1).toString().padStart(2, '0');
+    const day = dateObject.getDate().toString().padStart(2, '0');
+    return `${year}-${month}-${day}`;
   };
 
-  const handlePickerChange = (value: string) => {
-    setTempValue(value);
-  };
-
-  const handleDonePress = () => {
-    if (activePicker === "role") setRole(tempValue);
-    if (activePicker === "location") setLocation(tempValue);
-    if (activePicker === "startTime") setStartTime(tempValue);
-    if (activePicker === "endTime") setEndTime(tempValue);
-    setActivePicker(null);
+  const formatTime = (dateObject: Date): string => {
+    const hours = dateObject.getHours().toString().padStart(2, '0');
+    const minutes = dateObject.getMinutes().toString().padStart(2, '0');
+    const seconds = dateObject.getSeconds().toString().padStart(2, '0');
+    return `${hours}:${minutes}:${seconds}+00`;
   };
 
   const handleAddShift = () => {
-    console.log("Shift added:", { role, location, date, startTime, endTime, notes });
+    setIsAddingShift(true);
+    const formattedDate = formatDate(date);
+    const formattedStartTime = formatTime(startTime);
+    const formattedEndTime = formatTime(endTime);
+    const dummyData = `{ '${formattedDate} ${formattedStartTime}', '${formattedDate} ${formattedEndTime}' }`;
+    console.log("Shift added:", dummyData);
+    setTimeout(() => {
+      setIsAddingShift(false);
+      // You might want to add a confirmation message or navigation here
+    }, 500);
   };
 
   return (
-    <KeyboardAvoidingView behavior="padding" style={styles.container}>
+    <KeyboardAvoidingView behavior="padding" style={[styles.container, { backgroundColor }]}>
       <ScrollView contentContainerStyle={styles.scrollContainer} keyboardShouldPersistTaps="handled">
-        <View style={styles.innerContainer}>
-          <Text style={styles.title}>Add Shift</Text>
-
-          {/* Role Picker */}
-          <Text style={styles.label}>Role</Text>
-          <Pressable style={styles.button} onPress={() => { setActivePicker("role"); setTempValue(role); }}>
-            <Text style={styles.buttonText}>{role}</Text>
-          </Pressable>
+        <View style={[styles.innerContainer, { backgroundColor: cardBackgroundColor, shadowColor }]}>
+          <Text style={[styles.title, { color: textColor }]}>Add Shift</Text>
 
           {/* Date Picker */}
-          <Text style={styles.label}>Date</Text>
+          <Text style={[styles.label, { color: textColor }]}>Date</Text>
           {Platform.OS === "web" ? (
             <input
               type="date"
-              value={date.toISOString().split("T")[0]}
+              value={formatDate(date)}
               onChange={(e) => setDate(new Date(e.target.value))}
               style={styles.webInput}
             />
           ) : (
-            <Pressable style={styles.button} onPress={() => setShowDatePicker(true)}>
-              <Text style={styles.buttonText}>{date.toDateString()}</Text>
+            <Pressable style={styles.inputButton} onPress={() => setShowDatePicker(true)}>
+              <Text style={[styles.inputText, { color: textColor }]}>{formatDate(date)}</Text>
             </Pressable>
           )}
           {showDatePicker && (
@@ -83,63 +103,41 @@ const AddShift: React.FC = () => {
           )}
 
           {/* Start Time Picker */}
-          <Text style={styles.label}>Start Time</Text>
-          <Pressable style={styles.button} onPress={() => { setActivePicker("startTime"); setTempValue(startTime); }}>
-            <Text style={styles.buttonText}>{startTime}</Text>
+          <Text style={[styles.label, { color: textColor }]}>Start Time</Text>
+          <Pressable style={styles.inputButton} onPress={() => { setShowTimePicker(true); setCurrentTimePickerType("start"); }}>
+            <Text style={[styles.inputText, { color: textColor }]}>{formatTime(startTime).split('+')[0]}</Text>
           </Pressable>
 
           {/* End Time Picker */}
-          <Text style={styles.label}>End Time</Text>
-          <Pressable style={styles.button} onPress={() => { setActivePicker("endTime"); setTempValue(endTime); }}>
-            <Text style={styles.buttonText}>{endTime}</Text>
+          <Text style={[styles.label, { color: textColor }]}>End Time</Text>
+          <Pressable style={styles.inputButton} onPress={() => { setShowTimePicker(true); setCurrentTimePickerType("end"); }}>
+            <Text style={[styles.inputText, { color: textColor }]}>{formatTime(endTime).split('+')[0]}</Text>
           </Pressable>
-
-          {/* Location Picker */}
-          <Text style={styles.label}>Location</Text>
-          <Pressable style={styles.button} onPress={() => { setActivePicker("location"); setTempValue(location); }}>
-            <Text style={styles.buttonText}>{location}</Text>
-          </Pressable>
-
-          {/* Notes Input */}
-          <Text style={styles.label}>Notes</Text>
-          <TextInput
-            style={[styles.input, styles.textArea]}
-            value={notes}
-            onChangeText={setNotes}
-            multiline
-          />
 
           {/* Add Shift Button */}
-          <Pressable style={styles.button} onPress={handleAddShift}>
-            <Text style={styles.buttonText}>Add Shift</Text>
-          </Pressable>
+          <TouchableOpacity
+            style={[styles.primaryButton, { backgroundColor: primaryColor }, isAddingShift && styles.primaryButtonPressed]}
+            onPress={handleAddShift}
+            activeOpacity={0.8}
+          >
+            <Text style={styles.primaryButtonText}>{isAddingShift ? "Adding..." : "Add Shift"}</Text>
+          </TouchableOpacity>
         </View>
       </ScrollView>
 
-      {/* Generic Picker Modal */}
-      {activePicker && (
+      {/* Time Picker Modal */}
+      {showTimePicker && Platform.OS !== "web" && (
         <Modal visible={true} transparent animationType="slide">
           <View style={styles.modalContainer}>
-            <View style={styles.modalContent}>
-              <Picker
-                selectedValue={tempValue}
-                onValueChange={handlePickerChange}
-              >
-                {(activePicker === "role"
-                  ? roles
-                  : activePicker === "location"
-                  ? locations
-                  : times.map((time) => ({ label: time, value: time }))
-                ).map((item) =>
-                  typeof item === "string" ? (
-                    <Picker.Item key={item} label={item} value={item} />
-                  ) : (
-                    <Picker.Item key={item.value} label={item.label} value={item.value} />
-                  )
-                )}
-              </Picker>
-              <Pressable onPress={handleDonePress} style={styles.modalCloseButton}>
-                <Text style={styles.modalCloseText}>Done</Text>
+            <View style={[styles.modalContent, { backgroundColor: cardBackgroundColor }]}>
+              <DateTimePicker
+                value={currentTimePickerType === "start" ? startTime : endTime}
+                mode="time"
+                display="spinner"
+                onChange={onChangeTime}
+              />
+              <Pressable onPress={() => setShowTimePicker(false)} style={styles.modalCloseButton}>
+                <Text style={[styles.modalCloseText, { color: primaryColor }]}>Done</Text>
               </Pressable>
             </View>
           </View>
@@ -149,22 +147,64 @@ const AddShift: React.FC = () => {
   );
 };
 
-// Styles
+// Enhanced Styles
 const styles = StyleSheet.create({
-  container: { flex: 1, backgroundColor: "#f9f9f9" },
-  scrollContainer: { flexGrow: 1, alignItems: "center", padding: 16 },
-  innerContainer: { width: 400, maxWidth: "100%", padding: 20, borderRadius: 12, backgroundColor: "#fff", elevation: 3 },
-  title: { fontSize: 24, fontWeight: "bold", marginBottom: 20, textAlign: "center" },
-  label: { fontSize: 16, marginVertical: 8 },
-  input: { fontSize: 16, padding: 12, borderWidth: 1, borderColor: "#ccc", borderRadius: 10, backgroundColor: "#fff", marginBottom: 10 },
-  textArea: { height: 100, textAlignVertical: "top" },
-  button: { paddingVertical: 12, borderRadius: 10, backgroundColor: "#000", alignItems: "center", marginVertical: 10 },
-  buttonText: { color: "#fff", fontSize: 16, fontWeight: "bold" },
-  modalContainer: { flex: 1, justifyContent: "center", alignItems: "center", backgroundColor: "rgba(0,0,0,0.5)" },
-  modalContent: { width: 300, backgroundColor: "#fff", padding: 20, borderRadius: 10 },
-  modalCloseButton: { marginTop: 10, alignItems: "center" },
-  modalCloseText: { fontSize: 18, color: "#007bff" },
-  webInput: { fontSize: 16, padding: 12, borderWidth: 1, borderColor: "#ccc", borderRadius: 10, backgroundColor: "#fff", marginBottom: 20, width: "92%" },
+  container: { flex: 1, padding: 20 },
+  scrollContainer: { flexGrow: 1, alignItems: "center", justifyContent: "center" },
+  innerContainer: {
+    width: 400,
+    maxWidth: "100%",
+    padding: 24,
+    borderRadius: 12,
+    elevation: 5, // Subtle shadow for Android
+    shadowColor: shadowColor,
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.2,
+    shadowRadius: 4,
+  },
+  title: { fontSize: 28, fontWeight: "bold", marginBottom: 30, textAlign: "center" },
+  label: { fontSize: 16, marginBottom: 8 },
+  inputButton: {
+    paddingVertical: 14,
+    paddingHorizontal: 16,
+    borderWidth: 1,
+    borderColor: "#ced4da",
+    borderRadius: 8,
+    backgroundColor: "#fff",
+    marginBottom: 16,
+  },
+  inputText: { fontSize: 16 },
+  webInput: {
+    fontSize: 16,
+    padding: 14,
+    borderWidth: 1,
+    borderColor: "#ced4da",
+    borderRadius: 8,
+    backgroundColor: "#fff",
+    marginBottom: 20,
+  },
+  primaryButton: {
+    backgroundColor: primaryColor, // Using the updated primaryColor
+    paddingVertical: 16,
+    borderRadius: 8,
+    alignItems: "center",
+    justifyContent: "center",
+    marginVertical: 16,
+    elevation: 3,
+  },
+  primaryButtonText: { color: "#fff", fontSize: 18, fontWeight: "bold" },
+  primaryButtonPressed: {
+    opacity: 0.8,
+  },
+  modalContainer: { flex: 1, justifyContent: "center", alignItems: "center", backgroundColor: "rgba(0,0,0,0.3)" },
+  modalContent: {
+    width: 320,
+    padding: 24,
+    borderRadius: 12,
+    elevation: 5,
+  },
+  modalCloseButton: { marginTop: 16, alignItems: "center" },
+  modalCloseText: { fontSize: 18, fontWeight: "bold" },
 });
 
 export default AddShift;
