@@ -24,6 +24,18 @@ export default function ShiftDetailsPage() {
   const dayOfWeek = weekdays()[date.getDay()];
   const formattedDate = `${dayOfWeek}, ${month} ${day}`
 
+  //Convert 24 hour time to 12 hour time
+  const convertTo12Hour = (time: string) => {
+    const [hour, minute] = time.split(':');
+    date.setHours(parseInt(hour), parseInt(minute));
+    const options: Intl.DateTimeFormatOptions = {
+      hour: 'numeric',
+      minute: 'numeric',
+      hour12: true,
+    };
+    return date.toLocaleString('en-US', options);
+  }
+
   type PressableIconProps = {
     name: keyof typeof Ionicons.glyphMap;
     size?: number;
@@ -102,7 +114,7 @@ export default function ShiftDetailsPage() {
             </View>
           </View>
           <View style={{ alignItems: 'center', width: '100%' }}>
-            <ShiftDetailItem title={'Time'} value={`${item.startTime} - ${item.endTime}`} custom={{ paddingBlock: 5 }} />
+            <ShiftDetailItem title={'Time'} value={`${convertTo12Hour(`${item.startTime}`)} - ${convertTo12Hour(`${item.endTime}`)}`} custom={{ paddingBlock: 5 }} />
             <ShiftDetailItem title={'Hours Scheduled'} value={'8 hours'} />
           </View>
           <ShiftDetailItem title={'Person Covering'} value={item.assignedUser} />
