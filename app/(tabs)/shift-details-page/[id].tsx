@@ -5,7 +5,7 @@ import {ThemedView} from "@/components/ThemedView";
 import {weekdays, months} from "moment";
 import Ionicons from "@expo/vector-icons/Ionicons";
 import {Colors} from '@/constants/Colors'
-import {useShiftNavigation} from "@/app/shift-navigation";
+import { useShiftNavigation } from "@/hooks/shift-navigation";
 import {ShiftDetail} from "@/types/ShiftDetail";
 import {useCallback, useEffect, useState} from "react";
 import {supabaseAdmin} from "@/lib/supabaseAdminClient";
