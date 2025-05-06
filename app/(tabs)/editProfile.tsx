@@ -11,11 +11,10 @@ import {
   import { ThemedText } from '@/components/ThemedText'; // Assuming this exists
   import { ThemedView } from '@/components/ThemedView'; // Assuming this exists
   import { useRouter, useLocalSearchParams } from 'expo-router';
-  import { useState, useEffect } from 'react';
+  import { useState } from 'react';
   import { Colors } from '@/constants/Colors'; // Assuming this exists
   import { ProfileImage } from '@/components/ProfileImage'; // Ensure this path is correct
-  import { supabase } from '../../lib/supabaseClient'; // Adjust the import path if needed
-  
+
   interface Profile {
     profile_id: string | null; // UUID from auth.users
     profile_int_id: number | null;
@@ -41,46 +40,10 @@ import {
       position: null, // Not editable in this UI
       supervisor: null, // Not editable in this UI
     });
-    const [loading, setLoading] = useState(true);
-    const [error, setError] = useState<string | null>(null);
+
     const router = useRouter();
     const colorScheme = useColorScheme();
-  
-    const profileIntId = 5; // Hardcoded for fetching, replace with dynamic ID later
-  
-    useEffect(() => {
-      const fetchProfileById = async () => {
-        setLoading(true);
-        setError(null);
-  
-        try {
-          if (supabase) {
-            const { data, error } = await supabase
-              .from('profiles')
-              .select('*')
-              .eq('profile_int_id', profileIntId)
-              .single();
-  
-            if (error) {
-              console.error('Error fetching profile:', error);
-              setError(error.message);
-            } else if (data) {
-              setProfile(data as Profile);
-            }
-          } else {
-            setError('Supabase client is not initialized.');
-          }
-        } catch (err) {
-          console.error('An unexpected error occurred:', err);
-          setError('An unexpected error occurred.');
-        } finally {
-          setLoading(false);
-        }
-      };
-  
-      fetchProfileById();
-    }, []);
-  
+
     const handleCancelPressed = () => {
       router.push('/(tabs)/profileView');
     };
@@ -96,14 +59,6 @@ import {
       console.log('Submit pressed with data:', profile);
       // In a real application, you would send this data to your backend to update the profile
     };
-  
-    if (loading) {
-      return <Text>Loading profile...</Text>;
-    }
-  
-    if (error) {
-      return <Text>Error loading profile: {error}</Text>;
-    }
   
     return (
       <ScrollView style={{ backgroundColor: Colors[colorScheme || 'light'].background }}>
