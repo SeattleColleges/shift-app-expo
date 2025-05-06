@@ -4,18 +4,20 @@ import {ThemedView} from "@/components/ThemedView";
 import {ThemedText} from "@/components/ThemedText";
 import {Image} from "expo-image";
 import Ionicons from "@expo/vector-icons/Ionicons";
+import {Coworker} from "@/types/Coworker";
 
-export interface CoworkerProps {
-    id: string,
-    name: string,
-    role?: string | undefined
-    profileImageUrl?: string | undefined
-}
 const defaultProfilePicUrl = 'https://cdn.pixabay.com/photo/2015/10/05/22/37/blank-profile-picture-973460_1280.png';
 const handleChatButtonPressed = (name: string) => {
     console.log(`Chat with ${name}`)
 }
-export const CoworkerListItem: FC<CoworkerProps> = ({ name, role, profileImageUrl }) => (
+export const CoworkerListItem: FC<Coworker> = (
+    {
+        name,
+        role,
+        profileImageUrl,
+        position_id,
+        department_id
+    }) => (
     <ThemedView style={styles.container}>
         <View style={styles.coworkerContainer}>
             <Image
@@ -27,7 +29,7 @@ export const CoworkerListItem: FC<CoworkerProps> = ({ name, role, profileImageUr
                     {name}
                 </ThemedText>
                 <ThemedText type={'role'}>
-                    {role || "User"}
+                    {`${role || "User"} Position ${position_id} - Department ${department_id}`}
                 </ThemedText>
             </View>
         </View>
