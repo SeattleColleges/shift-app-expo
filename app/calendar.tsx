@@ -21,9 +21,9 @@ import {useShifts} from "@/hooks/useShifts";
 // @ts-ignore -- Default props no longer supported
 (ExpandableCalendar).defaultProps = undefined;
 
-// Wrapper forwards React ref into the library's forwardedRef API
+// Wrapper forwards React ref to calendar API
 const ForwardedExpandableCalendar = forwardRef((props, ref) => (
-    <ExpandableCalendar {...props} forwardedRef={ref} />
+    <ExpandableCalendar {...props} ref={ref}  />
 ));
 
 const ITEMS = dummyItems
@@ -121,7 +121,7 @@ interface CalendarReworkProps {
 
 const EventItem = ({ item }: { item: any }) => {
     // Pending only when need coverage and no one is covering
-    console.log('EventItem: '+JSON.stringify(item, null, 2));
+    //console.log('EventItem: '+JSON.stringify(item, null, 2));
     const coveringId = item.shift_change_data?.covering_profile_id ?? null;
     const containCoverId = item.needs_coverage && coveringId !== null
 
