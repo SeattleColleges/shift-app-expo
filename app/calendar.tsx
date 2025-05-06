@@ -23,7 +23,7 @@ import {useShifts} from "@/hooks/useShifts";
 
 // Wrapper forwards React ref to calendar API
 const ForwardedExpandableCalendar = forwardRef((props, ref) => (
-    <ExpandableCalendar {...props} ref={ref}  />
+    <ExpandableCalendar {...props} />
 ));
 
 const ITEMS = dummyItems
