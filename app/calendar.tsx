@@ -21,14 +21,7 @@ import {useShifts} from "@/hooks/useShifts";
 // @ts-ignore -- Default props no longer supported
 (ExpandableCalendar).defaultProps = undefined;
 
-// Wrapper forwards React ref to calendar API
-const ForwardedExpandableCalendar = forwardRef((props, ref) => (
-    <ExpandableCalendar {...props} />
-));
-
 const ITEMS = dummyItems
-
-
 
 const eventColors = {
     confirmed: 'black',
@@ -204,8 +197,7 @@ const CalendarRework: React.FC<CalendarReworkProps> = ({ weekView = false, style
                         markedDates={markedDates}
                     />
                 ) : (
-                    <ForwardedExpandableCalendar
-                        ref={calendarRef}
+                    <ExpandableCalendar
                         renderHeader={headerRenderer}
                         onCalendarToggled={onCalendarToggled}
                         theme={theme.current}
