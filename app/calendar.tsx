@@ -7,12 +7,13 @@ import React, {
 import {Animated, Easing, Pressable, StyleSheet, Text, View} from 'react-native';
 import {
     ExpandableCalendar,
-    AgendaList,
     CalendarProvider,
     WeekCalendar,
+    AgendaList
 } from 'react-native-calendars';
+import AgendaItem from "@/components/AgendaItem";
 import renderHeaderUtils from '@/components/ref/renderHeaderUtils';
-import { getTheme, themeColor, lightThemeColor } from '../constants/theme';
+import { getTheme, themeColor, lightThemeColor } from '@/constants/theme';
 import dummyItems from "@/data/dummyItems";
 import {dateTimeFormatter} from "@/data/utils";
 import {supabaseAdmin} from "@/lib/supabaseAdminClient";
@@ -120,18 +121,9 @@ const EventItem = ({ item }: { item: any }) => {
 
     const colorStatus = getColorStatus(item.needs_coverage,containCoverId);
     return (
-        <Pressable
-            key={item.id}
-            style={[
-            styles.itemContainer, styles[colorStatus]
-        ]} onPress={()=>console.log("Pressed: ",item.id)}>
-            <Text style={[
-                styles.itemTitle,
-                styles[colorStatus]
-            ]}>
-                {JSON.stringify(item,null,2)} {"ColorStatus: "+colorStatus}
-            </Text>
-        </Pressable>
+        <>
+            <AgendaItem item={item}  />
+        </>
     )
 };
 
@@ -182,10 +174,7 @@ const CalendarRework: React.FC<CalendarReworkProps> = ({ weekView = false, style
 
     const headerRenderer = renderHeaderUtils({ rotation, toggleCalendarExpansion, CHEVRON, styles });
 
-    const renderItem = useCallback(({ item }: any) => <EventItem item={item} key= {item.id} />, []);
-
-
-
+    const renderItem = useCallback(({ item }: any) => <EventItem item={item} key={item.id} onPress={onCalendarToggled} />, []);
 
     return (
         <View style={[styles.container, style]}>

@@ -9,9 +9,10 @@ interface ItemProps {
 
 const AgendaItem = (props: ItemProps) => {
     const {item} = props;
+    console.log("Item: ", item);
 
-    const buttonPressed = useCallback(() => {
-        Alert.alert('Show me more');
+    const buttonPressed = useCallback((item) => {
+        Alert.alert(JSON.stringify(item,null,2));
     }, []);
 
     const itemPressed = useCallback(() => {
@@ -27,15 +28,16 @@ const AgendaItem = (props: ItemProps) => {
     }
 
     return (
-        <TouchableOpacity onPress={itemPressed} style={styles.item}>
+        <TouchableOpacity style={styles.item}>
             <View>
                 <Text style={styles.itemHourText}>{item.hour}</Text>
                 <Text style={styles.itemDurationText}>{item.duration}</Text>
             </View>
-            <Text style={styles.itemTitleText}>{item.title}</Text>
+            <Text style={styles.itemTitleText}>{item.shift_name}</Text>
             <View style={styles.itemButtonContainer}>
-                <Button color={'grey'} title={'Info'} onPress={buttonPressed}/>
+                <Button color={'grey'} title={'Info'} onPress={() => buttonPressed(item)}/>
             </View>
+
         </TouchableOpacity>
     );
 };
