@@ -9,7 +9,6 @@ import { useShiftNavigation } from "@/app/shift-navigation";
 
 export default function ShiftDetailsPage() {
   const item = useLocalSearchParams();
-  console.log('item', item);
   const colorScheme = useColorScheme() || 'light';
   const adminLogin: boolean = true; // TODO: remove after merging with the backend 
   const currentShiftId = parseInt(item.id as string);
@@ -17,7 +16,6 @@ export default function ShiftDetailsPage() {
   const { currentShift, goToPreviousShift, goToNextShift } = useShiftNavigation(currentShiftId);
 
   const date = currentShift ? new Date(currentShift.date) : new Date();
-  console.log('date', date);
 
   const day = date.getDate();
   const month = months()[date.getMonth()];
