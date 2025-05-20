@@ -1,5 +1,5 @@
 import type React from "react";
-import { useState, useCallback } from "react";
+import { useState, useCallback, useEffect } from "react";
 import {
   View,
   Text,
@@ -9,124 +9,323 @@ import {
   Modal,
   KeyboardAvoidingView,
   TouchableOpacity,
+  Alert,
+  Platform,
 } from "react-native";
 import DateTimePicker, { type DateTimePickerEvent } from "@react-native-community/datetimepicker";
 
 const primaryColor = "#0056b3";
 const cardBackgroundColor = "#fff";
-const textColor = "#343a40";
 
 type PickerType = "startTime" | "endTime" | "startDate" | "endDate" | null;
+
+// Helper function to round time to nearest quarter-hour
+const roundToNearestQuarter = (date: Date): Date => {
+  const minutes = date.getMinutes();
+  const remainder = minutes % 15;
+
+  // Round up to next quarter-hour
+  const roundedDate = new Date(date);
+  if (remainder > 0) {
+    roundedDate.setMinutes(minutes + (15 - remainder));
+  }
+  roundedDate.setSeconds(0);
+  roundedDate.setMilliseconds(0);
+
+  return roundedDate;
+};
 
 const AddShift: React.FC = () => {
   const [startDate, setStartDate] = useState<Date>(new Date());
   const [endDate, setEndDate] = useState<Date>(new Date());
-  const [startTime, setStartTime] = useState<Date>(new Date());
-  const [endTime, setEndTime] = useState<Date>(new Date());
+  const [startTime, setStartTime] = useState<Date>(roundToNearestQuarter(new Date()));
+  const [endTime, setEndTime] = useState<Date>(
+      roundToNearestQuarter(new Date(new Date().setHours(new Date().getHours() + 1)))
+  );
   const [showPicker, setShowPicker] = useState<boolean>(false);
   const [currentPickerType, setCurrentPickerType] = useState<PickerType>(null);
+  const [error, setError] = useState<string | null>(null);
 
-  const formatDate = (date: Date): string => date.toLocaleDateString();
-  const formatTime = (date: Date): string => date.toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" });
+  // Format date to human readable format (e.g., "Monday, January 1, 2025")
+  const formatDate = (date: Date): string => {
+    return date.toLocaleDateString(undefined, {
+      weekday: 'long',
+      year: 'numeric',
+      month: 'long',
+      day: 'numeric'
+    });
+  };
+
+  // Format time without seconds (e.g., "14:30" or "2:30 PM")
+  const formatTime = (date: Date): string => {
+    return date.toLocaleTimeString([], {
+      hour: "2-digit",
+      minute: "2-digit",
+      hour12: true // Use 12-hour format with AM/PM
+    });
+  };
+
+  // Function to validate if start time is before end time
+  const validateShiftTimes = () => {
+    // Create full date-time objects by combining the date and time
+    const startDateTime = new Date(
+        startDate.getFullYear(),
+        startDate.getMonth(),
+        startDate.getDate(),
+        startTime.getHours(),
+        startTime.getMinutes()
+    );
+
+    const endDateTime = new Date(
+        endDate.getFullYear(),
+        endDate.getMonth(),
+        endDate.getDate(),
+        endTime.getHours(),
+        endTime.getMinutes()
+    );
+
+    // Check if start time is after end time
+    if (startDateTime > endDateTime) {
+      return false;
+    } else {
+      return true;
+    }
+  };
+
+  // Validate shift times whenever they change
+  useEffect(() => {
+    validateShiftTimes();
+  }, [startDate, endDate, startTime, endTime]);
 
   const onChange = useCallback(
-    (event: DateTimePickerEvent, selectedDate?: Date) => {
-      if (selectedDate) {
-        if (currentPickerType === "startDate") setStartDate(selectedDate);
-        if (currentPickerType === "endDate") setEndDate(selectedDate);
-        if (currentPickerType === "startTime") setStartTime(selectedDate);
-        if (currentPickerType === "endTime") setEndTime(selectedDate);
-      }
-      setShowPicker(false);
-      setCurrentPickerType(null);
-    },
-    [currentPickerType]
+      (event: DateTimePickerEvent, selectedDate?: Date) => {
+        // Always close the picker first to prevent re-opening issues
+        setShowPicker(false);
+        setCurrentPickerType(null);
+
+        // On Android, canceling returns undefined
+        if (!selectedDate) {
+          return;
+        }
+
+        // For times, round to nearest quarter-hour
+        let adjustedDate = selectedDate;
+
+        if (currentPickerType === "startTime" || currentPickerType === "endTime") {
+          adjustedDate = roundToNearestQuarter(selectedDate);
+        }
+
+        if (currentPickerType === "startDate") {
+          setStartDate(adjustedDate);
+          console.log("Start date changed:", formatDate(adjustedDate));
+        }
+        if (currentPickerType === "endDate") {
+          setEndDate(adjustedDate);
+          console.log("End date changed:", formatDate(adjustedDate));
+        }
+        if (currentPickerType === "startTime") {
+          setStartTime(adjustedDate);
+          console.log("Start time changed:", formatTime(adjustedDate));
+        }
+        if (currentPickerType === "endTime") {
+          setEndTime(adjustedDate);
+          console.log("End time changed:", formatTime(adjustedDate));
+        }
+      },
+      [currentPickerType]
   );
 
-  return (
-    <KeyboardAvoidingView behavior="padding" style={styles.container}>
-      <ScrollView contentContainerStyle={styles.scrollContainer}>
-        <View style={styles.innerContainer}>
-          <Text style={styles.title}>Add Shift</Text>
+  // Function to handle adding a shift
+  const handleAddShift = () => {
+    console.log("Add Shift button pressed");
 
-          {/* Start Date */}
-          <Text style={styles.label}>Start Date</Text>
-          <Pressable
-            style={styles.inputButton}
-            onPress={() => {
-              setShowPicker(true);
-              setCurrentPickerType("startDate");
-            }}
-          >
-            <Text style={styles.inputText}>{formatDate(startDate)}</Text>
-          </Pressable>
+    // Validate times before adding shift
+    if (!validateShiftTimes()) {
+      setError("Error: Start time cannot be after end time");
+      console.error("Validation error: Start time is after end time");
+      Alert.alert(
+          "Invalid Shift Times",
+          "Start time cannot be after end time",
+          [{ text: "OK" }]
+      );
+      return;
+    }
 
-          {/* Start Time */}
-          <Text style={styles.label}>Start Time</Text>
-          <Pressable
-            style={styles.inputButton}
-            onPress={() => {
-              setShowPicker(true);
-              setCurrentPickerType("startTime");
-            }}
-          >
-            <Text style={styles.inputText}>{formatTime(startTime)}</Text>
-          </Pressable>
+    // Clear any previous error
+    setError(null);
 
-          {/* End Date */}
-          <Text style={styles.label}>End Date</Text>
-          <Pressable
-            style={styles.inputButton}
-            onPress={() => {
-              setShowPicker(true);
-              setCurrentPickerType("endDate");
-            }}
-          >
-            <Text style={styles.inputText}>{formatDate(endDate)}</Text>
-          </Pressable>
+    // Create full date-time objects for the shift
+    const shiftStart = new Date(
+        startDate.getFullYear(),
+        startDate.getMonth(),
+        startDate.getDate(),
+        startTime.getHours(),
+        startTime.getMinutes()
+    );
 
-          {/* End Time */}
-          <Text style={styles.label}>End Time</Text>
-          <Pressable
-            style={styles.inputButton}
-            onPress={() => {
-              setShowPicker(true);
-              setCurrentPickerType("endTime");
-            }}
-          >
-            <Text style={styles.inputText}>{formatTime(endTime)}</Text>
-          </Pressable>
+    const shiftEnd = new Date(
+        endDate.getFullYear(),
+        endDate.getMonth(),
+        endDate.getDate(),
+        endTime.getHours(),
+        endTime.getMinutes()
+    );
 
-          {/* Add Shift Button */}
-          <TouchableOpacity style={styles.primaryButton}>
-            <Text style={styles.primaryButtonText}>Add Shift</Text>
-          </TouchableOpacity>
-        </View>
-      </ScrollView>
+    // Format the shift times in the required format
+    const formattedShiftStart = `${formatDate(shiftStart)} ${formatTime(shiftStart)}`;
+    const formattedShiftEnd = `${formatDate(shiftEnd)} ${formatTime(shiftEnd)}`;
 
-      {/* DateTimePicker Modal */}
-      {showPicker && (
-        <Modal transparent animationType="slide">
-          <View style={styles.modalContainer}>
-            <View style={styles.modalContent}>
+    // Log the shift details in the requested format
+    console.log("==== Creating New Shift ====");
+    console.log(`Shift added: { '${formattedShiftStart}', '${formattedShiftEnd}' }`);
+    console.log("Duration (hours):", (shiftEnd.getTime() - shiftStart.getTime()) / (1000 * 60 * 60));
+    console.log("========================");
+
+    /* Here you would typically call an API or dispatch an action to save the shift
+    For now, we're just logging to terminal */
+
+    // Show confirmation to user
+    Alert.alert(
+        "Success",
+        "Shift added successfully!",
+        [{ text: "OK" }]
+    );
+  };
+
+  // Android requires a different approach for the date picker
+  const renderDateTimePicker = () => {
+    if (!showPicker) return null;
+
+    const pickerMode = currentPickerType?.includes("Date") ? "date" : "time";
+    let pickerValue;
+
+    switch (currentPickerType) {
+      case "startDate":
+        pickerValue = startDate;
+        break;
+      case "endDate":
+        pickerValue = endDate;
+        break;
+      case "startTime":
+        pickerValue = startTime;
+        break;
+      case "endTime":
+        pickerValue = endTime;
+        break;
+      default:
+        pickerValue = new Date();
+    }
+
+    return (
+        <>
+          {Platform.OS === 'android' ? (
               <DateTimePicker
-                value={
-                  currentPickerType === "startDate" || currentPickerType === "endDate"
-                    ? startDate
-                    : startTime
-                }
-                mode={currentPickerType?.includes("Date") ? "date" : "time"}
-                display="default"
-                onChange={onChange}
+                  testID="dateTimePicker"
+                  value={pickerValue}
+                  mode={pickerMode}
+                  is24Hour={false}
+                  display="default"
+                  onChange={onChange}
               />
-              <Pressable onPress={() => setShowPicker(false)} style={styles.modalCloseButton}>
-                <Text style={styles.modalCloseText}>Done</Text>
-              </Pressable>
-            </View>
+          ) : (
+              <Modal transparent animationType="slide">
+                <View style={styles.modalContainer}>
+                  <View style={styles.modalContent}>
+                    <DateTimePicker
+                        testID="dateTimePicker"
+                        value={pickerValue}
+                        mode={pickerMode}
+                        is24Hour={false}
+                        display="spinner"
+                        onChange={onChange}
+                    />
+                    <TouchableOpacity
+                        onPress={() => {
+                          setShowPicker(false);
+                          setCurrentPickerType(null);
+                        }}
+                        style={styles.modalCloseButton}
+                    >
+                      <Text style={styles.modalCloseText}>Done</Text>
+                    </TouchableOpacity>
+                  </View>
+                </View>
+              </Modal>
+          )}
+        </>
+    );
+  };
+
+  return (
+      <KeyboardAvoidingView
+          behavior={Platform.OS === "ios" ? "padding" : undefined}
+          style={styles.container}
+      >
+        <ScrollView contentContainerStyle={styles.scrollContainer}>
+          <View style={styles.innerContainer}>
+            <Text style={styles.title}>Add Shift</Text>
+
+            {/* Display error message if present */}
+            {error && <Text style={styles.errorText}>{error}</Text>}
+
+            {/* Start Date */}
+            <Text style={styles.label}>Start Date</Text>
+            <Pressable
+                style={styles.inputButton}
+                onPress={() => {
+                  setShowPicker(true);
+                  setCurrentPickerType("startDate");
+                }}
+            >
+              <Text style={styles.inputText}>{formatDate(startDate)}</Text>
+            </Pressable>
+
+            {/* Start Time */}
+            <Text style={styles.label}>Start Time</Text>
+            <Pressable
+                style={styles.inputButton}
+                onPress={() => {
+                  setShowPicker(true);
+                  setCurrentPickerType("startTime");
+                }}
+            >
+              <Text style={styles.inputText}>{formatTime(startTime)}</Text>
+            </Pressable>
+
+            {/* End Date */}
+            <Text style={styles.label}>End Date</Text>
+            <Pressable
+                style={styles.inputButton}
+                onPress={() => {
+                  setShowPicker(true);
+                  setCurrentPickerType("endDate");
+                }}
+            >
+              <Text style={styles.inputText}>{formatDate(endDate)}</Text>
+            </Pressable>
+
+            {/* End Time */}
+            <Text style={styles.label}>End Time</Text>
+            <Pressable
+                style={styles.inputButton}
+                onPress={() => {
+                  setShowPicker(true);
+                  setCurrentPickerType("endTime");
+                }}
+            >
+              <Text style={styles.inputText}>{formatTime(endTime)}</Text>
+            </Pressable>
+
+            {/* Add Shift Button */}
+            <TouchableOpacity style={styles.primaryButton} onPress={handleAddShift}>
+              <Text style={styles.primaryButtonText}>Add Shift</Text>
+            </TouchableOpacity>
           </View>
-        </Modal>
-      )}
-    </KeyboardAvoidingView>
+        </ScrollView>
+
+        {/* Render DateTimePicker based on platform */}
+        {renderDateTimePicker()}
+      </KeyboardAvoidingView>
   );
 };
 
@@ -138,6 +337,17 @@ const styles = StyleSheet.create({
     padding: 24,
     borderRadius: 12,
     backgroundColor: cardBackgroundColor,
+    ...Platform.select({
+      android: {
+        elevation: 4,
+      },
+      ios: {
+        shadowColor: "#000",
+        shadowOffset: { width: 0, height: 2 },
+        shadowOpacity: 0.1,
+        shadowRadius: 4,
+      },
+    }),
   },
   title: { fontSize: 24, fontWeight: "bold", marginBottom: 20 },
   label: { fontSize: 16, marginBottom: 8 },
@@ -161,6 +371,7 @@ const styles = StyleSheet.create({
   modalContent: { width: 300, padding: 20, borderRadius: 8, backgroundColor: cardBackgroundColor },
   modalCloseButton: { marginTop: 10, alignItems: "center" },
   modalCloseText: { fontSize: 16, color: primaryColor },
+  errorText: { color: "red", marginBottom: 10 },
 });
 
 export default AddShift;
