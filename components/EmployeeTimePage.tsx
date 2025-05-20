@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { View, Text, StyleSheet, Switch, FlatList, Button } from 'react-native';
+import { View, Text, StyleSheet, FlatList, Button } from 'react-native';
 
 // Type definition for an Employee object
 type Employee = {
@@ -7,7 +7,6 @@ type Employee = {
   name: string;
   scheduledHours: number;
   maxHours: number;
-  showScheduled: boolean; // New property to track individual toggle state
 };
 
 // Type definition for the TimeLineBar props
@@ -17,25 +16,38 @@ type TimeLineBarProps = {
 };
 
 const TimeLineBar = ({ scheduled, max }: TimeLineBarProps) => {
-  const remaining = max - scheduled;
   const scheduledPercentage = (scheduled / max) * 100;
-  const remainingPercentage = (remaining / max) * 100;
+  const remaining = max - scheduled; // Calculate remaining available time
+
+  // Determine bar color based on scheduled hours
+  let barColor = 'green';
+  if (scheduledPercentage >= 80) {
+    barColor = 'red'; // Change to red if 80% or more of max hours are scheduled
+  } else if (scheduledPercentage >= 50) {
+    barColor = 'yellow'; // Change to yellow if between 50% and 79%
+  }
 
   return (
-    <View style={styles.timeLineContainer}>
-      <View
-        style={[
-          styles.scheduledBar,
-          { width: `${scheduledPercentage}%` },
-        ]}
-      />
-      <View
-        style={[
-          styles.remainingBar,
-          { width: `${remainingPercentage}%`, left: `${scheduledPercentage}%` },
-        ]}
-      />
-      <Text style={styles.timeLabel}>{scheduled} / {max} Hours</Text>
+    <View>
+      {/* Progress Bar */}
+      <View style={styles.timeLineContainer}>
+        <View
+          style={[
+            styles.scheduledBar,
+            { width: `${scheduledPercentage}%`, backgroundColor: barColor },
+          ]}
+        />
+        <Text style={styles.timeLabel}>
+          {scheduled}h / {max}h Max
+        </Text>
+      </View>
+
+      {/* Remaining Time */}
+      <View style={styles.remainingTimeContainer}>
+        <Text style={styles.remainingTime}>
+          Remaining Time Available: {remaining > 0 ? remaining : 0}h
+        </Text>
+      </View>
     </View>
   );
 };
@@ -46,7 +58,7 @@ const EmployeeTimeScreen = () => {
   const [error, setError] = useState<string | null>(null);
   const [userRole, setUserRole] = useState<'supervisor' | 'employee'>('supervisor'); // Initial role for testing
 
-  const fetchEmployeeData = async () => {
+  const fetchEmployeeData = React.useCallback(async () => {
     setLoading(true);
     setError(null);
     try {
@@ -54,14 +66,14 @@ const EmployeeTimeScreen = () => {
       if (userRole === 'supervisor') {
         // Simulate data for a supervisor viewing multiple employees
         mockData = [
-          { id: '1', name: 'John Smith', scheduledHours: 5, maxHours: 16, showScheduled: true }, // Initialize toggle state
-          { id: '2', name: 'Jane Doe', scheduledHours: 10, maxHours: 20, showScheduled: false },
-          { id: '3', name: 'Peter Jones', scheduledHours: 12, maxHours: 18, showScheduled: true },
+          { id: '1', name: 'John Smith', scheduledHours: 14, maxHours: 16 },
+          { id: '2', name: 'Jane Doe', scheduledHours: 8, maxHours: 20 },
+          { id: '3', name: 'Peter Jones', scheduledHours: 12, maxHours: 18 },
         ];
       } else if (userRole === 'employee') {
         // Simulate data for an employee viewing only their own information
         mockData = [
-          { id: '4', name: 'My Self', scheduledHours: 7, maxHours: 15, showScheduled: true },
+          { id: '4', name: 'My Self', scheduledHours: 7, maxHours: 15 },
         ];
       }
 
@@ -79,67 +91,16 @@ const EmployeeTimeScreen = () => {
         console.error('Unexpected error:', e);
       }
     }
-  };
+  }, [userRole]);
 
   useEffect(() => {
-    const fetchEmployeeData = async () => {
-      setLoading(true);
-      setError(null);
-      try {
-        let mockData: Employee[] = [];
-        if (userRole === 'supervisor') {
-          mockData = [
-            { id: '1', name: 'John Smith', scheduledHours: 5, maxHours: 16, showScheduled: true },
-            { id: '2', name: 'Jane Doe', scheduledHours: 10, maxHours: 20, showScheduled: false },
-            { id: '3', name: 'Peter Jones', scheduledHours: 12, maxHours: 18, showScheduled: true },
-          ];
-        } else if (userRole === 'employee') {
-          mockData = [
-            { id: '4', name: 'My Self', scheduledHours: 7, maxHours: 15, showScheduled: true },
-          ];
-        }
-
-        await new Promise((resolve) => setTimeout(resolve, 1000));
-        setEmployeeData(mockData);
-        setLoading(false);
-      } catch (e: unknown) {
-        setError('Failed to load employee data.');
-        setLoading(false);
-        if (e instanceof Error) {
-          console.error('Error fetching data:', e.message);
-        } else {
-          console.error('Unexpected error:', e);
-        }
-      }
-    };
-
     fetchEmployeeData();
-  }, [userRole]); // Re-fetch data when the user role changes
-
-  const handleToggleSwitch = (employeeId: string) => {
-    setEmployeeData((prevData) =>
-      prevData.map((employee) =>
-        employee.id === employeeId
-          ? { ...employee, showScheduled: !employee.showScheduled }
-          : employee
-      )
-    );
-  };
+  }, [fetchEmployeeData]); // Re-fetch data when fetchEmployeeData changes
 
   const renderEmployeeCard = ({ item }: { item: Employee }) => (
     <View style={styles.card}>
       <Text style={styles.employeeName}>{item.name}</Text>
-      {item.showScheduled && (
-        <TimeLineBar scheduled={item.scheduledHours} max={item.maxHours} />
-      )}
-      {!item.showScheduled && <Text style={styles.details}>Max Hours: {item.maxHours}</Text>}
-      <View style={styles.toggleContainer}>
-        <Text style={styles.toggleLabel}>Show Scheduled Hours</Text>
-        <Switch
-          value={item.showScheduled}
-          onValueChange={() => handleToggleSwitch(item.id)}
-        />
-      </View>
+      <TimeLineBar scheduled={item.scheduledHours} max={item.maxHours} />
     </View>
   );
 
@@ -151,7 +112,7 @@ const EmployeeTimeScreen = () => {
         <Button
           title={userRole === 'supervisor' ? 'Supervisor' : 'Employee'}
           onPress={() => {
-            setUserRole(prevRole =>
+            setUserRole((prevRole) =>
               prevRole === 'supervisor' ? 'employee' : 'supervisor'
             );
           }}
@@ -220,21 +181,6 @@ const styles = StyleSheet.create({
     fontWeight: 'bold',
     marginBottom: 8,
   },
-  details: {
-    fontSize: 14,
-    color: '#555',
-    marginBottom: 4,
-  },
-  toggleContainer: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    marginTop: 12,
-    justifyContent: 'space-between', // Improved layout
-  },
-  toggleLabel: {
-    fontSize: 14,
-    marginRight: 8,
-  },
   timeLineContainer: {
     height: 20,
     backgroundColor: '#ddd',
@@ -244,17 +190,10 @@ const styles = StyleSheet.create({
     position: 'relative',
   },
   scheduledBar: {
-    backgroundColor: 'lightblue',
     height: '100%',
     borderRadius: 10,
     position: 'absolute',
     left: 0,
-  },
-  remainingBar: {
-    backgroundColor: 'lightgreen',
-    height: '100%',
-    borderRadius: 10,
-    position: 'absolute',
   },
   timeLabel: {
     fontSize: 12,
@@ -263,6 +202,18 @@ const styles = StyleSheet.create({
     top: 2,
     left: 10,
   },
+
+  
+  
+
+  remainingTimeContainer: {
+    marginTop: 8,
+  },
+  remainingTime: {
+    fontSize: 12,
+    color: '#555',
+  },
+  
 });
 
 export default EmployeeTimeScreen;
