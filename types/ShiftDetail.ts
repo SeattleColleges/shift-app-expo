@@ -13,4 +13,6 @@ export type ShiftDetail = {
   coverageReason?: string,
   notes?: string,
   createdOn: string,
+  building?: string,
+  roomNumber?: string
 }
