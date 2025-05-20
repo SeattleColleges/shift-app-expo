@@ -56,7 +56,7 @@ const EmployeeTimeScreen = () => {
   const [employeeData, setEmployeeData] = useState<Employee[]>([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  const [userRole, setUserRole] = useState<'supervisor' | 'employee'>('supervisor'); // Initial role for testing
+  const [userRole, setUserRole] = useState<'supervisor' | 'employee'>('employee'); // Initial role for testing
 
   const fetchEmployeeData = React.useCallback(async () => {
     setLoading(true);
