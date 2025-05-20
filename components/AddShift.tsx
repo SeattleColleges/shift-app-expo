@@ -1,170 +1,377 @@
-import React, { useState } from "react";
+import type React from "react";
+import { useState, useCallback, useEffect } from "react";
 import {
   View,
   Text,
   StyleSheet,
-  Platform,
-  TextInput,
   Pressable,
   ScrollView,
   Modal,
   KeyboardAvoidingView,
+  TouchableOpacity,
+  Alert,
+  Platform,
 } from "react-native";
-import { Picker } from "@react-native-picker/picker";
-import DateTimePicker from "@react-native-community/datetimepicker";
-import { roles } from "../data/roles"; 
-import { locations } from "../data/locations";
-import { times } from "../data/times";
+import DateTimePicker, { type DateTimePickerEvent } from "@react-native-community/datetimepicker";
 
-type PickerType = "role" | "location" | "startTime" | "endTime" | null;
+const primaryColor = "#0056b3";
+const cardBackgroundColor = "#fff";
+
+type PickerType = "startTime" | "endTime" | "startDate" | "endDate" | null;
+
+// Helper function to round time to nearest quarter-hour
+const roundToNearestQuarter = (date: Date): Date => {
+  const minutes = date.getMinutes();
+  const remainder = minutes % 15;
+
+  // Round up to next quarter-hour
+  const roundedDate = new Date(date);
+  if (remainder > 0) {
+    roundedDate.setMinutes(minutes + (15 - remainder));
+  }
+  roundedDate.setSeconds(0);
+  roundedDate.setMilliseconds(0);
+
+  return roundedDate;
+};
 
 const AddShift: React.FC = () => {
-  const [role, setRole] = useState<string>(roles[0].value);
-  const [location, setLocation] = useState<string>(locations[0].value);
-  const [date, setDate] = useState<Date>(new Date());
-  const [startTime, setStartTime] = useState<string>("Select start time");
-  const [endTime, setEndTime] = useState<string>("Select end time");
-  const [notes, setNotes] = useState<string>("");
-  const [activePicker, setActivePicker] = useState<PickerType>(null);
-  const [showDatePicker, setShowDatePicker] = useState<boolean>(false);
-  const [tempValue, setTempValue] = useState<string>("");
+  const [startDate, setStartDate] = useState<Date>(new Date());
+  const [endDate, setEndDate] = useState<Date>(new Date());
+  const [startTime, setStartTime] = useState<Date>(roundToNearestQuarter(new Date()));
+  const [endTime, setEndTime] = useState<Date>(
+      roundToNearestQuarter(new Date(new Date().setHours(new Date().getHours() + 1)))
+  );
+  const [showPicker, setShowPicker] = useState<boolean>(false);
+  const [currentPickerType, setCurrentPickerType] = useState<PickerType>(null);
+  const [error, setError] = useState<string | null>(null);
 
-  const onChangeDate = (event: any, selectedDate?: Date) => {
-    if (selectedDate) {
-      setDate(selectedDate);
+  // Format date to human readable format (e.g., "Monday, January 1, 2025")
+  const formatDate = (date: Date): string => {
+    return date.toLocaleDateString(undefined, {
+      weekday: 'long',
+      year: 'numeric',
+      month: 'long',
+      day: 'numeric'
+    });
+  };
+
+  // Format time without seconds (e.g., "14:30" or "2:30 PM")
+  const formatTime = (date: Date): string => {
+    return date.toLocaleTimeString([], {
+      hour: "2-digit",
+      minute: "2-digit",
+      hour12: true // Use 12-hour format with AM/PM
+    });
+  };
+
+  // Function to validate if start time is before end time
+  const validateShiftTimes = () => {
+    // Create full date-time objects by combining the date and time
+    const startDateTime = new Date(
+        startDate.getFullYear(),
+        startDate.getMonth(),
+        startDate.getDate(),
+        startTime.getHours(),
+        startTime.getMinutes()
+    );
+
+    const endDateTime = new Date(
+        endDate.getFullYear(),
+        endDate.getMonth(),
+        endDate.getDate(),
+        endTime.getHours(),
+        endTime.getMinutes()
+    );
+
+    // Check if start time is after end time
+    if (startDateTime > endDateTime) {
+      return false;
+    } else {
+      return true;
     }
-    setShowDatePicker(false);
   };
 
-  const handlePickerChange = (value: string) => {
-    setTempValue(value);
-  };
+  // Validate shift times whenever they change
+  useEffect(() => {
+    validateShiftTimes();
+  }, [startDate, endDate, startTime, endTime]);
 
-  const handleDonePress = () => {
-    if (activePicker === "role") setRole(tempValue);
-    if (activePicker === "location") setLocation(tempValue);
-    if (activePicker === "startTime") setStartTime(tempValue);
-    if (activePicker === "endTime") setEndTime(tempValue);
-    setActivePicker(null);
-  };
+  const onChange = useCallback(
+      (event: DateTimePickerEvent, selectedDate?: Date) => {
+        // Always close the picker first to prevent re-opening issues
+        setShowPicker(false);
+        setCurrentPickerType(null);
 
+        // On Android, canceling returns undefined
+        if (!selectedDate) {
+          return;
+        }
+
+        // For times, round to nearest quarter-hour
+        let adjustedDate = selectedDate;
+
+        if (currentPickerType === "startTime" || currentPickerType === "endTime") {
+          adjustedDate = roundToNearestQuarter(selectedDate);
+        }
+
+        if (currentPickerType === "startDate") {
+          setStartDate(adjustedDate);
+          console.log("Start date changed:", formatDate(adjustedDate));
+        }
+        if (currentPickerType === "endDate") {
+          setEndDate(adjustedDate);
+          console.log("End date changed:", formatDate(adjustedDate));
+        }
+        if (currentPickerType === "startTime") {
+          setStartTime(adjustedDate);
+          console.log("Start time changed:", formatTime(adjustedDate));
+        }
+        if (currentPickerType === "endTime") {
+          setEndTime(adjustedDate);
+          console.log("End time changed:", formatTime(adjustedDate));
+        }
+      },
+      [currentPickerType]
+  );
+
+  // Function to handle adding a shift
   const handleAddShift = () => {
-    console.log("Shift added:", { role, location, date, startTime, endTime, notes });
+    console.log("Add Shift button pressed");
+
+    // Validate times before adding shift
+    if (!validateShiftTimes()) {
+      setError("Error: Start time cannot be after end time");
+      console.error("Validation error: Start time is after end time");
+      Alert.alert(
+          "Invalid Shift Times",
+          "Start time cannot be after end time",
+          [{ text: "OK" }]
+      );
+      return;
+    }
+
+    // Clear any previous error
+    setError(null);
+
+    // Create full date-time objects for the shift
+    const shiftStart = new Date(
+        startDate.getFullYear(),
+        startDate.getMonth(),
+        startDate.getDate(),
+        startTime.getHours(),
+        startTime.getMinutes()
+    );
+
+    const shiftEnd = new Date(
+        endDate.getFullYear(),
+        endDate.getMonth(),
+        endDate.getDate(),
+        endTime.getHours(),
+        endTime.getMinutes()
+    );
+
+    // Format the shift times in the required format
+    const formattedShiftStart = `${formatDate(shiftStart)} ${formatTime(shiftStart)}`;
+    const formattedShiftEnd = `${formatDate(shiftEnd)} ${formatTime(shiftEnd)}`;
+
+    // Log the shift details in the requested format
+    console.log("==== Creating New Shift ====");
+    console.log(`Shift added: { '${formattedShiftStart}', '${formattedShiftEnd}' }`);
+    console.log("Duration (hours):", (shiftEnd.getTime() - shiftStart.getTime()) / (1000 * 60 * 60));
+    console.log("========================");
+
+    /* Here you would typically call an API or dispatch an action to save the shift
+    For now, we're just logging to terminal */
+
+    // Show confirmation to user
+    Alert.alert(
+        "Success",
+        "Shift added successfully!",
+        [{ text: "OK" }]
+    );
+  };
+
+  // Android requires a different approach for the date picker
+  const renderDateTimePicker = () => {
+    if (!showPicker) return null;
+
+    const pickerMode = currentPickerType?.includes("Date") ? "date" : "time";
+    let pickerValue;
+
+    switch (currentPickerType) {
+      case "startDate":
+        pickerValue = startDate;
+        break;
+      case "endDate":
+        pickerValue = endDate;
+        break;
+      case "startTime":
+        pickerValue = startTime;
+        break;
+      case "endTime":
+        pickerValue = endTime;
+        break;
+      default:
+        pickerValue = new Date();
+    }
+
+    return (
+        <>
+          {Platform.OS === 'android' ? (
+              <DateTimePicker
+                  testID="dateTimePicker"
+                  value={pickerValue}
+                  mode={pickerMode}
+                  is24Hour={false}
+                  display="default"
+                  onChange={onChange}
+              />
+          ) : (
+              <Modal transparent animationType="slide">
+                <View style={styles.modalContainer}>
+                  <View style={styles.modalContent}>
+                    <DateTimePicker
+                        testID="dateTimePicker"
+                        value={pickerValue}
+                        mode={pickerMode}
+                        is24Hour={false}
+                        display="spinner"
+                        onChange={onChange}
+                    />
+                    <TouchableOpacity
+                        onPress={() => {
+                          setShowPicker(false);
+                          setCurrentPickerType(null);
+                        }}
+                        style={styles.modalCloseButton}
+                    >
+                      <Text style={styles.modalCloseText}>Done</Text>
+                    </TouchableOpacity>
+                  </View>
+                </View>
+              </Modal>
+          )}
+        </>
+    );
   };
 
   return (
-    <KeyboardAvoidingView behavior="padding" style={styles.container}>
-      <ScrollView contentContainerStyle={styles.scrollContainer} keyboardShouldPersistTaps="handled">
-        <View style={styles.innerContainer}>
-          <Text style={styles.title}>Add Shift</Text>
+      <KeyboardAvoidingView
+          behavior={Platform.OS === "ios" ? "padding" : undefined}
+          style={styles.container}
+      >
+        <ScrollView contentContainerStyle={styles.scrollContainer}>
+          <View style={styles.innerContainer}>
+            <Text style={styles.title}>Add Shift</Text>
 
-          {/* Role Picker */}
-          <Text style={styles.label}>Role</Text>
-          <Pressable style={styles.button} onPress={() => { setActivePicker("role"); setTempValue(role); }}>
-            <Text style={styles.buttonText}>{role}</Text>
-          </Pressable>
+            {/* Display error message if present */}
+            {error && <Text style={styles.errorText}>{error}</Text>}
 
-          {/* Date Picker */}
-          <Text style={styles.label}>Date</Text>
-          {Platform.OS === "web" ? (
-            <input
-              type="date"
-              value={date.toISOString().split("T")[0]}
-              onChange={(e) => setDate(new Date(e.target.value))}
-              style={styles.webInput}
-            />
-          ) : (
-            <Pressable style={styles.button} onPress={() => setShowDatePicker(true)}>
-              <Text style={styles.buttonText}>{date.toDateString()}</Text>
+            {/* Start Date */}
+            <Text style={styles.label}>Start Date</Text>
+            <Pressable
+                style={styles.inputButton}
+                onPress={() => {
+                  setShowPicker(true);
+                  setCurrentPickerType("startDate");
+                }}
+            >
+              <Text style={styles.inputText}>{formatDate(startDate)}</Text>
             </Pressable>
-          )}
-          {showDatePicker && (
-            <DateTimePicker value={date} mode="date" display="default" onChange={onChangeDate} />
-          )}
 
-          {/* Start Time Picker */}
-          <Text style={styles.label}>Start Time</Text>
-          <Pressable style={styles.button} onPress={() => { setActivePicker("startTime"); setTempValue(startTime); }}>
-            <Text style={styles.buttonText}>{startTime}</Text>
-          </Pressable>
+            {/* Start Time */}
+            <Text style={styles.label}>Start Time</Text>
+            <Pressable
+                style={styles.inputButton}
+                onPress={() => {
+                  setShowPicker(true);
+                  setCurrentPickerType("startTime");
+                }}
+            >
+              <Text style={styles.inputText}>{formatTime(startTime)}</Text>
+            </Pressable>
 
-          {/* End Time Picker */}
-          <Text style={styles.label}>End Time</Text>
-          <Pressable style={styles.button} onPress={() => { setActivePicker("endTime"); setTempValue(endTime); }}>
-            <Text style={styles.buttonText}>{endTime}</Text>
-          </Pressable>
+            {/* End Date */}
+            <Text style={styles.label}>End Date</Text>
+            <Pressable
+                style={styles.inputButton}
+                onPress={() => {
+                  setShowPicker(true);
+                  setCurrentPickerType("endDate");
+                }}
+            >
+              <Text style={styles.inputText}>{formatDate(endDate)}</Text>
+            </Pressable>
 
-          {/* Location Picker */}
-          <Text style={styles.label}>Location</Text>
-          <Pressable style={styles.button} onPress={() => { setActivePicker("location"); setTempValue(location); }}>
-            <Text style={styles.buttonText}>{location}</Text>
-          </Pressable>
+            {/* End Time */}
+            <Text style={styles.label}>End Time</Text>
+            <Pressable
+                style={styles.inputButton}
+                onPress={() => {
+                  setShowPicker(true);
+                  setCurrentPickerType("endTime");
+                }}
+            >
+              <Text style={styles.inputText}>{formatTime(endTime)}</Text>
+            </Pressable>
 
-          {/* Notes Input */}
-          <Text style={styles.label}>Notes</Text>
-          <TextInput
-            style={[styles.input, styles.textArea]}
-            value={notes}
-            onChangeText={setNotes}
-            multiline
-          />
-
-          {/* Add Shift Button */}
-          <Pressable style={styles.button} onPress={handleAddShift}>
-            <Text style={styles.buttonText}>Add Shift</Text>
-          </Pressable>
-        </View>
-      </ScrollView>
-
-      {/* Generic Picker Modal */}
-      {activePicker && (
-        <Modal visible={true} transparent animationType="slide">
-          <View style={styles.modalContainer}>
-            <View style={styles.modalContent}>
-              <Picker
-                selectedValue={tempValue}
-                onValueChange={handlePickerChange}
-              >
-                {(activePicker === "role"
-                  ? roles
-                  : activePicker === "location"
-                  ? locations
-                  : times.map((time) => ({ label: time, value: time }))
-                ).map((item) =>
-                  typeof item === "string" ? (
-                    <Picker.Item key={item} label={item} value={item} />
-                  ) : (
-                    <Picker.Item key={item.value} label={item.label} value={item.value} />
-                  )
-                )}
-              </Picker>
-              <Pressable onPress={handleDonePress} style={styles.modalCloseButton}>
-                <Text style={styles.modalCloseText}>Done</Text>
-              </Pressable>
-            </View>
+            {/* Add Shift Button */}
+            <TouchableOpacity style={styles.primaryButton} onPress={handleAddShift}>
+              <Text style={styles.primaryButtonText}>Add Shift</Text>
+            </TouchableOpacity>
           </View>
-        </Modal>
-      )}
-    </KeyboardAvoidingView>
+        </ScrollView>
+
+        {/* Render DateTimePicker based on platform */}
+        {renderDateTimePicker()}
+      </KeyboardAvoidingView>
   );
 };
 
-// Styles
 const styles = StyleSheet.create({
-  container: { flex: 1, backgroundColor: "#f9f9f9" },
-  scrollContainer: { flexGrow: 1, alignItems: "center", padding: 16 },
-  innerContainer: { width: 400, maxWidth: "100%", padding: 20, borderRadius: 12, backgroundColor: "#fff", elevation: 3 },
-  title: { fontSize: 24, fontWeight: "bold", marginBottom: 20, textAlign: "center" },
-  label: { fontSize: 16, marginVertical: 8 },
-  input: { fontSize: 16, padding: 12, borderWidth: 1, borderColor: "#ccc", borderRadius: 10, backgroundColor: "#fff", marginBottom: 10 },
-  textArea: { height: 100, textAlignVertical: "top" },
-  button: { paddingVertical: 12, borderRadius: 10, backgroundColor: "#000", alignItems: "center", marginVertical: 10 },
-  buttonText: { color: "#fff", fontSize: 16, fontWeight: "bold" },
+  container: { flex: 1, padding: 20 },
+  scrollContainer: { flexGrow: 1, alignItems: "center", justifyContent: "center" },
+  innerContainer: {
+    width: "100%",
+    padding: 24,
+    borderRadius: 12,
+    backgroundColor: cardBackgroundColor,
+    ...Platform.select({
+      android: {
+        elevation: 4,
+      },
+      ios: {
+        shadowColor: "#000",
+        shadowOffset: { width: 0, height: 2 },
+        shadowOpacity: 0.1,
+        shadowRadius: 4,
+      },
+    }),
+  },
+  title: { fontSize: 24, fontWeight: "bold", marginBottom: 20 },
+  label: { fontSize: 16, marginBottom: 8 },
+  inputButton: {
+    padding: 12,
+    borderWidth: 1,
+    borderColor: "#ccc",
+    borderRadius: 8,
+    marginBottom: 16,
+  },
+  inputText: { fontSize: 16 },
+  primaryButton: {
+    backgroundColor: primaryColor,
+    padding: 16,
+    borderRadius: 8,
+    alignItems: "center",
+    marginTop: 20,
+  },
+  primaryButtonText: { color: "#fff", fontSize: 18, fontWeight: "bold" },
   modalContainer: { flex: 1, justifyContent: "center", alignItems: "center", backgroundColor: "rgba(0,0,0,0.5)" },
-  modalContent: { width: 300, backgroundColor: "#fff", padding: 20, borderRadius: 10 },
+  modalContent: { width: 300, padding: 20, borderRadius: 8, backgroundColor: cardBackgroundColor },
   modalCloseButton: { marginTop: 10, alignItems: "center" },
-  modalCloseText: { fontSize: 18, color: "#007bff" },
-  webInput: { fontSize: 16, padding: 12, borderWidth: 1, borderColor: "#ccc", borderRadius: 10, backgroundColor: "#fff", marginBottom: 20, width: "92%" },
+  modalCloseText: { fontSize: 16, color: primaryColor },
+  errorText: { color: "red", marginBottom: 10 },
 });
 
 export default AddShift;
