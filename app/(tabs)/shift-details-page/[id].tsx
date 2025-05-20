@@ -1,27 +1,49 @@
 import {Pressable, StyleSheet, Text, useColorScheme, View} from "react-native";
-import {useLocalSearchParams} from "expo-router";
+import {useFocusEffect, useLocalSearchParams} from "expo-router";
 import {ThemedText} from "@/components/ThemedText";
 import {ThemedView} from "@/components/ThemedView";
 import {weekdays, months} from "moment";
 import Ionicons from "@expo/vector-icons/Ionicons";
 import {Colors} from '@/constants/Colors'
-import {useShiftNavigation} from "@/app/shift-navigation";
-
+import { useShiftNavigation } from "@/hooks/shift-navigation";
+import {ShiftDetail} from "@/types/ShiftDetail";
+import {useCallback, useEffect, useState} from "react";
+import {supabaseAdmin} from "@/lib/supabaseAdminClient";
+const isShiftDetail = (obj: any): obj is ShiftDetail => {
+    return (
+        typeof obj === 'object' &&
+        obj !== null &&
+        typeof obj.id === 'string' &&
+        typeof obj.assignedUser === 'string' &&
+        typeof obj.departmentId === 'string' &&
+        typeof obj.supervisorId === 'string' &&
+        typeof obj.title === 'string' &&
+        typeof obj.date === 'string' &&
+        typeof obj.startTime === 'string' &&
+        typeof obj.endTime === 'string' &&
+        typeof obj.duration === 'string' &&
+        typeof obj.needsCoverage === 'string' &&
+        typeof obj.createdOn === 'string' &&
+        (typeof obj.coverageReason === 'undefined' || typeof obj.coverageReason === 'string') &&
+        (typeof obj.notes === 'undefined' || typeof obj.notes === 'string')
+    );
+}
+const currentUserId = 2; // Change me to test role privileges
 export default function ShiftDetailsPage () {
-    const item = useLocalSearchParams();
+    const params = useLocalSearchParams();
+    if (!isShiftDetail(params)) {
+        throw new Error('Invalid shift detail parameters');
+    }
+    const item: ShiftDetail = params;
+    const currentUserIsAssignedUser = currentUserId == item.assignedUser;
     const colorScheme = useColorScheme() || 'light';
-
-    const currentShiftId = parseInt(item.id as string);
-
-    const { currentShift, goToPreviousShift, goToNextShift } = useShiftNavigation(currentShiftId);
-
+    const { currentShift, goToPreviousShift, goToNextShift } = useShiftNavigation(item.id);
     const date = currentShift ? new Date(currentShift.date) : new Date();
-
     const day = date.getDate();
     const month = months()[date.getMonth()];
     const dayOfWeek = weekdays()[date.getDay()];
-    const formattedDate = `${dayOfWeek}, ${month} ${day}`
-
+    const formattedDate = `${dayOfWeek}, ${month} ${day}`;
+    const [isSupervisor, setIsSupervisor] = useState<boolean | null>(false);
     type PressableIconProps = {
         name: keyof typeof Ionicons.glyphMap;
         size?: number;
@@ -56,7 +78,6 @@ export default function ShiftDetailsPage () {
         )
     }
     const ShiftDetailItem = ({title, value}: ShiftDetailItemProps) => {
-
         return (
             <View style={{flexDirection:'row', gap:5, alignItems:'center'}}>
                 <Text style={{fontSize:12}}>{title}:</Text>
@@ -64,6 +85,29 @@ export default function ShiftDetailsPage () {
             </View>
         )
     }
+
+    useFocusEffect(
+        useCallback(() => {
+            async function fetchRole() {
+                if (!supabaseAdmin) throw new Error('Supabase admin is invalid.');
+                const { data, error } = await supabaseAdmin.rpc('is_supervisor', { supervisor_id_param: currentUserId });
+                if (error) {
+                    console.error(error);
+                    setIsSupervisor(false);
+                } else {
+                    setIsSupervisor(data);
+                }
+            }
+            fetchRole();
+            return () => {
+                console.log('Shift details page unfocused');
+                setIsSupervisor(false);
+            };
+        }, [])
+    );
+    useEffect(() => {
+        console.log(isSupervisor)
+    }, [isSupervisor]);
     return (
         <ThemedView style={styles.container}>
             <View style={styles.dateHeader}>
@@ -75,17 +119,31 @@ export default function ShiftDetailsPage () {
                 <Text style={{alignSelf: 'center', fontWeight:'500', fontSize: 18}}>
                     Shift Details
                 </Text>
-                <ShiftDetailItem title={'Hours Scheduled'} value={item.numHoursScheduled}/>
+                <ShiftDetailItem title={'Assigned User'} value={item.assignedUser} />
+                <ShiftDetailItem title={'Department ID'} value={item.departmentId} />
+                <ShiftDetailItem title={'Supervisor ID'} value={item.supervisorId}/>
+                <ShiftDetailItem title={'Title'} value={item.title}/>
+                <ShiftDetailItem title={'Date'} value={item.date}/>
+                <ShiftDetailItem title={'Hours Scheduled'} value={Math.floor(item.duration / 60)}/>
+                <ShiftDetailItem title={'Needs Coverage'} value={item.needsCoverage}/>
+                <ShiftDetailItem title={'Coverage Reason'} value={item.coverageReason}/>
                 <ShiftDetailItem title={'Time'} value={`${item.startTime} - ${item.endTime}`}/>
-                <ShiftDetailItem title={'Role'} value={item.role}/>
-                <ShiftDetailItem title={'Building'} value={`${item.building} - ${item.roomNumber}`}/>
-                <ShiftDetailItem title={'Supervisor'} value={''}/>
-                <ShiftDetailItem title={'Coworkers'} value={''}/>
+                <ShiftDetailItem title={'Notes'} value={item.notes} />
             </ThemedView>
-            <ThemedView style={{flexDirection: 'row', gap: 25}}>
-                <ShiftRequestButton onPress={() => console.log('give up shift')} text={'GIVE UP SHIFT'}/>
-                <ShiftRequestButton onPress={() => console.log('take shift')} text={'TAKE SHIFT'}/>
-            </ThemedView>
+            {
+                currentUserIsAssignedUser &&
+                <ThemedView style={{flexDirection: 'row', gap: 25}}>
+                    <ShiftRequestButton onPress={() => console.log('give up shift')} text={'GIVE UP SHIFT'}/>
+                    <ShiftRequestButton onPress={() => console.log('take shift')} text={'TAKE SHIFT'}/>
+                </ThemedView>
+            }
+            {
+                isSupervisor && !currentUserIsAssignedUser &&
+                <ThemedView style={{flexDirection: 'row', gap: 25}}>
+                    <ShiftRequestButton onPress={() => console.log('approve')} text={'APPROVE'}/>
+                    <ShiftRequestButton onPress={() => console.log('deny')} text={'DENY'}/>
+                </ThemedView>
+            }
         </ThemedView>
     )
 }
