@@ -10,6 +10,7 @@ import {
 } from 'react-native';
 import {useRouter} from "expo-router";
 import {supabase} from "@/lib/supabaseClient";
+import * as SecureStore from 'expo-secure-store';
 
 const { width } = Dimensions.get('window'); // Get the current screen width
 
@@ -25,24 +26,44 @@ export default function LoginPage() {
 
   const isFormValid = isValidEmail(email) && password.length > 0;
 
-  const handleSignIn = ():void => {
+  const handleSignIn = (): void => {
     async function signInWithEmail() {
-      // @ts-ignore For now
       const { error, data } = await supabase?.auth.signInWithPassword({
-        email: email,
-        password: password,
-      })
+        email,
+        password,
+      });
 
       if (error) {
-        Alert.alert(error.message)
+        Alert.alert(error.message);
+        return;
       }
-      if (data) {
-          Alert.alert(JSON.stringify(data, null, 2))
-          console.log("Signin page: "+JSON.stringify(data, null, 2))
-        router.replace('/(tabs)')
+
+      if (data?.user) {
+        console.log("Signed in user:", data.user);
+
+        // Fetch role using the user ID directly
+        const { data: roleData, error: roleError } = await supabase
+            .from('profiles')
+            .select('role')
+            .eq('profile_id', data.user.id)
+            .single();
+
+        if (roleError) {
+          console.error('Error fetching role:', roleError);
+        } else {
+          console.log('User role:', roleData);
+          await SecureStore.setItemAsync('role', roleData.role);
+        }
+
+        // Navigate after everything is ready
+        router.replace('/(tabs)');
       }
     }
-    signInWithEmail()
+
+
+    signInWithEmail().then(async () => {
+      await getPermissions()
+    })
   }
 
   const goToForgotPassword = () => {
