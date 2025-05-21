@@ -15,6 +15,7 @@ import {
 import {supabase} from "@/lib/supabaseClient";
 import {router} from "expo-router";
 
+
 const {width} = Dimensions.get('window');
 
 export default function SignUpPage() {
@@ -89,13 +90,48 @@ export default function SignUpPage() {
         setFormData((prev) => ({...prev, [name]: newValue}));
     }, []);
 
-    const handleSignUp = useCallback(() => {
-        Alert.alert(
-            'Sign Up',
-            `Name: ${formData.name} ${formData.middleName} ${formData.lastName}\nEmail: ${formData.email}`
-        );
-        // Add sign-up logic here
-    }, [formData]);
+    const handleSignUp = useCallback(async () => {
+        if (!supabase) {
+            Alert.alert('Error', 'Authentication service is not available. Please try again later.');
+            return;
+        }
+
+        try {
+            // Sign up with Supabase
+            const { data: authData, error: authError } = await supabase.auth.signUp({
+                email: formData.email,
+                password: formData.password,
+                options: {
+                    data: {
+                        name: `${formData.name} ${formData.middleName} ${formData.lastName}`.trim(),
+                        department: formData.department,
+                        supervisor: formData.supervisor,
+                    },
+                },
+            });
+
+            if (authError) {
+                Alert.alert('Error', authError.message);
+                return;
+            }
+
+            if (authData.user) {
+                Alert.alert(
+                    'Success',
+                    'Account created successfully! Please check your email for verification.',
+                    [
+                        {
+                            text: 'OK',
+                            onPress: () => router.replace('/(auth)'),
+                        },
+                    ]
+                );
+            }
+        } catch (error) {
+            console.error('Sign up error:', error);
+            Alert.alert('Error', 'An unexpected error occurred. Please try again.');
+        }
+    }, [formData, router]);
 
     const renderInput = useCallback(
         (
