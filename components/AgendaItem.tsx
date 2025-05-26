@@ -30,10 +30,14 @@ const AgendaItem = (props: ItemProps) => {
     return (
         <TouchableOpacity style={styles.item}>
             <View>
-                <Text style={styles.itemHourText}>{item.hour}</Text>
-                <Text style={styles.itemDurationText}>{item.duration}</Text>
+                <Text style={styles.itemHourText}>{"Duration"}</Text>
+                <Text style={styles.itemDurationText}>{Number.parseFloat(String(item.duration / 45)).toFixed(1)} H</Text>
             </View>
-            <Text style={styles.itemTitleText}>{item.shift_name}</Text>
+            <View style={{backgroundColor:'skyblue', marginLeft:16}}>
+                <Text style={styles.itemTitleText}>{item.shift_name}</Text>
+                <Text>Start: {item.startTime.split(' ')[1]}</Text>
+            </View>
+
             <View style={styles.itemButtonContainer}>
                 <Button color={'grey'} title={'Info'} onPress={() => buttonPressed(item)}/>
             </View>
@@ -63,7 +67,6 @@ const styles = StyleSheet.create({
     },
     itemTitleText: {
         color: 'black',
-        marginLeft: 16,
         fontWeight: 'bold',
         fontSize: 16
     },
