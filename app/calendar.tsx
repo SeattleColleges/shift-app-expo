@@ -18,6 +18,7 @@ import dummyItems from "@/data/dummyItems";
 import {dateTimeFormatter} from "@/data/utils";
 import {supabaseAdmin} from "@/lib/supabaseAdminClient";
 import {useShifts} from "@/hooks/useShifts";
+import {json} from "node:stream/consumers";
 
 // @ts-ignore -- Default props no longer supported
 (ExpandableCalendar).defaultProps = undefined;
@@ -42,7 +43,7 @@ const getColorStatus = ( isGivingUp:boolean,isClaimed:boolean) => {
 
 // Get dot color by event status
 const getDotColor = (event: any) => {
-    console.log("eventzzz: ",event)
+    //console.log("eventzzz: ",event)
     const eventDate = dateTimeFormatter(new Date(event.date))
     const today = dateTimeFormatter(new Date())
     //console.log(today," : ",eventDate)
@@ -132,7 +133,7 @@ const CalendarRework: React.FC<CalendarReworkProps> = ({ weekView = false, style
 
     const {items,loading,error } = useShifts()
     console.log("Load: ",loading)
-    console.log("Error: ",error)
+   //console.log("Error: ",error)
     //console.log(items)
 
     const [selected, setSelected] = useState<string>(today);

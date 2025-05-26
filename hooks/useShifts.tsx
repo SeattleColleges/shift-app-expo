@@ -21,7 +21,7 @@ export const useShifts = () => {
                         const groupedByDate = new Map();
 
                         shifts.forEach(shift => {
-                            console.log("Shift:", shift);
+                            //console.log("Shift:", shift);
 
                             // Extract start timestamp from slot
                             const startTimestamp = extractUTC(shift.slot.split(',')[0]);
@@ -30,7 +30,8 @@ export const useShifts = () => {
                             if (!startTimestamp) return;
 
                             const datePart = startTimestamp.split(' ')[0];
-                            console.log("Date part:", datePart);
+                            //
+                            // console.log("Date part:", datePart);
 
                             // Map group by date
                             if (!groupedByDate.has(datePart)) {

@@ -9,7 +9,7 @@ interface ItemProps {
 
 const AgendaItem = (props: ItemProps) => {
     const {item} = props;
-    console.log("Item: ", item);
+    //console.log("Item: ", item);
 
     const buttonPressed = useCallback((item) => {
         Alert.alert(JSON.stringify(item,null,2));
