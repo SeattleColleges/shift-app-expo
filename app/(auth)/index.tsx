@@ -26,7 +26,7 @@ export default function LoginPage() {
 
   const isFormValid = isValidEmail(email) && password.length > 0;
 
-  const handleSignIn = (): void => {
+  const handleSignIn = async (): Promise<void> => {
     async function signInWithEmail() {
       const { error, data } = await supabase?.auth.signInWithPassword({
         email,
@@ -61,9 +61,7 @@ export default function LoginPage() {
     }
 
 
-    signInWithEmail().then(async () => {
-      // await getPermissions()
-    })
+    await signInWithEmail()
   }
 
   const goToForgotPassword = () => {
