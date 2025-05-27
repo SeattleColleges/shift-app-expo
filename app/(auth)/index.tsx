@@ -52,7 +52,7 @@ export default function LoginPage() {
           console.error('Error fetching role:', roleError);
         } else {
           console.log('User role:', roleData);
-          await SecureStore.setItemAsync('role', roleData.role);
+          await SecureStore.setItemAsync('role', roleData.role?.toLowerCase());
         }
 
         // Navigate after everything is ready

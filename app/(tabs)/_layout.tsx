@@ -1,7 +1,20 @@
 import FontAwesome from '@expo/vector-icons/FontAwesome';
 import { Tabs } from 'expo-router';
+import {useEffect, useState} from "react";
+import * as SecureStore from "expo-secure-store";
 
 export default function TabLayout() {
+    const [role, setRole] = useState<string | null>(null);
+
+    useEffect(() => {
+        const fetchRole = async () => {
+            const storedRole = await SecureStore.getItemAsync('role');
+            setRole(storedRole);
+        };
+
+        fetchRole();
+    }, []);
+
     return (
         <Tabs screenOptions={{ tabBarActiveTintColor: 'blue', tabBarStyle: { display: 'flex' },  }}>
             <Tabs.Screen
@@ -11,13 +24,15 @@ export default function TabLayout() {
                     tabBarIcon: ({ color }) => <FontAwesome size={28} name="calendar-check-o" color={color} />,
                 }}
             />
-            <Tabs.Screen
-                name="add-shift"
-                options={{
-                    title: 'Add Shift',
-                    tabBarIcon: ({ color }) => <FontAwesome size={28} name="calendar-plus-o" color={color} />,
-                }}
-            />
+            {role == 'administrator' || role == 'supervisor' ?
+                <Tabs.Screen
+                    name="add-shift"
+                    options={{
+                        title: 'Add Shift',
+                        tabBarIcon: ({color}) => <FontAwesome size={28} name="calendar-plus-o" color={color}/>,
+                    }}
+                />
+            : <></>}
             <Tabs.Screen
                 name="coworkers"
                 options={{
