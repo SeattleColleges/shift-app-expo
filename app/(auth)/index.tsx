@@ -62,7 +62,7 @@ export default function LoginPage() {
 
 
     signInWithEmail().then(async () => {
-      await getPermissions()
+      // await getPermissions()
     })
   }
 
@@ -84,7 +84,7 @@ export default function LoginPage() {
         <Text style={styles.label}>Email</Text>
         <TextInput
           style={styles.input}
-          placeholder="Value"
+          placeholder="example@example.com"
           placeholderTextColor="#888"
           value={email}
           onChangeText={setEmail}
@@ -98,7 +98,7 @@ export default function LoginPage() {
         <Text style={styles.label}>Password</Text>
         <TextInput
           style={styles.input}
-          placeholder="Value"
+          placeholder="•••••••••••"
           placeholderTextColor="#888"
           value={password}
           onChangeText={setPassword}
