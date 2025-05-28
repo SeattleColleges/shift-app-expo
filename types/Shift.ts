@@ -6,7 +6,7 @@ export type Shift = {
     shift_name: string,
     slot: string,
     duration: number,
-    needs_coverage: false,
+    needs_coverage: boolean,
     coverage_reason?: string,
     notes?: string,
     created_on: string

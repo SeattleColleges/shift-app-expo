@@ -1,4 +1,5 @@
 import {createClient} from "@supabase/supabase-js";
+import {ExpoSecureStoreAdapter} from "@/lib/expoSecureStoreAdapter";
 
 const SUPABASE_URL = process.env.EXPO_PUBLIC_SUPABASE_URL;
 const SERVICE_ROLE_KEY = process.env.EXPO_PUBLIC_SUPABASE_SERVICE_ROLE_KEY;
@@ -9,5 +10,10 @@ if (!SUPABASE_URL || !SERVICE_ROLE_KEY) {
 
 export const supabaseAdmin = SUPABASE_URL && SERVICE_ROLE_KEY
     ? createClient(SUPABASE_URL, SERVICE_ROLE_KEY, {
+        auth: {
+            storage: ExpoSecureStoreAdapter,
+            persistSession: true,
+            detectSessionInUrl: false,
+        },
     })
     : null;

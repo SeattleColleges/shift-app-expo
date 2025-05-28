@@ -1,115 +1,213 @@
-import React, { useState } from "react";
-import { Pressable, StyleSheet, Text, View } from "react-native";
-import { ScrollView } from "react-native";
-import Feather from "@expo/vector-icons/Feather";
-import { UserDetails } from "@/components/UserDetails";
-import { ProfileImage } from "@/components/ProfileImage"; // Import ProfileImage component
-import { User } from "@/types/User";
-import * as Linking from "expo-linking"; // Import Linking from expo
+import React, { useState, useEffect, useCallback } from 'react';
+import { View, Text, StyleSheet, Pressable } from 'react-native';
+import { supabase } from '../../lib/supabaseClient';
+import { ScrollView } from 'react-native';
+import Feather from '@expo/vector-icons/Feather';
+import { ProfileImage } from '@/components/ProfileImage';
+import * as Linking from 'expo-linking';
+import { useRouter } from 'expo-router';
 
-const defaultUser: User = {
-  firstName: "firstname",
-  middleName: "middlename",
-  lastName: "lastname",
-  dateHired: "12/31/1999",
-  dept: "dept",
-  email: "email@example.com",
-  phone: "555-555-5555",
-  pronouns: "they/them",
-  role: "admin", // Change this to "admin" or "user" to test
-  supervisor: "supervisor",
-  userName: "user_name",
-};
-
-export default function AdminDashboard() {
-  const [user, setUser] = useState<User | null>(defaultUser);
-
-  const handleLogout = () => {
-    Linking.openURL("/"); // Navigate to the root of your app (index.tsx)
-  };
-
-  const links: { label: string; icon: "alert-circle" | "grid" | "repeat" | "send" | "download" | "calendar" | "clock" | "user"; action: () => void }[] =
-    user?.role === "admin"
-      ? [
-          { label: "Review Time Off Requests", icon: "alert-circle", action: () => console.log("Review Time Off Requests") },
-          { label: "View Shift Coverage Gaps", icon: "grid", action: () => console.log("View Shift Coverage Gaps") },
-          { label: "Review Shift Swap Requests", icon: "repeat", action: () => console.log("Review Shift Swap Requests") },
-          { label: "Send Announcement", icon: "send", action: () => console.log("Send Announcement") },
-          { label: "Export Weekly Requests", icon: "download", action: () => console.log("Export Weekly Requests") },
-        ]
-      : [
-          { label: "Request Time Off", icon: "calendar", action: () => console.log("Request Time Off") },
-          { label: "Request Shift Swap", icon: "repeat", action: () => console.log("Request Shift Swap") },
-          { label: "View Shift History", icon: "clock", action: () => console.log("View Shift History") },
-          { label: "View Supervisor Info", icon: "user", action: () => console.log("View Supervisor Info") },
-        ];
-
-  return (
-    <>
-      <ScrollView contentContainerStyle={{ justifyContent: "space-between" }}>
-        <View style={styles.container}>
-          <View style={styles.profile}>
-            <ProfileImage
-              initialImageSource={require("../../assets/images/profileImg.jpg")} // Replace with the actual image URL or logic
-            />
-          </View>
-          <UserDetails user={user || defaultUser} />
-          <View>
-            <Text>Hi!, {user?.userName || "User Name"}!</Text>
-          </View>
-        </View>
-        <View style={styles.border}>
-          <View style={styles.schedule}>
-            {links.map((link, index) => (
-              <Pressable key={index} style={styles.linkContainer} onPress={link.action}>
-                <Feather name={link.icon} size={24} color="blue" />
-                <Text style={styles.linkText}>{link.label}</Text>
-              </Pressable>
-            ))}
-          </View>
-        </View>
-        <View style={styles.buttonCont}>
-          <Pressable style={styles.button} onPress={handleLogout}>
-            <Text style={styles.buttonTxt}>Log out</Text>
-          </Pressable>
-        </View>
-      </ScrollView>
-    </>
-  );
+interface Profile {
+  profile_id: string | null;
+  profile_int_id: number | null;
+  name: string | null;
+  email: string | null;
+  role: 'employee' | 'supervisor' | 'admin' | null;
+  position: number | null;
+  supervisor: string | null;
 }
 
+const ProfileView = () => {
+  const [profile, setProfile] = useState<Profile | null>(null);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+  const router = useRouter();
+
+  // Using the profile_int_id provided
+  const profileIntId = 5;
+
+  const fetchProfileById = useCallback(async () => {
+    setLoading(true);
+    setError(null);
+
+    try {
+      if (supabase) {
+        const { data, error } = await supabase
+          .from('profiles')
+          .select('*')
+          .eq('profile_int_id', profileIntId)
+          .single();
+
+        if (error) {
+          console.error('Error fetching profile:', error);
+          setError(error.message);
+        } else if (data) {
+          setProfile(data as Profile);
+        }
+      } else {
+        setError('Supabase client is not initialized.');
+      }
+    } catch (err) {
+      console.error('An unexpected error occurred:', err);
+      setError('An unexpected error occurred.');
+    } finally {
+      setLoading(false);
+    }
+  }, []); // Empty dependency array
+
+  useEffect(() => {
+    fetchProfileById();
+  }, [fetchProfileById]);
+
+  const handleLogout = () => {
+    router.replace('/(auth)'); // Navigate to the login page
+    console.log('Logout pressed');
+  };
+
+  const handleEditProfile = () => {
+    if (profile) {
+      router.push({
+        pathname: '/(tabs)/editProfile',
+        params: {
+          profile_id: profile.profile_id || '',
+          profile_int_id: profile.profile_int_id ? profile.profile_int_id.toString() : '',
+          name: profile.name || '',
+          email: profile.email || '',
+          role: profile.role || '',
+
+        },
+      });
+    }
+  };
+
+  const links: { label: string; icon: 'alert-circle' | 'grid' | 'repeat' | 'send' | 'download' | 'calendar' | 'clock' | 'user'; action: () => void }[] =
+    profile?.role === 'admin'
+      ? [
+          { label: 'Review Time Off Requests', icon: 'alert-circle', action: () => console.log('Review Time Off Requests') },
+          { label: 'View Shift Coverage Gaps', icon: 'grid', action: () => console.log('View Shift Coverage Gaps') },
+          { label: 'Review Shift Swap Requests', icon: 'repeat', action: () => console.log('Review Shift Swap Requests') },
+          { label: 'Send Announcement', icon: 'send', action: () => console.log('Send Announcement') },
+          { label: 'Export Weekly Requests', icon: 'download', action: () => console.log('Export Weekly Requests') },
+        ]
+      : [
+          { label: 'Request Time Off', icon: 'calendar', action: () => console.log('Request Time Off') },
+          { label: 'Request Shift Swap', icon: 'repeat', action: () => console.log('Request Shift Swap') },
+          { label: 'View Shift History', icon: 'clock', action: () => console.log('View Shift History') },
+          { label: 'View Supervisor Info', icon: 'user', action: () => console.log('View Supervisor Info') },
+        ];
+
+  if (loading) {
+    return <Text>Loading profile...</Text>;
+  }
+
+  if (error) {
+    return <Text>Error loading profile: {error}</Text>;
+  }
+
+  if (profile) {
+    return (
+      <>
+        <ScrollView contentContainerStyle={{ justifyContent: 'space-between' }}>
+          <View style={styles.topProfileContainer}>
+            <View style={styles.profileImageContainer}>
+              <ProfileImage
+                initialImageSource={require('../../assets/images/profileImg.jpg')}
+                width={80}
+                height={80}
+                borderRadius={40}
+              />
+            </View>
+            <View style={styles.profileInfo}>
+              <Text style={styles.profileName}>{profile.name || 'N/A'}</Text>
+              <Text style={styles.profileEmail}>{profile.email || 'N/A'}</Text>
+              <Text style={styles.profileRole}>({profile.role || 'N/A'})</Text>
+              <Pressable onPress={handleEditProfile} style={styles.editButton}>
+                <Text style={styles.editButtonText}>Edit Profile</Text>
+              </Pressable>
+            </View>
+          </View>
+          <View style={styles.border}>
+            <View style={styles.schedule}>
+              {links.map((link, index) => (
+                <Pressable key={link.label} style={styles.linkContainer} onPress={link.action}>
+                  <Feather name={link.icon} size={24} color="blue" />
+                  <Text style={styles.linkText}>{link.label}</Text>
+                </Pressable>
+              ))}
+            </View>
+          </View>
+          <View style={styles.buttonCont}>
+            <Pressable style={styles.button} onPress={handleLogout}>
+              <Text style={styles.buttonTxt}>Log out</Text>
+            </Pressable>
+          </View>
+        </ScrollView>
+      </>
+    );
+  }
+
+  return <Text>No profile information found.</Text>;
+};
+
 const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    justifyContent: "center",
-    alignItems: "center",
+  topProfileContainer: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    padding: 20,
+    backgroundColor: '#f9f9f9', // Light background
+    borderRadius: 8,
+    margin: 15,
   },
-  profile: {
-    width: 100,
-    height: 100,
-    borderRadius: 50,
-    overflow: "hidden",
-    marginBottom: 10,
-    justifyContent: "center",
-    alignItems: "center",
+  profileImageContainer: {
+    marginRight: 15,
+  },
+  profileInfo: {
+    flex: 1,
+  },
+  profileName: {
+    fontSize: 22,
+    fontWeight: 'bold',
+    color: '#333',
+    marginBottom: 5,
+  },
+  profileEmail: {
+    fontSize: 16,
+    color: '#666',
+    marginBottom: 3,
+  },
+  profileRole: {
+    fontSize: 14,
+    color: '#888',
+  },
+  editButton: {
+    marginTop: 10,
+    backgroundColor: '#007bff',
+    paddingVertical: 8,
+    paddingHorizontal: 12,
+    borderRadius: 5,
+    alignSelf: 'flex-start',
+  },
+  editButtonText: {
+    color: '#fff',
+    fontSize: 16,
   },
   border: {
-    borderColor: "#80808",
+    borderColor: '#ddd', // Lighter border
     borderWidth: 1,
     borderRadius: 10,
-    marginLeft: 10,
-    marginRight: 10,
-    padding: 10,
-    marginTop: 40,
+    marginLeft: 15,
+    marginRight: 15,
+    padding: 15,
+    marginTop: 20, // Adjusted margin
   },
   schedule: {
     flex: 1,
-    justifyContent: "center",
-    alignItems: "flex-start",
+    justifyContent: 'center',
+    alignItems: 'flex-start',
   },
   linkContainer: {
-    flexDirection: "row",
-    alignItems: "center",
+    flexDirection: 'row',
+    alignItems: 'center',
     marginVertical: 10,
   },
   linkText: {
@@ -117,20 +215,25 @@ const styles = StyleSheet.create({
     fontSize: 16,
   },
   buttonCont: {
-    marginTop: 200,
-    justifyContent: "flex-end",
-    alignItems: "center",
+    marginTop: 30, // Adjusted margin
+    paddingBottom: 20, // Added padding at the bottom
+    justifyContent: 'flex-end',
+    alignItems: 'center',
   },
   button: {
     width: 140,
     height: 40,
-    backgroundColor: "#000",
+    backgroundColor: '#007bff', // Professional blue
     borderRadius: 5,
-    justifyContent: "center",
-    alignItems: "center",
+    justifyContent: 'center',
+    alignItems: 'center',
   },
   buttonTxt: {
-    color: "#fff",
-    alignSelf: "center",
+    color: '#fff',
+    alignSelf: 'center',
+    fontSize: 16,
+    fontWeight: 'bold',
   },
 });
+
+export default ProfileView;

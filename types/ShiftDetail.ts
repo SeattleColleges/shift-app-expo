@@ -1,0 +1,15 @@
+export type ShiftDetail = {
+    id: number,
+    assignedUser: number,
+    departmentId: number,
+    supervisorId: number,
+    title: string,
+    date: string,
+    startTime: string,
+    endTime: string,
+    duration: number,
+    needsCoverage: boolean,
+    coverageReason?: string,
+    notes?: string,
+    createdOn: string,
+}
