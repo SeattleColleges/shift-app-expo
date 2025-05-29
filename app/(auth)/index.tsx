@@ -28,6 +28,10 @@ export default function LoginPage() {
 
   const handleSignIn = async (): Promise<void> => {
     async function signInWithEmail() {
+      if (!supabase) {
+        Alert.alert("Error", "Supabase client is not initialized.");
+        return;
+      }
       const { error, data } = await supabase.auth.signInWithPassword({
         email,
         password,
@@ -42,6 +46,10 @@ export default function LoginPage() {
         console.log("Signed in user:", data.user);
 
         // Fetch role using the user ID directly
+        if (!supabase) {
+          Alert.alert("Error", "Supabase client is not initialized.");
+          return;
+        }
         const { data: roleData, error: roleError } = await supabase
             .from('profiles')
             .select('role')
