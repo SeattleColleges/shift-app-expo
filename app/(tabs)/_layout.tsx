@@ -14,7 +14,7 @@ export default function TabLayout() {
 
         fetchRole();
     }, []);
-
+    const isAdmin = role === 'administrator' || role === 'supervisor';
     return (
         <Tabs screenOptions={{ tabBarActiveTintColor: 'blue', tabBarStyle: { display: 'flex' },  }}>
             <Tabs.Screen
@@ -24,15 +24,14 @@ export default function TabLayout() {
                     tabBarIcon: ({ color }) => <FontAwesome size={28} name="calendar-check-o" color={color} />,
                 }}
             />
-            {role == 'administrator' || role == 'supervisor' ?
-                <Tabs.Screen
-                    name="add-shift"
-                    options={{
-                        title: 'Add Shift',
-                        tabBarIcon: ({color}) => <FontAwesome size={28} name="calendar-plus-o" color={color}/>,
-                    }}
-                />
-            : <></>}
+            <Tabs.Screen
+                name="add-shift"
+                options={{
+                    title: 'Add Shift',
+                    tabBarIcon: ({color}) => <FontAwesome size={28} name="calendar-plus-o" color={color}/>,
+                    href: isAdmin ? '/(tabs)/add-shift' : null
+                }}
+            />
             <Tabs.Screen
                 name="coworkers"
                 options={{
