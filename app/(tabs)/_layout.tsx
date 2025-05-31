@@ -39,6 +39,9 @@ export default function TabLayout() {
                     tabBarIcon: ({ color }) => <FontAwesome size={28} name="user" color={color} />,
                 }}
             />
+            {/* These screens are not direct tabs and are handled by file-system routing or other navigation methods */}
+            {/* Remove the explicit definition for shift-details-page/[id] */}
+            {/*
             <Tabs.Screen
                 name="department-org"
                 options={{
@@ -63,6 +66,7 @@ export default function TabLayout() {
                     href: null
                 }}
             />
+            */}
         </Tabs>
     );
 }
