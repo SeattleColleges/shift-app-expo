@@ -23,24 +23,37 @@ CREATE
 
 CREATE TABLE shifts
 (
-    shift_id         SERIAL PRIMARY KEY,
-    assigned_user_id INT REFERENCES profiles (profile_int_id),
-    department_id    INT REFERENCES departments (department_id),
-    supervisor_id    INT REFERENCES supervisors (supervisor_id),
-    shift_name       TEXT,
-    slot             TSTZRANGE NOT NULL CHECK (
+    shift_id           SERIAL PRIMARY KEY,
+    assigned_user_id   INT REFERENCES profiles (profile_int_id),
+    department_id      INT REFERENCES departments (department_id),
+    supervisor_id      INT REFERENCES supervisors (supervisor_id),
+    shift_name         TEXT,
+    slot               TSTZRANGE NOT NULL CHECK (
         LOWER(slot) > NOW()
         ),
-    duration         INT GENERATED ALWAYS AS (
+    duration           INT GENERATED ALWAYS AS (
         EXTRACT(EPOCH FROM UPPER(slot) - LOWER(slot)) / 60
         ) STORED,
-    needs_coverage   BOOLEAN     DEFAULT FALSE,
-    shift_claimed    BOOLEAN     DEFAULT FALSE,
-    coverage_reason  TEXT,
-    notes            TEXT,
-    shift_change_id  INT,
-    created_on       TIMESTAMPTZ DEFAULT NOW(),
-    updated_on TIMESTAMPTZ,
+
+    needs_coverage     BOOLEAN     DEFAULT FALSE,
+    shift_claimed      BOOLEAN     DEFAULT FALSE,
+    coverage_reason    TEXT,
+    notes              TEXT,
+    shift_change_id    INT,
+    created_on         TIMESTAMPTZ DEFAULT NOW(),
+    updated_on         TIMESTAMPTZ,
+    -- Generate shift date metadata
+    shift_day_of_week  INTEGER GENERATED ALWAYS AS (EXTRACT(DOW FROM LOWER(slot))) STORED,
+    shift_day_name     TEXT GENERATED ALWAYS AS (TO_CHAR(LOWER(slot), 'FMDay')) STORED,
+    shift_day_name_abv TEXT GENERATED ALWAYS AS (TO_CHAR(LOWER(slot), 'Dy')) STORED,
+    shift_week_of_year INTEGER GENERATED ALWAYS AS (EXTRACT(WEEK FROM LOWER(slot))) STORED,
+    shift_month        INTEGER GENERATED ALWAYS AS (EXTRACT(MONTH FROM LOWER(slot))) STORED,
+    shift_month_name   TEXT GENERATED ALWAYS AS (TO_CHAR(LOWER(slot), 'Month')) STORED,
+    shift_year         INTEGER GENERATED ALWAYS AS (EXTRACT(YEAR FROM LOWER(slot))) STORED,
+    shift_start_date   DATE GENERATED ALWAYS AS (DATE(LOWER(slot))) STORED,
+    shift_start_time   TIME GENERATED ALWAYS AS (LOWER(slot)::TIME) STORED,
+    shift_end_date     DATE GENERATED ALWAYS AS (DATE(UPPER(slot))) STORED,
+    shift_end_time     TIME GENERATED ALWAYS AS (UPPER(slot)::TIME) STORED,
     EXCLUDE USING gist (assigned_user_id WITH =,slot WITH &&)
 );
 
