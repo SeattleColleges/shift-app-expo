@@ -169,29 +169,37 @@ DECLARE
     shift_rec        RECORD;
     has_conflict     BOOLEAN;
     shift_change_rec RECORD;
+    rows_affected INT;
 BEGIN -- Check for shift conflicts before changing shift status to pending when shift claimed
-    UPDATE shifts
-    SET shift_claimed = TRUE
-    WHERE shift_id = shift_id_param;
-
     shift_rec := get_shift_data(shift_id_param);
 
     has_conflict := EXISTS(SELECT 1
                            FROM shifts
                            WHERE assigned_user_id = covering_profile_id_param
                              AND slot && shift_rec.slot);
-    IF NOT has_conflict THEN
-        UPDATE shift_changes
-        SET covering_profile_id = covering_profile_id_param,
-            status              = 'pending',
-            covered_at          = NOW()
-        WHERE shift_change_id = shift_rec.shift_change_id
-        RETURNING * INTO shift_change_rec;
-
-        RETURN shift_change_rec;
-    ELSE
+    IF has_conflict THEN
         RAISE EXCEPTION 'Cannot pick up shift - schedule conflicts with existing shift';
     END IF;
+
+    UPDATE shifts
+    SET shift_claimed = TRUE
+    WHERE shift_id = shift_id_param
+      AND NOT shift_claimed AND needs_coverage = TRUE;
+
+    GET DIAGNOSTICS rows_affected = ROW_COUNT;
+
+    IF rows_affected = 0 THEN
+        RAISE EXCEPTION 'Shift is no longer available (already claimed or not seeking coverage)';
+    END IF;
+
+    UPDATE shift_changes
+    SET covering_profile_id = covering_profile_id_param,
+        status              = 'pending',
+        covered_at          = NOW()
+    WHERE shift_change_id = shift_rec.shift_change_id
+    RETURNING * INTO shift_change_rec;
+
+    RETURN shift_change_rec;
 END;
 $$ LANGUAGE plpgsql;
 
@@ -218,18 +226,18 @@ BEGIN
 
     -- Handle missing record data
     IF NOT FOUND THEN
-        RAISE EXCEPTION 'Shift w/ ID % not found', shift_id_param;
+        RAISE EXCEPTION 'Shift_change w/ shift_change_id % not found', shift_rec.shift_change_id;
     ELSE
         IF shift_change_rec.covering_profile_id IS NULL THEN
             RAISE EXCEPTION 'Shift w/ ID % missing covering profile id', shift_id_param;
         END IF;
-
         is_supervisor := is_supervisor(supervisor_id_param);
         IF
             is_supervisor THEN
             UPDATE shift_changes
             SET approved_by_supervisor_id = supervisor_id_param,
-                status                    = 'approved'
+                status                    = 'approved',
+                approved_at               = NOW()
             WHERE shift_change_id = shift_rec.shift_change_id;
 
             UPDATE shifts
@@ -271,25 +279,26 @@ BEGIN
         -- Handle missing records
         IF
             NOT FOUND THEN
-            RAISE EXCEPTION 'Shift w/ ID % not found', shift_id_param;
+                RAISE EXCEPTION 'Shift_change w/ shift_change_id % not found: ID ', shift_rec.shift_change_id;
         ELSE
             IF shift_change_rec.covering_profile_id IS NULL THEN
                 RAISE EXCEPTION 'Shift w/ ID % missing covering profile id', shift_id_param;
             END IF;
 
-            is_supervisor = is_supervisor(supervisor_id_param);
+            is_supervisor := is_supervisor(supervisor_id_param);
             IF is_supervisor THEN -- Deny shift, log denier
                 UPDATE shift_changes
                 SET denied_by_supervisor_id = supervisor_id_param,
                     status                  = 'denied',
                     denied_at               = NOW()
-                WHERE shift_id = shift_id_param
+                WHERE shift_change_id = shift_rec.shift_change_id
                 RETURNING * INTO shift_change_rec;
 
                 -- Update needs coverage
                 UPDATE shifts
                 SET needs_coverage = FALSE,
-                    shift_claimed  = FALSE
+                    shift_claimed  = FALSE,
+                    shift_change_id = NULL
                 WHERE shift_id = shift_id_param;
 
                 RETURN shift_change_rec;
