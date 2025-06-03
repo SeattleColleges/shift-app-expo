@@ -29,7 +29,7 @@ export default function TabLayout() {
                 options={{
                     title: 'Add Shift',
                     tabBarIcon: ({color}) => <FontAwesome size={28} name="calendar-plus-o" color={color}/>,
-                    href: !isAdmin ? '/(tabs)/add-shift' : null
+                    href: isAdmin ? null : '/(tabs)/add-shift'
                 }}
             />
             <Tabs.Screen
