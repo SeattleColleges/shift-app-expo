@@ -27,6 +27,16 @@ const AgendaItem = (props: ItemProps) => {
         );
     }
 
+    const startTimeFormat = new Intl.DateTimeFormat(
+        'en-US',
+        {
+            hour:   'numeric',
+            minute: '2-digit',
+            hour12: true
+        }
+    )
+
+    // @ts-ignore
     return (
         <TouchableOpacity style={styles.item}>
             <View>
@@ -35,7 +45,7 @@ const AgendaItem = (props: ItemProps) => {
             </View>
             <View style={{backgroundColor:'skyblue', marginLeft:16}}>
                 <Text style={styles.itemTitleText}>{item.shift_name}</Text>
-                <Text>Start: {item.startTime.split(' ')[1]}</Text>
+                <Text>Start: {startTimeFormat.format(item.startDateObj)}</Text>
             </View>
 
             <View style={styles.itemButtonContainer}>
