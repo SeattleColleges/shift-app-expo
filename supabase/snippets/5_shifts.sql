@@ -42,22 +42,11 @@ CREATE TABLE shifts
     shift_change_id    INT,
     created_on         TIMESTAMPTZ DEFAULT NOW(),
     updated_on         TIMESTAMPTZ,
-    -- Generate shift date metadata
-    shift_day_of_week  INTEGER GENERATED ALWAYS AS (EXTRACT(DOW FROM LOWER(slot))) STORED,
-    shift_day_name     TEXT GENERATED ALWAYS AS (TO_CHAR(LOWER(slot), 'FMDay')) STORED,
-    shift_day_name_abv TEXT GENERATED ALWAYS AS (TO_CHAR(LOWER(slot), 'Dy')) STORED,
-    shift_week_of_year INTEGER GENERATED ALWAYS AS (EXTRACT(WEEK FROM LOWER(slot))) STORED,
-    shift_month        INTEGER GENERATED ALWAYS AS (EXTRACT(MONTH FROM LOWER(slot))) STORED,
-    shift_month_name   TEXT GENERATED ALWAYS AS (TO_CHAR(LOWER(slot), 'Month')) STORED,
-    shift_year         INTEGER GENERATED ALWAYS AS (EXTRACT(YEAR FROM LOWER(slot))) STORED,
-    shift_start_date   DATE GENERATED ALWAYS AS (DATE(LOWER(slot))) STORED,
-    shift_start_time   TIME GENERATED ALWAYS AS (LOWER(slot)::TIME) STORED,
-    shift_end_date     DATE GENERATED ALWAYS AS (DATE(UPPER(slot))) STORED,
-    shift_end_time     TIME GENERATED ALWAYS AS (UPPER(slot)::TIME) STORED,
     EXCLUDE USING gist (assigned_user_id WITH =,slot WITH &&)
 );
-
+/*
 -- Dummy data
+
 INSERT INTO shifts (shift_name, assigned_user_id, slot, department_id, supervisor_id)
 VALUES ('Morning shift A', 3, TSTZRANGE('2025-07-11 08:00:00+00', '2025-07-11 12:00:00+00', '[)'), 1, 1),
        ('Morning shift B', 4, TSTZRANGE('2025-07-11 08:00:00+00', '2025-07-11 12:00:00+00', '[)'), 1, 1),
@@ -67,6 +56,8 @@ VALUES ('Morning shift A', 3, TSTZRANGE('2025-07-11 08:00:00+00', '2025-07-11 12
        ('Evening shift B', 4, TSTZRANGE('2025-07-13 18:00:00+00', '2025-07-13 22:00:00+00', '[)'), 1, 1),
        ('Night shift A', 3, TSTZRANGE('2025-07-14 23:00:00+00', '2025-07-15 07:00:00+00', '[)'), 1, 2),
        ('Night shift B', 4, TSTZRANGE('2025-07-14 23:00:00+00', '2025-07-15 07:00:00+00', '[)'), 1, 2);
+
+*/
 
 /*
 -- Query
