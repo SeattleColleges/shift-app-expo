@@ -18,7 +18,6 @@ import dummyItems from "@/data/dummyItems";
 import {dateTimeFormatter} from "@/data/utils";
 import {supabaseAdmin} from "@/lib/supabaseAdminClient";
 import {useShifts} from "@/hooks/useShifts";
-import {json} from "node:stream/consumers";
 
 // @ts-ignore -- Default props no longer supported
 (ExpandableCalendar).defaultProps = undefined;
@@ -133,7 +132,7 @@ const CalendarRework: React.FC<CalendarReworkProps> = ({ weekView = false, style
 
     const {items,loading,error } = useShifts()
     console.log("Load: ",loading)
-   //console.log("Error: ",error)
+    //console.log("Error: ",error)
     //console.log(items)
 
     const [selected, setSelected] = useState<string>(today);
@@ -177,6 +176,7 @@ const CalendarRework: React.FC<CalendarReworkProps> = ({ weekView = false, style
 
     const renderItem = useCallback(({ item }: any) => <EventItem item={item} key={item.id} onPress={onCalendarToggled} />, []);
 
+    // @ts-ignore
     return (
         <View style={[styles.container, style]}>
             <CalendarProvider

@@ -1,271 +1,272 @@
-import React, { useCallback, useEffect, useRef, useState } from "react";
-import { StyleSheet, SectionList } from "react-native";
-import { OptionToggle } from "@/components/dashboard/OptionToggle";
+import React, {
+  useRef,
+  useCallback,
+  useState,
+  forwardRef, useMemo
+} from 'react';
+import {Animated, Easing, Pressable, StyleSheet, Text, View} from 'react-native';
 import {
-  AgendaList,
-  Calendar,
+  ExpandableCalendar,
   CalendarProvider,
   WeekCalendar,
-} from "react-native-calendars";
-import { MarkedDates } from "react-native-calendars/src/types";
-import { DayViewItem } from "@/components/DayViewItem";
-import { ThemedView } from "@/components/ThemedView";
-import { ThemedText } from "@/components/ThemedText";
-import {supabase} from "@/lib/supabaseClient";
-import {Shift} from "@/types/Shift";
-import {getAll} from "@/queries/getQueries";
+  AgendaList
+} from 'react-native-calendars';
+import AgendaItem from "@/components/AgendaItem";
+import renderHeaderUtils from '@/components/ref/renderHeaderUtils';
+import { getTheme, themeColor, lightThemeColor } from '@/constants/theme';
+import dummyItems from "@/data/dummyItems";
+import {dateTimeFormatter, generateRandomNumber} from "@/data/utils";
+import {supabaseAdmin} from "@/lib/supabaseAdminClient";
+import {useShifts} from "@/hooks/useShifts";
 
-interface DateProps {
-  dateString: string;
-  day: number;
-  month: number;
-  timestamp: number;
-  year: number;
+
+
+
+// @ts-ignore -- Default props no longer supported
+(ExpandableCalendar).defaultProps = undefined;
+
+const ITEMS = dummyItems
+
+const eventColors = {
+  confirmed: 'black',
+  unconfirmed: 'gray',
+  pending: 'orange',
+  past: 'gray'
+};
+
+const getColorStatus = ( isGivingUp:boolean,isClaimed:boolean) => {
+  if (!isGivingUp && !isClaimed) {
+    return 'itemTitle';
+  } else if (isGivingUp && isClaimed) {
+    return 'unconfirmedItemTitle';
+  }
+  return 'pendingItemTitle';
 }
-interface AgendaListItem {
-  title: string;
-  data: any[];
-}
-interface CleanedSlot {
-  startDate: string,
-  endDate: string,
-  startTime: string,
-  endTime: string
-}
-enum Timeframes {
-  Week = "Week",
-  Month = "Month",
-}
-const getMarkedDates = (shifts: Shift[], selectedDate: string) => {
-  let marked: MarkedDates = {};
-  shifts.forEach(({ slot, shift_id }) => {
-    const cleanedSlot = cleanSlotDate(slot);
-    if (!marked[cleanedSlot.startDate]) {
-      marked[cleanedSlot.startDate] = {
-        marked: true,
-        dots: [
-          {
-            key: `${cleanedSlot.startDate}-${shift_id}`,
-            color: "black",
-          },
-        ],
+
+// Get dot color by event status
+const getDotColor = (event: any) => {
+  //console.log("eventzzz: ",event)
+  const eventDate = dateTimeFormatter(new Date(event.date))
+  const today = dateTimeFormatter(new Date())
+  //console.log(today," : ",eventDate)
+  if(eventDate < today) {
+    return eventColors.past;
+  }
+  return event.needs_coverage ? eventColors.unconfirmed : eventColors.confirmed;
+};
+
+
+const getMarkedDates = (ITEMS:any): Record<string, any> => {
+  const marked: Record<string, any> = {};
+
+  // Process each item
+  ITEMS.forEach((item:any) => {
+    const date = item.dayHeader;
+    const MAX_DOTS = 3
+    let keyCounter = 0;
+
+    //  Initialize dots
+    if (!marked[date]) {
+      marked[date] = {
+        dots: []
       };
-    } else {
-      marked[cleanedSlot.startDate].dots?.push({
-        key: `${cleanedSlot.startDate}-${shift_id}`,
-        color: "black",
+    }
+
+    // Only add dots if we haven't reached the maximum
+    if (marked[date].dots.length < MAX_DOTS) {
+      // Add dots for each item
+      item.data.forEach((event,idx) => {
+        // Skip adding more dots if we've reached the maximum
+        if (marked[date].dots.length < MAX_DOTS) {
+          marked[date].dots.push({
+            key: `dot_${keyCounter++}`,
+            color: getDotColor(event),
+            selectedDotColor: 'white'
+          });
+        }
       });
     }
   });
-
-  marked[selectedDate] = {
-    ...(marked[selectedDate] || {}),
-    selected: true,
-    dots: [...(marked[selectedDate]?.dots || [])],
-  };
-
   return marked;
 };
-const cleanSlotDate = (slot: string) : CleanedSlot => {
-  const [start, end] = slot
-      .slice(0, -1)
-      .slice(1)
-      .split(',')
-      .map(s => s.replace(/^"|"$/g, ''));
-  let [startDate, startTime] = start.split(" ");
-  let [endDate, endTime] = end.split(" ");
-  startTime = startTime.split('+')[0]
-  endTime = endTime.split('+')[0]
-  return {
-    startDate,
-    endDate,
-    startTime,
-    endTime
-  }
-};
 
-export default function UserDashboard() {
-  const today = new Intl.DateTimeFormat("en-CA").format(new Date());
-  const timeframeOptions = [Timeframes.Month, Timeframes.Week];
-  const approvalStatusOptions = ["Pending", "Approved", "Denied"];
-  const [selectedTimeframe, setSelectedTimeframe] = useState<
-    Timeframes | undefined
-  >(timeframeOptions[0]);
-  const [selectedApprovalStatus, setSelectedApprovalStatus] = useState<
-    string | undefined
-  >(approvalStatusOptions[0]);
-  const [selectedDate, setSelectedDate] = useState<string>(today);
-  const [agendaListItems, setAgendaListItems] = useState<AgendaListItem[]>([]);
-  const [markedDates, setMarkedDates] = useState<MarkedDates>();
-  const [shiftData, setShiftData] = useState<Shift[]>([]);
-  useEffect(() => {
-    const fetchShiftData = async () => {
-      if (supabase != null) {
-        const shifts = await getAll(supabase, 'shifts');
-        if (shifts)
-          setShiftData(shifts as Shift[]);
-      }
-    }
-    fetchShiftData();
-  }, []);
-  useEffect(() => {
-    if (shiftData)
-      initializeAgendaItems();
-  }, [shiftData]);
-  useEffect(() => {
-    setMarkedDates(getMarkedDates(shiftData, selectedDate));
-  }, [selectedDate]);
-
-  useEffect(() => {
-    if (selectedTimeframe === Timeframes.Week) {
-      setSelectedDate(today);
-    }
-  }, [selectedTimeframe]);
-  useEffect(() => {
-    // console.log(agendaListItems)
-  }, [agendaListItems]);
-  const initializeAgendaItems = () => {
-    const items: AgendaListItem[] = [];
-    shiftData.forEach((shift) => {
-      const slot = shift.slot;
-      const cleanedSlot = cleanSlotDate(slot)
-      const existing = items.findIndex((item) => item.title === shift.shift_name);
-      const shiftItem = {
-        id: shift.shift_id,
-        assignedUser: shift.assigned_user_id,
-        departmentId: shift.department_id,
-        supervisorId: shift.supervisor_id,
-        title: shift.shift_name,
-        startTime: cleanedSlot.startTime,
-        endTime: cleanedSlot.endTime,
-        date: cleanedSlot.startDate,
-        duration: shift.duration,
-        needsCoverage: shift.needs_coverage,
-        coverageReason: shift.coverage_reason,
-        notes: shift.notes,
-        createdOn: shift.created_on,
-      };
-      if (existing === -1) {
-        items.push({
-          title: cleanedSlot.startDate,
-          data: [...[shiftItem]],
-        });
-      } else {
-        items[existing].data.push(shiftItem);
-      }
-    });
-    setAgendaListItems(items);
-  };
-
-  const isDateInCurrentWeek = (dateStr: string): boolean => {
-    const inputDate = new Date(dateStr);
-    const today = new Date();
-
-    const startOfWeek = new Date(today);
-    startOfWeek.setDate(today.getDate() - today.getDay());
-    startOfWeek.setHours(0, 0, 0, 0);
-
-    const endOfWeek = new Date(startOfWeek);
-    endOfWeek.setDate(startOfWeek.getDate() + 6);
-    endOfWeek.setHours(23, 59, 59, 999);
-
-    return inputDate >= startOfWeek && inputDate <= endOfWeek;
-  };
-  const handleDatePress = (date: DateProps) => {
-    setSelectedDate(date.dateString);
-  };
-
-  const renderItem = useCallback(({ item }: any) => {
-    return <DayViewItem item={item} />;
-  }, []);
-
-  const agendaRef = useRef<SectionList>(null);
-  const scrollToEvent = (dateIndex: number, itemIndex: number) => {
-    if (agendaRef.current) {
-      agendaRef.current.scrollToLocation({
-        sectionIndex: dateIndex,
-        itemIndex: itemIndex,
-        animated: true,
+const processSections = (items) => {
+  const groupedByDate = new Map();
+  items.forEach(item => {
+    const date = item.dayHeader;
+    if (!groupedByDate.has(date)) {
+      groupedByDate.set(date, {
+        title: date,
+        key:  date,
+        data: []
       });
     }
-  };
+    groupedByDate.get(date).data.push(...item.data);
+  });
+  return Array.from(groupedByDate.values());
+};
 
-  return (
-    <ThemedView style={{ flex: 1 }}>
-      <CalendarProvider
-        date={selectedDate}
-        onDateChanged={setSelectedDate}
-        showTodayButton={false}
-      >
-        {/* Schedule Title*/}
-        <ThemedView style={styles.scheduleContainer}>
-          <ThemedText style={styles.scheduleTitle}>Schedule</ThemedText>
-          <OptionToggle
-            options={timeframeOptions.map((tf) => tf.toString())}
-            gap={8}
-            handleToggledOption={(value) =>
-              setSelectedTimeframe(
-                value === Timeframes.Month.toString()
-                  ? Timeframes.Month
-                  : Timeframes.Week
-              )
-            }
-          />
-          <OptionToggle
-            options={approvalStatusOptions}
-            gap={4}
-            handleToggledOption={setSelectedApprovalStatus}
-          />
-        </ThemedView>
-        {selectedTimeframe === Timeframes.Month ? (
-          <Calendar
-            enableSwipeMonths={true}
-            markingType={"multi-dot"}
-            onDayPress={(day: DateProps) => handleDatePress(day)}
-            markedDates={markedDates}
-          />
-        ) : (
-          <WeekCalendar
-            markingType={"multi-dot"}
-            enableSwipeMonths={false}
-            onDayPress={(day: DateProps) => handleDatePress(day)}
-            markedDates={markedDates}
-            current={selectedDate}
-            initialDate={today}
-          />
-        )}
-        <AgendaList
-          ref={agendaRef}
-          sections={
-            selectedTimeframe === Timeframes.Month
-              ? agendaListItems
-              : agendaListItems.filter((item) => {
-                  return isDateInCurrentWeek(item.title);
-                })
-          }
-          avoidDateUpdates={selectedTimeframe === Timeframes.Week}
-          renderItem={renderItem}
-          onLayout={() => scrollToEvent(0, 0)}
-          contentContainerStyle={{ paddingBottom: 50 }}
-          infiniteListProps={{
-            itemHeight: 75,
-            titleHeight: 45,
-            visibleIndicesChangedDebounce: 250,
-          }}
-        />
-      </CalendarProvider>
-    </ThemedView>
-  );
+
+const CHEVRON = { uri: 'https://cdn-icons-png.flaticon.com/512/271/271228.png' };
+const leftArrowIcon = { uri: 'https://cdn-icons-png.flaticon.com/512/271/271220.png' };
+const rightArrowIcon = { uri: 'https://cdn-icons-png.flaticon.com/512/271/271228.png' };
+
+interface CalendarReworkProps {
+  weekView?: boolean;
+  style?: any;
 }
 
+const EventItem = ({ item }: { item: any }) => {
+  // Pending only when need coverage and no one is covering
+  //console.log('EventItem: '+JSON.stringify(item, null, 2));
+  const coveringId = item.shift_change_data?.covering_profile_id ?? null;
+  const containCoverId = item.needs_coverage && coveringId !== null
+
+  const colorStatus = getColorStatus(item.needs_coverage,containCoverId);
+  return (
+      <>
+        <AgendaItem item={item}  />
+      </>
+  )
+};
+
+const CalendarRework: React.FC<CalendarReworkProps> = ({ weekView = false, style }) => {
+  const today = new Date().toISOString().split('T')[0];
+
+  const {items,loading,error } = useShifts()
+  console.log("Load: ",loading)
+  //console.log("Error: ",error)
+  //console.log(items)
+
+  const [selected, setSelected] = useState<string>(today);
+  const markedDates = useMemo(() => {
+    if (!items) return {};
+    return getMarkedDates(items);
+  }, [items]);
+
+  const sections = useMemo(() => {
+    if (!items) return [];
+    return processSections(items);
+  }, [items]);
+
+  const theme = useRef(getTheme());
+  const todayBtnTheme = useRef({ todayButtonTextColor: themeColor });
+
+  const calendarRef = useRef(null);
+  const rotation = useRef(new Animated.Value(0)).current;
+
+  const onDayPress = useCallback((day: any) => {
+    setSelected(day.dateString);
+  }, []);
+
+  const toggleCalendarExpansion = useCallback(() => {
+    if (!calendarRef.current) return;
+    // @ts-ignore
+    const isOpen = calendarRef.current.toggleCalendarPosition();
+    Animated.timing(rotation, {
+      toValue: isOpen ? 1 : 0,
+      duration: 200,
+      useNativeDriver: true,
+      easing: Easing.out(Easing.ease)
+    }).start();
+  }, [rotation]);
+
+  const onCalendarToggled = useCallback((isOpen: boolean) => {
+    rotation.setValue(isOpen ? 1 : 0);
+  }, [rotation]);
+
+  const headerRenderer = renderHeaderUtils({ rotation, toggleCalendarExpansion, CHEVRON, styles });
+
+  const renderItem = useCallback(({ item }: any) => <EventItem item={item} onPress={onCalendarToggled} />, []);
+
+  return (
+      <View style={[styles.container, style]}>
+        <CalendarProvider
+            date={today} showTodayButton theme={todayBtnTheme.current}>
+          {weekView ? (
+              <WeekCalendar
+                  firstDay={1}
+                  markedDates={markedDates}
+              />
+          ) : (
+              <ExpandableCalendar
+                  renderHeader={headerRenderer}
+                  onCalendarToggled={onCalendarToggled}
+                  theme={theme.current}
+                  firstDay={0}
+                  markedDates={markedDates}
+                  leftArrowImageSource={leftArrowIcon}
+                  rightArrowImageSource={rightArrowIcon}
+                  markingType={'multi-dot'}
+              />
+          )}
+          <AgendaList
+              sections={sections}
+              renderItem={renderItem}
+              sectionStyle={styles.section}
+              keyExtractor={(item, index) => {
+                const baseKey = `${item.id || 'no-id'}-${index}`;
+                const dateKey = item.date || item.start_date || '';
+                const timeKey = item.start_time || item.time || '';
+                const key = `${baseKey}-${dateKey}-${timeKey}`
+                console.log(key)
+                return key
+              }}
+          />
+        </CalendarProvider>
+      </View>
+  );
+};
+
+export default CalendarRework;
+
 const styles = StyleSheet.create({
-  scheduleContainer: {
-    margin: 16,
-    alignItems: "center",
+  container: {
+    flex: 1,
+    marginTop: 100
   },
-  scheduleTitle: {
-    fontSize: 24,
-    fontWeight: "bold",
-    marginBottom: 16,
+  calendar: {
+    marginBottom: 10
   },
+  header: {
+    flexDirection: 'row',
+    justifyContent: 'center',
+    alignItems: 'center',
+    marginVertical: 10
+  },
+  headerTitle: {
+    fontSize: 16,
+    fontWeight: 'bold',
+    marginRight: 6
+  },
+  section: {
+    backgroundColor: lightThemeColor,
+    color: 'grey',
+    textTransform: 'capitalize',
+  },
+  itemContainer: {
+    backgroundColor: 'white',
+    padding: 15,
+    borderRadius: 8,
+    marginVertical: 8,
+    marginHorizontal: 10,
+    borderStyle: 'solid',
+    borderBottomWidth: 1,
+    borderBottomColor: 'silver'
+  },
+  pendingItemContainer: {
+    backgroundColor: '#f9f9f9',
+    borderBottomColor: '#d0d0d0'
+  },
+  itemTitle: {
+    fontSize: 16,
+    color: '#333'
+  },
+  pendingItemTitle: {
+    color: 'gray'
+  },
+  unconfirmedItemTitle: {
+    color: 'orange',
+  }
+
 });
