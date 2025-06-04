@@ -52,6 +52,7 @@ const getDotColor = (event: any) => {
     return event.needs_coverage ? eventColors.unconfirmed : eventColors.confirmed;
 };
 
+
 const getMarkedDates = (ITEMS:any): Record<string, any> => {
     const marked: Record<string, any> = {};
 
@@ -59,6 +60,7 @@ const getMarkedDates = (ITEMS:any): Record<string, any> => {
     ITEMS.forEach((item:any) => {
         const date = item.dayHeader;
         const MAX_DOTS = 3
+        let keyCounter = 0;
 
         //  Initialize dots
         if (!marked[date]) {
@@ -70,11 +72,11 @@ const getMarkedDates = (ITEMS:any): Record<string, any> => {
         // Only add dots if we haven't reached the maximum
         if (marked[date].dots.length < MAX_DOTS) {
             // Add dots for each item
-            item.data.forEach((event) => {
+            item.data.forEach((event,idx) => {
                 // Skip adding more dots if we've reached the maximum
                 if (marked[date].dots.length < MAX_DOTS) {
                     marked[date].dots.push({
-                        key: event.id,
+                        key: `dot_${keyCounter++}`,
                         color: getDotColor(event),
                         selectedDotColor: 'white'
                     });
@@ -85,24 +87,22 @@ const getMarkedDates = (ITEMS:any): Record<string, any> => {
     return marked;
 };
 
-const processSections = (ITEMS:any) => {
+const processSections = (items) => {
     const groupedByDate = new Map();
-
-    // Group all events by date for agenda list
-    ITEMS.forEach(item => {
+    items.forEach(item => {
         const date = item.dayHeader;
         if (!groupedByDate.has(date)) {
-            groupedByDate.set(date, { title: date, data: [] });
+            groupedByDate.set(date, {
+                title: date,
+                key:  date,
+                data: []
+            });
         }
-
-        // Add all events of item to group
-        item.data.forEach(event => {
-            groupedByDate.get(date).data.push(event);
-        })
-    })
-    //console.log(Array.from(groupedByDate.values()))
-    return Array.from(groupedByDate.values())
+        groupedByDate.get(date).data.push(...item.data);
+    });
+    return Array.from(groupedByDate.values());
 };
+
 
 const CHEVRON = { uri: 'https://cdn-icons-png.flaticon.com/512/271/271228.png' };
 const leftArrowIcon = { uri: 'https://cdn-icons-png.flaticon.com/512/271/271220.png' };
@@ -174,9 +174,8 @@ const CalendarRework: React.FC<CalendarReworkProps> = ({ weekView = false, style
 
     const headerRenderer = renderHeaderUtils({ rotation, toggleCalendarExpansion, CHEVRON, styles });
 
-    const renderItem = useCallback(({ item }: any) => <EventItem item={item} key={item.id} onPress={onCalendarToggled} />, []);
+    const renderItem = useCallback(({ item }: any) => <EventItem item={item} onPress={onCalendarToggled} />, []);
 
-    // @ts-ignore
     return (
         <View style={[styles.container, style]}>
             <CalendarProvider
@@ -191,7 +190,7 @@ const CalendarRework: React.FC<CalendarReworkProps> = ({ weekView = false, style
                         renderHeader={headerRenderer}
                         onCalendarToggled={onCalendarToggled}
                         theme={theme.current}
-                        firstDay={1}
+                        firstDay={0}
                         markedDates={markedDates}
                         leftArrowImageSource={leftArrowIcon}
                         rightArrowImageSource={rightArrowIcon}
@@ -202,7 +201,14 @@ const CalendarRework: React.FC<CalendarReworkProps> = ({ weekView = false, style
                     sections={sections}
                     renderItem={renderItem}
                     sectionStyle={styles.section}
-                    keyExtractor={(item) => item.id}
+                    keyExtractor={(item, index) => {
+                        const baseKey = `${item.id || 'no-id'}-${index}`;
+                        const dateKey = item.date || item.start_date || '';
+                        const timeKey = item.start_time || item.time || '';
+                        const key = `${baseKey}-${dateKey}-${timeKey}`
+                        //console.log(key)
+                        return key
+                    }}
                 />
             </CalendarProvider>
         </View>
