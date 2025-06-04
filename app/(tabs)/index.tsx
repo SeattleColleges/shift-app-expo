@@ -15,7 +15,7 @@ import AgendaItem from "@/components/AgendaItem";
 import renderHeaderUtils from '@/components/ref/renderHeaderUtils';
 import { getTheme, themeColor, lightThemeColor } from '@/constants/theme';
 import dummyItems from "@/data/dummyItems";
-import {dateTimeFormatter, generateRandomNumber} from "@/data/utils";
+import {dateTimeFormatter} from "@/data/utils";
 import {supabaseAdmin} from "@/lib/supabaseAdminClient";
 import {useShifts} from "@/hooks/useShifts";
 
