@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
 import { supabaseAdmin } from '@/lib/supabaseAdminClient';
-import { dateTimeFormatter, extractUTC } from "@/data/utils";
+import {convertToLocalDate, dateTimeFormatter, extractUTC} from "@/data/utils";
 
 export const useShifts = () => {
     const [items, setItems] = useState<any[]>([]);
@@ -20,8 +20,14 @@ export const useShifts = () => {
                     const modifiedShifts = (shifts) => {
                         const groupedByDate = new Map();
 
+                        // Sort shifts by start date and group them by date
                         shifts.forEach(shift => {
-                            //console.log("Shift:", shift);
+
+                            const slots = shift.slot.split(',');
+                            // Convert UTC date object to local timezone date object
+                                // @ts-ignore
+                            const startLocalTimeZone =convertToLocalDate(slots[0],'America/Los_Angeles' );
+                            const endLocalTimeZone =convertToLocalDate(slots[1],'America/Los_Angeles' );
 
                             // Extract start timestamp from slot
                             const startTimestamp = extractUTC(shift.slot.split(',')[0]);
@@ -29,25 +35,24 @@ export const useShifts = () => {
 
                             if (!startTimestamp) return;
 
-                            const datePart = startTimestamp.split(' ')[0];
-                            //
-                            // console.log("Date part:", datePart);
+                            const startDate = startLocalTimeZone.toLocaleDateString('sv-SE') // sv-SE produces ISO 8601 date format
 
                             // Map group by date
-                            if (!groupedByDate.has(datePart)) {
-                                groupedByDate.set(datePart, {
-                                    dayHeader: datePart,
+                            if (!groupedByDate.has(startDate)) {
+                                groupedByDate.set(startDate, {
+                                    dayHeader: startDate,
                                     data: []
                                 });
                             }
 
+
                             // Add shift to date group data []
-                            groupedByDate.get(datePart).data.push({
+                            groupedByDate.get(startDate).data.push({
                                 ...shift,
                                 id: shift.shift_id.toString()+Date.now(),
-                                startTime: startTimestamp,
-                                endTime: endTimestamp,
-                                date: datePart
+                                date: startDate,
+                                startDateObj: startLocalTimeZone,
+                                endDateObj: endLocalTimeZone,
 
                             });
                         });

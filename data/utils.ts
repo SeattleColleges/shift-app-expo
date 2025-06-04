@@ -6,3 +6,13 @@ export const extractUTC = (str:string) => {
     const match = str.match(/(\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2}\+\d{2})/);
     return match ? match[1] : null;
 };
+
+export const convertToLocalDate = (slot:string,timeZone: string='America/Los_Angeles') => {
+    const cleanSlot = extractUTC(slot)
+    if(cleanSlot === null) return console.error("Failed to extract UTC from time slot");
+    const dateUTC = new Date(cleanSlot.replace(' ', 'T').replace('+00', 'Z'));
+    const convertToLocal =  (dateUTC.toLocaleString("sv-SE", {
+        timeZone: timeZone
+    }))
+    return new Date(convertToLocal.replace(' ', 'T'))
+}
