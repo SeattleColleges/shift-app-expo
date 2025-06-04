@@ -35,7 +35,7 @@ export const useShifts = () => {
 
                             if (!startTimestamp) return;
 
-                            const startDate = startLocalTimeZone.toLocaleDateString('sv-SE') // sv-SE produces ISO 8601 date format
+                            const startDate = startLocalTimeZone?.toLocaleDateString('sv-SE') // sv-SE produces ISO 8601 date format
 
                             // Map group by date
                             if (!groupedByDate.has(startDate)) {
