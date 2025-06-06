@@ -182,7 +182,12 @@ const CalendarRework: React.FC<CalendarReworkProps> = ({ weekView = false, style
   return (
       <View style={[styles.container, style]}>
         <CalendarProvider
-            date={today} showTodayButton theme={todayBtnTheme.current}>
+            date={today}
+            showTodayButton
+            theme={todayBtnTheme.current}
+            todayBottomMargin = {10}
+        >
+
           {weekView ? (
               <WeekCalendar
                   firstDay={1}
