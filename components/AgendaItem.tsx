@@ -14,12 +14,10 @@ const AgendaItem = (props: ItemProps) => {
     const router = useRouter();
     const buttonPressed = useCallback((item) => {
         router.push({
-            pathname: `/calendar/shift-details-page/[id]`,
+            pathname: '/calendar/shift-details-page/[id]',
             params: {
                 id: item.id,
-                // Add other params if needed
                 data: JSON.stringify(item),
-                //itemData: JSON.stringify(item.data),
                 role: item.role
             }
         });
