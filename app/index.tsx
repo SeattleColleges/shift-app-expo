@@ -1,4 +1,5 @@
-import React, { ReactElement } from "react";
+import React from "react";
+import type { ReactElement } from "react";
 import { Image, StyleSheet } from "react-native";
 import { HelloWave } from "@/components/HelloWave";
 import ParallaxScrollView from "@/components/ParallaxScrollView";
@@ -60,6 +61,9 @@ export default function HomeScreen(): ReactElement {
         </Link>
         <Link href={"/calendar"} style={linkStyle}>
           Calendar Page
+        </Link>
+        <Link href={"/employee-time-page"} style={linkStyle}>
+          Employee Time Page
         </Link>
       </ThemedView>
     </ParallaxScrollView>

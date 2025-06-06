@@ -19,9 +19,10 @@ export const DayViewItem = ({item}: DayViewItemProps) => {
             key={item.id}
             style={{width:'100%'}}
             href={{
-                pathname: `./shift-details-page/${item.id}`,
+                // CORRECTED LINE: Specify the route file path, not the dynamic value here
+                pathname: `./shift-details-page/[id]`, // This matches your file: app/(tabs)/shift-details-page/[id].tsx
                 params: {
-                    id: item.id,
+                    id: item.id, // Pass the actual ID as a param
                     assignedUser: item.assignedUser,
                     departmentId: item.departmentId,
                     supervisorId: item.supervisorId,
