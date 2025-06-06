@@ -1,6 +1,6 @@
 import { Stack } from 'expo-router';
 
-export default function ScheduleStack() {
+export default function ScheduleLayout() {
     return (
         <Stack>
             <Stack.Screen
