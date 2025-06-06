@@ -9,6 +9,7 @@ import { useShiftNavigation } from "@/hooks/shift-navigation";
 import {ShiftDetail} from "@/types/ShiftDetail";
 import {useCallback, useEffect, useState} from "react";
 import {supabaseAdmin} from "@/lib/supabaseAdminClient";
+import {durationFormat} from "@/data/utils";
 const isShiftDetail = (obj: any): obj is ShiftDetail => {
     return (
         typeof obj === 'object' &&
@@ -85,9 +86,9 @@ export default function ShiftDetailsPage () {
                     <ShiftDetailItem title={'Supervisor Name:'} value={item.super_name}/>
                     <ShiftDetailItem title={'Title'} value={item.shift_name}/>
 
-                    <ShiftDetailItem title={'Hours Scheduled'} value={Number.parseFloat(String(item.duration / 45)).toFixed(1)}/>
+                    <ShiftDetailItem title={'Hours Scheduled'} value={durationFormat(item.duration)}/>
                     <ShiftDetailItem title={'Needs Coverage'} value={item.needsCoverage ? 'Yes':'No'}/>
-                    <ShiftDetailItem title={'Coverage Reason'} value={item.coverageReason}/>
+                    <ShiftDetailItem title={'Coverage Reason'} value={item.coverageRdurationFormateason}/>
                     <ShiftDetailItem title={'Time'} value={`${new Date(item.startDateObj).toISOString()} - ${new Date(item.endDateObj).toISOString()}`}/>
                     <ShiftDetailItem title={'Notes'} value={item.notes || 'None' } />
                 </ThemedView>
