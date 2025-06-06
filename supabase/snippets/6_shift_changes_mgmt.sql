@@ -169,7 +169,7 @@ DECLARE
     shift_rec        RECORD;
     has_conflict     BOOLEAN;
     shift_change_rec RECORD;
-    rows_affected INT;
+    rows_affected    INT;
 BEGIN -- Check for shift conflicts before changing shift status to pending when shift claimed
     shift_rec := get_shift_data(shift_id_param);
 
@@ -184,7 +184,8 @@ BEGIN -- Check for shift conflicts before changing shift status to pending when 
     UPDATE shifts
     SET shift_claimed = TRUE
     WHERE shift_id = shift_id_param
-      AND NOT shift_claimed AND needs_coverage = TRUE;
+      AND NOT shift_claimed
+      AND needs_coverage = TRUE;
 
     GET DIAGNOSTICS rows_affected = ROW_COUNT;
 
@@ -279,7 +280,7 @@ BEGIN
         -- Handle missing records
         IF
             NOT FOUND THEN
-                RAISE EXCEPTION 'Shift_change w/ shift_change_id % not found: ID ', shift_rec.shift_change_id;
+            RAISE EXCEPTION 'Shift_change w/ shift_change_id % not found: ID ', shift_rec.shift_change_id;
         ELSE
             IF shift_change_rec.covering_profile_id IS NULL THEN
                 RAISE EXCEPTION 'Shift w/ ID % missing covering profile id', shift_id_param;
@@ -296,8 +297,8 @@ BEGIN
 
                 -- Update needs coverage
                 UPDATE shifts
-                SET needs_coverage = FALSE,
-                    shift_claimed  = FALSE,
+                SET needs_coverage  = FALSE,
+                    shift_claimed   = FALSE,
                     shift_change_id = NULL
                 WHERE shift_id = shift_id_param;
 
@@ -392,6 +393,7 @@ CREATE OR REPLACE FUNCTION get_employee_shifts(profile_id_param INT)
                 SHIFT_ID          INTEGER,
                 ASSIGNED_USER_ID  INTEGER,
                 PROFILE_NAME      TEXT,
+                ROLE              TEXT,
                 DEPARTMENT_ID     INTEGER,
                 SUPERVISOR_ID     INTEGER,
                 SUPER_NAME        TEXT,
@@ -440,6 +442,7 @@ BEGIN
         SELECT s.shift_id,
                s.assigned_user_id,
                p.name           AS user_name,
+               P.role::TEXT,
                s.department_id,
                s.supervisor_id,
                sup.name         AS super_name,
