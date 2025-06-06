@@ -16,3 +16,13 @@ export const convertToLocalDate = (slot:string,timeZone: string='America/Los_Ang
     }))
     return new Date(convertToLocal.replace(' ', 'T'))
 }
+
+export const durationFormat = (duration:number) => {
+    const calcDuration = Number.parseFloat(String(duration / 60)).toFixed(1)
+    const [hour, remainder] = calcDuration.split('.');
+    const zero  = '0'
+    if (remainder === zero ) {
+        return hour
+    }
+    return calcDuration
+}
