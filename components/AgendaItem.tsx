@@ -2,6 +2,7 @@ import isEmpty from 'lodash/isEmpty';
 import React, {useCallback} from 'react';
 import {StyleSheet, Alert, View, Text, TouchableOpacity, Button} from 'react-native';
 import {useRouter} from "expo-router";
+import { durationFormat } from '@/data/utils';
 
 
 interface ItemProps {
@@ -35,7 +36,7 @@ const AgendaItem = (props: ItemProps) => {
         );
     }
 
-    const startTimeFormat = new Intl.DateTimeFormat(
+    const hourMinuteFormat = new Intl.DateTimeFormat(
         'en-US',
         {
             hour:   'numeric',
@@ -49,11 +50,11 @@ const AgendaItem = (props: ItemProps) => {
         <TouchableOpacity style={styles.item}>
             <View>
                 <Text style={styles.itemHourText}>{"Duration"}</Text>
-                <Text style={styles.itemDurationText}>{Number.parseFloat(String(item.duration / 45)).toFixed(1)} H</Text>
+                <Text style={styles.itemDurationText}>{durationFormat(item.duration)} H</Text>
             </View>
             <View style={{backgroundColor:'skyblue', marginLeft:16}}>
                 <Text style={styles.itemTitleText}>{item.shift_name}</Text>
-                <Text>Start: {startTimeFormat.format(item.startDateObj)}</Text>
+                <Text>Start: {hourMinuteFormat.format(item.startDateObj) + ' - ' + hourMinuteFormat.format(item.endDateObj)}</Text>
             </View>
 
             <View style={styles.itemButtonContainer}>
