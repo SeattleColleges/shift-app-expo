@@ -1,6 +1,7 @@
 import isEmpty from 'lodash/isEmpty';
 import React, {useCallback} from 'react';
 import {StyleSheet, Alert, View, Text, TouchableOpacity, Button} from 'react-native';
+import {useRouter} from "expo-router";
 
 
 interface ItemProps {
@@ -10,9 +11,18 @@ interface ItemProps {
 const AgendaItem = (props: ItemProps) => {
     const {item} = props;
     //console.log("Item: ", item);
-
+    const router = useRouter();
     const buttonPressed = useCallback((item) => {
-        Alert.alert(JSON.stringify(item,null,2));
+        router.push({
+            pathname: `/calendar/shift-details-page/[id]`,
+            params: {
+                id: item.id,
+                // Add other params if needed
+                data: JSON.stringify(item),
+                //itemData: JSON.stringify(item.data),
+                role: item.role
+            }
+        });
     }, []);
 
     const itemPressed = useCallback(() => {

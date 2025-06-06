@@ -209,7 +209,6 @@ const CalendarRework: React.FC<CalendarReworkProps> = ({ weekView = false, style
                 const dateKey = item.date || item.start_date || '';
                 const timeKey = item.start_time || item.time || '';
                 const key = `${baseKey}-${dateKey}-${timeKey}`
-                console.log(key)
                 return key
               }}
           />

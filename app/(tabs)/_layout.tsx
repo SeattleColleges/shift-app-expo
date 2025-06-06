@@ -5,10 +5,11 @@ export default function TabLayout() {
     return (
         <Tabs screenOptions={{ tabBarActiveTintColor: 'blue', tabBarStyle: { display: 'flex' },  }}>
             <Tabs.Screen
-                name="index"
+                name="calendar"
                 options={{
                     title: 'Schedule',
                     tabBarIcon: ({ color }) => <FontAwesome size={28} name="calendar-check-o" color={color} />,
+                    headerShown: false,
                 }}
             />
             <Tabs.Screen
@@ -47,12 +48,6 @@ export default function TabLayout() {
             />
             <Tabs.Screen
                 name="help"
-                options={{
-                    href: null
-                }}
-            />
-            <Tabs.Screen
-                name="shift-details-page/[id]"
                 options={{
                     href: null
                 }}

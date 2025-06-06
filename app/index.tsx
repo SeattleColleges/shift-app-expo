@@ -28,7 +28,7 @@ export default function HomeScreen(): ReactElement {
         <ThemedText type="subtitle">Database Message:</ThemedText>
         <HelloWave />
 
-        <Link href="/(tabs)" style={linkStyle}>
+        <Link href="/(tabs)/calendar" style={linkStyle}>
           Go to main app features after login
         </Link>
         <Link href="/(auth)/forgot-password" style={linkStyle}>
