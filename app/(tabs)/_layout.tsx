@@ -41,8 +41,6 @@ export default function TabLayout() {
                 }}
             />
             {/* These screens are not direct tabs and are handled by file-system routing or other navigation methods */}
-            {/* Remove the explicit definition for shift-details-page/[id] */}
-            {/*
             <Tabs.Screen
                 name="department-org"
                 options={{
@@ -61,7 +59,6 @@ export default function TabLayout() {
                     href: null
                 }}
             />
-            */}
         </Tabs>
     );
 }
