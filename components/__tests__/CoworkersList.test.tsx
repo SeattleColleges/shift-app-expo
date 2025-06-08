@@ -1,7 +1,7 @@
 import React from "react";
 import { render } from "@testing-library/react-native";
 import CoworkersList from "../CoworkersList";
-import {mockCurrentUser, setMockCurrentUser} from "@/context/MockCurrentUser";
+import {setMockCurrentUser} from "@/context/MockCurrentUser";
 
 
 jest.mock("@/components/CoworkerListItem", () => {
@@ -23,6 +23,5 @@ describe("CoworkersList Component", () => {
     let { getAllByTestId } = render(<CoworkersList />);
     let coworkerItems = getAllByTestId(/coworker-/);
     expect(coworkerItems.length).toBe(5);
-    setMockCurrentUser(1,1,1);
   });
 });
