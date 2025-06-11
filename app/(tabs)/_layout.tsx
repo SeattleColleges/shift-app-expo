@@ -18,10 +18,11 @@ export default function TabLayout() {
     return (
         <Tabs screenOptions={{ tabBarActiveTintColor: 'blue', tabBarStyle: { display: 'flex' },  }}>
             <Tabs.Screen
-                name="index"
+                name="calendar"
                 options={{
                     title: 'Schedule',
                     tabBarIcon: ({ color }) => <FontAwesome size={28} name="calendar-check-o" color={color} />,
+                    headerShown: false,
                 }}
             />
             <Tabs.Screen
@@ -54,8 +55,6 @@ export default function TabLayout() {
                 }}
             />
             {/* These screens are not direct tabs and are handled by file-system routing or other navigation methods */}
-            {/* Remove the explicit definition for shift-details-page/[id] */}
-            {/*
             <Tabs.Screen
                 name="department-org"
                 options={{
@@ -69,18 +68,11 @@ export default function TabLayout() {
                 }}
             />
             <Tabs.Screen
-                name="shift-details-page/[id]"
-                options={{
-                    href: null
-                }}
-            />
-            <Tabs.Screen
                 name="editProfile"
                 options={{
                     href: null
                 }}
             />
-            */}
         </Tabs>
     );
 }
