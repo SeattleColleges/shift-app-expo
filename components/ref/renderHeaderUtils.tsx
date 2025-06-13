@@ -1,5 +1,5 @@
-import React, { useCallback, RefObject } from 'react';
-import { Animated, TouchableOpacity, Text, StyleSheet, ViewStyle, TextStyle, ImageStyle } from 'react-native';
+import React, { RefObject } from 'react';
+import { Animated, TouchableOpacity, Text, ViewStyle, TextStyle } from 'react-native';
 
 type DateData = string | number | Date;
 
@@ -15,7 +15,7 @@ interface RenderHeaderProps {
 
 const renderHeaderUtils = (
     {  toggleCalendarExpansion, CHEVRON, styles }: RenderHeaderProps
-) => useCallback((date?: DateData) => {
+) => (date?: DateData) => {
 
     return (
         <TouchableOpacity style={styles.header} onPress={toggleCalendarExpansion}>
@@ -29,6 +29,6 @@ const renderHeaderUtils = (
             />
     </TouchableOpacity>
 );
-}, [toggleCalendarExpansion]);
+};
 
 export default renderHeaderUtils;
