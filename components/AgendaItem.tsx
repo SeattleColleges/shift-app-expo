@@ -52,9 +52,11 @@ const AgendaItem = (props: ItemProps) => {
                 <Text style={styles.itemHourText}>{"Duration"}</Text>
                 <Text style={styles.itemDurationText}>{durationFormat(item.duration)} H</Text>
             </View>
-            <View style={{backgroundColor:'skyblue', marginLeft:16}}>
+            <View style={{//backgroundColor:'skyblue',
+                marginLeft:16}}>
                 <Text style={styles.itemTitleText}>{item.shift_name}</Text>
                 <Text>Start: {hourMinuteFormat.format(item.startDateObj) + ' - ' + hourMinuteFormat.format(item.endDateObj)}</Text>
+                <Text>{ 'Status: ' + item.shift_change_data?.status}</Text>
             </View>
 
             <View style={styles.itemButtonContainer}>
