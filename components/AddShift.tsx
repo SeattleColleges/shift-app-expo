@@ -13,21 +13,27 @@ import {
   Platform,
 } from "react-native";
 import DateTimePicker, { type DateTimePickerEvent } from "@react-native-community/datetimepicker";
+import DropDownPicker from 'react-native-dropdown-picker';
+
 
 const primaryColor = "#0056b3";
 const cardBackgroundColor = "#fff";
 
 type PickerType = "startTime" | "endTime" | "startDate" | "endDate" | null;
+type MinuteInterval = 1 | 2 | 3 | 4 | 5 | 6 | 10 | 12 | 15 | 20 | 30;
+
+const timePickerMinuteInterval:MinuteInterval = 15 // Changes interval rounding
 
 // Helper function to round time to nearest quarter-hour
-const roundToNearestQuarter = (date: Date): Date => {
+const roundToNearestQuarter = (date: Date, minuteInterval:number): Date => {
+
   const minutes = date.getMinutes();
-  const remainder = minutes % 15;
+  const remainder = minutes % minuteInterval;
 
   // Round up to next quarter-hour
   const roundedDate = new Date(date);
   if (remainder > 0) {
-    roundedDate.setMinutes(minutes + (15 - remainder));
+    roundedDate.setMinutes(minutes + (minuteInterval - remainder));
   }
   roundedDate.setSeconds(0);
   roundedDate.setMilliseconds(0);
@@ -38,13 +44,21 @@ const roundToNearestQuarter = (date: Date): Date => {
 const AddShift: React.FC = () => {
   const [startDate, setStartDate] = useState<Date>(new Date());
   const [endDate, setEndDate] = useState<Date>(new Date());
-  const [startTime, setStartTime] = useState<Date>(roundToNearestQuarter(new Date()));
+  const [startTime, setStartTime] = useState<Date>(roundToNearestQuarter(new Date(),timePickerMinuteInterval));
   const [endTime, setEndTime] = useState<Date>(
-      roundToNearestQuarter(new Date(new Date().setHours(new Date().getHours() + 1)))
+      roundToNearestQuarter(new Date(new Date().setHours(new Date().getHours() + 1)), timePickerMinuteInterval)
   );
   const [showPicker, setShowPicker] = useState<boolean>(false);
   const [currentPickerType, setCurrentPickerType] = useState<PickerType>(null);
   const [error, setError] = useState<string | null>(null);
+  // Drop down picker states
+  const [open, setOpen] = useState(false);
+  const [value, setValue] = useState(null);
+  const [items, setItems] = useState([
+    {label: 'AD Tutor', value: 'AD Tutor'},
+    {label: 'Food Court Cashier', value: 'Food Court Cashier'}
+  ]);
+
 
   // Format date to human readable format (e.g., "Monday, January 1, 2025")
   const formatDate = (date: Date): string => {
@@ -85,11 +99,7 @@ const AddShift: React.FC = () => {
     );
 
     // Check if start time is after end time
-    if (startDateTime > endDateTime) {
-      return false;
-    } else {
-      return true;
-    }
+    return startDateTime <= endDateTime;
   };
 
   // Validate shift times whenever they change
@@ -112,7 +122,7 @@ const AddShift: React.FC = () => {
         let adjustedDate = selectedDate;
 
         if (currentPickerType === "startTime" || currentPickerType === "endTime") {
-          adjustedDate = roundToNearestQuarter(selectedDate);
+          adjustedDate = roundToNearestQuarter(selectedDate,timePickerMinuteInterval);
         }
 
         if (currentPickerType === "startDate") {
@@ -194,6 +204,8 @@ const AddShift: React.FC = () => {
 
   // Android requires a different approach for the date picker
   const renderDateTimePicker = () => {
+
+
     if (!showPicker) return null;
 
     const pickerMode = currentPickerType?.includes("Date") ? "date" : "time";
@@ -238,6 +250,7 @@ const AddShift: React.FC = () => {
                         is24Hour={false}
                         display="spinner"
                         onChange={onChange}
+                        minuteInterval={timePickerMinuteInterval}
                     />
                     <TouchableOpacity
                         onPress={() => {
@@ -261,6 +274,16 @@ const AddShift: React.FC = () => {
           behavior={Platform.OS === "ios" ? "padding" : undefined}
           style={styles.container}
       >
+        {/* Position Drop down*/}
+        <Text style={styles.title}>Position</Text>
+        <DropDownPicker
+            open={open}
+            value={value}
+            items={items}
+            setOpen={setOpen}
+            setValue={setValue}
+            setItems={setItems}
+            placeholder="Select a Position"/>
         <ScrollView contentContainerStyle={styles.scrollContainer}>
           <View style={styles.innerContainer}>
             <Text style={styles.title}>Add Shift</Text>
