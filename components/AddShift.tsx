@@ -99,8 +99,8 @@ const AddShift: React.FC = () => {
         endTime.getMinutes()
     );
 
-    // Check if start time is after end time
-    return startDateTime <= endDateTime;
+    // Check if start time is before end time
+    return startDateTime < endDateTime;
   };
 
   // Validate shift times whenever they change
