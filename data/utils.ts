@@ -1,3 +1,6 @@
+
+const timezone: string = 'America/Los_Angeles'
+
 export const dateTimeFormatter= (date:Date) => {
     return new Date(date.toLocaleString('en-US', { timeZone: 'America/Los_Angeles' }));
 }
@@ -7,7 +10,7 @@ export const extractUTC = (str:string) => {
     return match ? match[1] : null;
 };
 
-export const convertToLocalDate = (slot:string,timeZone: string='America/Los_Angeles') => {
+export const convertToLocalDate = (slot:string,timeZone: string=timezone) => {
     const cleanSlot = extractUTC(slot)
     if(cleanSlot === null) return console.error("Failed to extract UTC from time slot");
     const dateUTC = new Date(cleanSlot.replace(' ', 'T').replace('+00', 'Z'));
@@ -16,6 +19,8 @@ export const convertToLocalDate = (slot:string,timeZone: string='America/Los_Ang
     }))
     return new Date(convertToLocal.replace(' ', 'T'))
 }
+
+export const transformToSlotUTCFormat = (shift:Date) => shift.toISOString().replace('T',' ').split('.')[0] + '+00'
 
 export const durationFormat = (duration:number) => {
     const calcDuration = Number.parseFloat(String(duration / 60)).toFixed(1)

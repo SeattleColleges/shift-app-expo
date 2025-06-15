@@ -26,8 +26,8 @@ export const useShifts = () => {
                             const slots = shift.slot.split(',');
                             // Convert UTC date object to local timezone date object
                                 // @ts-ignore
-                            const startLocalTimeZone =convertToLocalDate(slots[0],'America/Los_Angeles' );
-                            const endLocalTimeZone =convertToLocalDate(slots[1],'America/Los_Angeles' );
+                            const startLocalTimeZone =convertToLocalDate(slots[0]);
+                            const endLocalTimeZone =convertToLocalDate(slots[1]);
 
                             // Extract start timestamp from slot
                             const startTimestamp = extractUTC(shift.slot.split(',')[0]);

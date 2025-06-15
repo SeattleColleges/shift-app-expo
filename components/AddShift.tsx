@@ -14,6 +14,7 @@ import {
 } from "react-native";
 import DateTimePicker, { type DateTimePickerEvent } from "@react-native-community/datetimepicker";
 import DropDownPicker from 'react-native-dropdown-picker';
+import {transformToSlotUTCFormat} from "@/data/utils";
 
 
 const primaryColor = "#0056b3";
@@ -181,30 +182,17 @@ const AddShift: React.FC = () => {
         endTime.getMinutes()
     );
 
-    // Format the shift times in the required format
-    const formattedShiftStart = `${formatDate(shiftStart)} ${formatTime(shiftStart)}`;
-    const formattedShiftEnd = `${formatDate(shiftEnd)} ${formatTime(shiftEnd)}`;
-
-    // Log the shift details in the requested format
-    console.log("==== Creating New Shift ====");
-    console.log(`Shift added: { '${formattedShiftStart}', '${formattedShiftEnd}' }`);
-    console.log("Duration (hours):", (shiftEnd.getTime() - shiftStart.getTime()) / (1000 * 60 * 60));
-    console.log("========================");
-
-    /* Here you would typically call an API or dispatch an action to save the shift
-    For now, we're just logging to terminal */
 
     // Show confirmation to user
     Alert.alert(
         "Success",
-        "Shift added successfully!",
+        `Shift added successfully! Start: ${transformToSlotUTCFormat(shiftStart)}, End: ${transformToSlotUTCFormat(shiftEnd)}`,
         [{ text: "OK" }]
     );
   };
 
   // Android requires a different approach for the date picker
   const renderDateTimePicker = () => {
-
 
     if (!showPicker) return null;
 
