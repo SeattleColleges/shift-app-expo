@@ -2,6 +2,15 @@ import React from 'react';
 import { render, fireEvent, waitFor, act } from '@testing-library/react-native';
 import ForgotPasswordPage from '../../app/(auth)/forgot-password';
 
+// Mock Supabase client
+jest.mock('@/lib/supabaseClient', () => ({
+  supabase: {
+    auth: {
+      resetPasswordForEmail: jest.fn().mockResolvedValue({ error: null })
+    }
+  }
+}));
+
 describe('ForgotPasswordPage Component', () => {
   test('renders correctly', () => {
     const { getByText, getByPlaceholderText } = render(<ForgotPasswordPage />);
@@ -42,8 +51,6 @@ describe('ForgotPasswordPage Component', () => {
   });
 
   test('displays success message after form submission', async () => {
-    jest.useFakeTimers(); 
-
     const { getByText, getByPlaceholderText, queryByText } = render(<ForgotPasswordPage />);
 
     const emailInput = getByPlaceholderText('Enter your email');
@@ -52,24 +59,34 @@ describe('ForgotPasswordPage Component', () => {
     fireEvent.changeText(emailInput, 'test@example.com');
     fireEvent.press(submitButton);
 
-    
     expect(getByText('Sending...')).toBeTruthy();
 
-    
-    await act(async () => {
-      jest.advanceTimersByTime(2000);
-    });
-
-    
     await waitFor(() => {
       expect(getByText('If this email is registered, you will receive a reset link.')).toBeTruthy();
     });
 
-    
     await waitFor(() => {
       expect(queryByText('Sending...')).toBeNull();
     });
+  });
 
-    jest.useRealTimers(); 
+  test('shows error message when backend request fails', async () => {
+    // Mock Supabase to return an error
+    const { supabase } = require('@/lib/supabaseClient');
+    supabase.auth.resetPasswordForEmail.mockRejectedValueOnce({
+      message: 'Failed to send reset password email'
+    });
+
+    const { getByText, getByPlaceholderText } = render(<ForgotPasswordPage />);
+    
+    const emailInput = getByPlaceholderText('Enter your email');
+    const submitButton = getByText('Send Reset Link');
+
+    fireEvent.changeText(emailInput, 'test@example.com');
+    fireEvent.press(submitButton);
+
+    await waitFor(() => {
+      expect(getByText('Failed to send reset password email')).toBeTruthy();
+    });
   });
 });
