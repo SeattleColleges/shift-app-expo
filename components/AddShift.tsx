@@ -275,7 +275,6 @@ const AddShift: React.FC = () => {
           style={styles.container}
       >
         {/* Position Drop down*/}
-        <Text style={styles.title}>Position</Text>
         <DropDownPicker
             open={open}
             value={value}
@@ -354,7 +353,7 @@ const AddShift: React.FC = () => {
 
 const styles = StyleSheet.create({
   container: { flex: 1, padding: 20 },
-  scrollContainer: { flexGrow: 1, alignItems: "center", justifyContent: "center" },
+  scrollContainer: { flexGrow: 1, alignItems: "center", marginTop: 20 },
   innerContainer: {
     width: "100%",
     padding: 24,
