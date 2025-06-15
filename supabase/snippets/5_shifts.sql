@@ -63,8 +63,8 @@ VALUES ('Morning shift A', 3, TSTZRANGE('2025-07-11 08:00:00+00', '2025-07-11 12
 CREATE OR REPLACE FUNCTION add_shift_to_shifts_table(
     shift_name_param TEXT,
     assigned_user_id_param INT,
-    startTime_param TEXT,
-    endTime_param TEXT,
+    start_time_param TEXT,
+    end_time_param TEXT,
     department_id_param INT,
     supervisor_id_param INT
 ) RETURNS SHIFTS AS
@@ -74,7 +74,7 @@ DECLARE
 BEGIN
     -- Prepare data for insertion
     INSERT INTO shifts (shift_name, assigned_user_id, slot, department_id, supervisor_id)
-    VALUES (shift_name_param, assigned_user_id_param, TSTZRANGE(startTime_param, endTime_param, '[)'), -- [) startTime inclusive and endTime exclusive slot
+    VALUES (shift_name_param, assigned_user_id_param, TSTZRANGE(start_time_param::timestamptz, end_time_param::timestamptz, '[)'), -- [) startTime inclusive and endTime exclusive slot
             department_id_param, supervisor_id_param)
     RETURNING * INTO inserted_shift_rec;
 
