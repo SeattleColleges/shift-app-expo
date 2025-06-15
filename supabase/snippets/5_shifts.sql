@@ -16,6 +16,7 @@ Notes:
   - (23514): new row for relation "shift" violates check constraint "shift_slot_check"
 
 DROP TABLE IF EXISTS shifts;
+DROP FUNCTION IF EXISTS add_shift_to_shifts_table;
 */
 
 CREATE
@@ -23,25 +24,25 @@ CREATE
 
 CREATE TABLE shifts
 (
-    shift_id           SERIAL PRIMARY KEY,
-    assigned_user_id   INT REFERENCES profiles (profile_int_id),
-    department_id      INT REFERENCES departments (department_id),
-    supervisor_id      INT REFERENCES supervisors (supervisor_id),
-    shift_name         TEXT,
-    slot               TSTZRANGE NOT NULL CHECK (
+    shift_id         SERIAL PRIMARY KEY,
+    assigned_user_id INT REFERENCES profiles (profile_int_id),
+    department_id    INT REFERENCES departments (department_id),
+    supervisor_id    INT REFERENCES supervisors (supervisor_id),
+    shift_name       TEXT,
+    slot             TSTZRANGE NOT NULL CHECK (
         LOWER(slot) > NOW()
         ),
-    duration           INT GENERATED ALWAYS AS (
+    duration         INT GENERATED ALWAYS AS (
         EXTRACT(EPOCH FROM UPPER(slot) - LOWER(slot)) / 60
         ) STORED,
 
-    needs_coverage     BOOLEAN     DEFAULT FALSE,
-    shift_claimed      BOOLEAN     DEFAULT FALSE,
-    coverage_reason    TEXT,
-    notes              TEXT,
-    shift_change_id    INT,
-    created_on         TIMESTAMPTZ DEFAULT NOW(),
-    updated_on         TIMESTAMPTZ,
+    needs_coverage   BOOLEAN     DEFAULT FALSE,
+    shift_claimed    BOOLEAN     DEFAULT FALSE,
+    coverage_reason  TEXT,
+    notes            TEXT,
+    shift_change_id  INT,
+    created_on       TIMESTAMPTZ DEFAULT NOW(),
+    updated_on       TIMESTAMPTZ,
     EXCLUDE USING gist (assigned_user_id WITH =,slot WITH &&)
 );
 /*
@@ -56,8 +57,30 @@ VALUES ('Morning shift A', 3, TSTZRANGE('2025-07-11 08:00:00+00', '2025-07-11 12
        ('Evening shift B', 4, TSTZRANGE('2025-07-13 18:00:00+00', '2025-07-13 22:00:00+00', '[)'), 1, 1),
        ('Night shift A', 3, TSTZRANGE('2025-07-14 23:00:00+00', '2025-07-15 07:00:00+00', '[)'), 1, 2),
        ('Night shift B', 4, TSTZRANGE('2025-07-14 23:00:00+00', '2025-07-15 07:00:00+00', '[)'), 1, 2);
-
 */
+
+-- Add shift func
+CREATE OR REPLACE FUNCTION add_shift_to_shifts_table(
+    shift_name_param TEXT,
+    assigned_user_id_param INT,
+    startTime_param TEXT,
+    endTime_param TEXT,
+    department_id_param INT,
+    supervisor_id_param INT
+) RETURNS SHIFTS AS
+$$
+DECLARE
+    inserted_shift_rec SHIFTS %ROWTYPE;
+BEGIN
+    -- Prepare data for insertion
+    INSERT INTO shifts (shift_name, assigned_user_id, slot, department_id, supervisor_id)
+    VALUES (shift_name_param, assigned_user_id_param, TSTZRANGE(startTime_param, endTime_param, '[)'), -- [) startTime inclusive and endTime exclusive slot
+            department_id_param, supervisor_id_param)
+    RETURNING * INTO inserted_shift_rec;
+
+    RETURN inserted_shift_rec;
+END;
+$$ LANGUAGE plpgsql;
 
 /*
 -- Query

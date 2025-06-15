@@ -57,7 +57,6 @@ const AddShift: React.FC = () => {
   const [value, setValue] = useState(null);
   const [items, setItems] = useState([
     {label: 'AD Tutor', value: 'AD Tutor'},
-    {label: 'Food Court Cashier', value: 'Food Court Cashier'}
   ]);
 
 
