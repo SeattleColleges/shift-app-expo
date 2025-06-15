@@ -22,15 +22,15 @@ const cardBackgroundColor = "#fff";
 type PickerType = "startTime" | "endTime" | "startDate" | "endDate" | null;
 type MinuteInterval = 1 | 2 | 3 | 4 | 5 | 6 | 10 | 12 | 15 | 20 | 30;
 
-const timePickerMinuteInterval:MinuteInterval = 15 // Changes interval rounding
+const timePickerMinuteInterval:MinuteInterval = 15 // Changes interval rounding and picker display values
 
-// Helper function to round time to nearest quarter-hour
-const roundToNearestQuarter = (date: Date, minuteInterval:number): Date => {
+// Helper function to round time to nearest minute interval
+const roundToNearestInterval = (date: Date, minuteInterval:number): Date => {
 
   const minutes = date.getMinutes();
   const remainder = minutes % minuteInterval;
 
-  // Round up to next quarter-hour
+  // Round up to next minute interval
   const roundedDate = new Date(date);
   if (remainder > 0) {
     roundedDate.setMinutes(minutes + (minuteInterval - remainder));
@@ -44,9 +44,9 @@ const roundToNearestQuarter = (date: Date, minuteInterval:number): Date => {
 const AddShift: React.FC = () => {
   const [startDate, setStartDate] = useState<Date>(new Date());
   const [endDate, setEndDate] = useState<Date>(new Date());
-  const [startTime, setStartTime] = useState<Date>(roundToNearestQuarter(new Date(),timePickerMinuteInterval));
+  const [startTime, setStartTime] = useState<Date>(roundToNearestInterval(new Date(),timePickerMinuteInterval));
   const [endTime, setEndTime] = useState<Date>(
-      roundToNearestQuarter(new Date(new Date().setHours(new Date().getHours() + 1)), timePickerMinuteInterval)
+      roundToNearestInterval(new Date(new Date().setHours(new Date().getHours() + 1)), timePickerMinuteInterval)
   );
   const [showPicker, setShowPicker] = useState<boolean>(false);
   const [currentPickerType, setCurrentPickerType] = useState<PickerType>(null);
@@ -122,7 +122,7 @@ const AddShift: React.FC = () => {
         let adjustedDate = selectedDate;
 
         if (currentPickerType === "startTime" || currentPickerType === "endTime") {
-          adjustedDate = roundToNearestQuarter(selectedDate,timePickerMinuteInterval);
+          adjustedDate = roundToNearestInterval(selectedDate,timePickerMinuteInterval);
         }
 
         if (currentPickerType === "startDate") {
