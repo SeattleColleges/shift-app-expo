@@ -13,21 +13,29 @@ import {
   Platform,
 } from "react-native";
 import DateTimePicker, { type DateTimePickerEvent } from "@react-native-community/datetimepicker";
+import DropDownPicker from 'react-native-dropdown-picker';
+import {transformToSlotUTCFormat} from "@/data/utils";
+import { useAddShift } from '@/hooks/addShift';
+
 
 const primaryColor = "#0056b3";
 const cardBackgroundColor = "#fff";
 
 type PickerType = "startTime" | "endTime" | "startDate" | "endDate" | null;
+type MinuteInterval = 1 | 2 | 3 | 4 | 5 | 6 | 10 | 12 | 15 | 20 | 30;
 
-// Helper function to round time to nearest quarter-hour
-const roundToNearestQuarter = (date: Date): Date => {
+const timePickerMinuteInterval:MinuteInterval = 15 // Changes interval rounding and picker display values
+
+// Helper function to round time to nearest minute interval
+const roundToNearestInterval = (date: Date, minuteInterval:number): Date => {
+
   const minutes = date.getMinutes();
-  const remainder = minutes % 15;
+  const remainder = minutes % minuteInterval;
 
-  // Round up to next quarter-hour
+  // Round up to next minute interval
   const roundedDate = new Date(date);
   if (remainder > 0) {
-    roundedDate.setMinutes(minutes + (15 - remainder));
+    roundedDate.setMinutes(minutes + (minuteInterval - remainder));
   }
   roundedDate.setSeconds(0);
   roundedDate.setMilliseconds(0);
@@ -38,13 +46,21 @@ const roundToNearestQuarter = (date: Date): Date => {
 const AddShift: React.FC = () => {
   const [startDate, setStartDate] = useState<Date>(new Date());
   const [endDate, setEndDate] = useState<Date>(new Date());
-  const [startTime, setStartTime] = useState<Date>(roundToNearestQuarter(new Date()));
+  const [startTime, setStartTime] = useState<Date>(roundToNearestInterval(new Date(),timePickerMinuteInterval));
   const [endTime, setEndTime] = useState<Date>(
-      roundToNearestQuarter(new Date(new Date().setHours(new Date().getHours() + 1)))
+      roundToNearestInterval(new Date(new Date().setHours(new Date().getHours() + 1)), timePickerMinuteInterval)
   );
   const [showPicker, setShowPicker] = useState<boolean>(false);
   const [currentPickerType, setCurrentPickerType] = useState<PickerType>(null);
   const [error, setError] = useState<string | null>(null);
+  // Drop down picker states
+  const [open, setOpen] = useState(false);
+  const [positions, setPositions] = useState([
+    {label: 'AD Tutor', value: 'AD Tutor'},
+    //{label: 'Tutor', value: 'Tutor'}
+  ]);
+  const [positionValue, setPositionValue] = useState(positions.length === 1 ? positions[0].value : null)
+
 
   // Format date to human readable format (e.g., "Monday, January 1, 2025")
   const formatDate = (date: Date): string => {
@@ -84,12 +100,8 @@ const AddShift: React.FC = () => {
         endTime.getMinutes()
     );
 
-    // Check if start time is after end time
-    if (startDateTime > endDateTime) {
-      return false;
-    } else {
-      return true;
-    }
+    // Check if start time is before end time
+    return startDateTime < endDateTime;
   };
 
   // Validate shift times whenever they change
@@ -101,18 +113,22 @@ const AddShift: React.FC = () => {
       (event: DateTimePickerEvent, selectedDate?: Date) => {
         // Always close the picker first to prevent re-opening issues
         setShowPicker(false);
-        setCurrentPickerType(null);
-
-        // On Android, canceling returns undefined
         if (!selectedDate) {
+          setCurrentPickerType(null);
           return;
         }
 
-        // For times, round to nearest quarter-hour
+        // On Android, canceling returns undefined
+        if (!selectedDate) {
+          setCurrentPickerType(null);
+          return;
+        }
+
+        // For times, round to nearest interval minute
         let adjustedDate = selectedDate;
 
         if (currentPickerType === "startTime" || currentPickerType === "endTime") {
-          adjustedDate = roundToNearestQuarter(selectedDate);
+          adjustedDate = roundToNearestInterval(selectedDate,timePickerMinuteInterval);
         }
 
         if (currentPickerType === "startDate") {
@@ -131,18 +147,21 @@ const AddShift: React.FC = () => {
           setEndTime(adjustedDate);
           console.log("End time changed:", formatTime(adjustedDate));
         }
+        setCurrentPickerType(null);
       },
       [currentPickerType]
   );
 
+  const { addShift, loading, error: addShiftError } = useAddShift();
+
   // Function to handle adding a shift
-  const handleAddShift = () => {
+  const handleAddShift = async() => {
     console.log("Add Shift button pressed");
 
     // Validate times before adding shift
     if (!validateShiftTimes()) {
       setError("Error: Start time cannot be after end time");
-      console.error("Validation error: Start time is after end time");
+      //console.error("Validation error: Start time is after end time");
       Alert.alert(
           "Invalid Shift Times",
           "Start time cannot be after end time",
@@ -155,45 +174,50 @@ const AddShift: React.FC = () => {
     setError(null);
 
     // Create full date-time objects for the shift
-    const shiftStart = new Date(
+    const shiftStart = transformToSlotUTCFormat(new Date(
         startDate.getFullYear(),
         startDate.getMonth(),
         startDate.getDate(),
         startTime.getHours(),
         startTime.getMinutes()
-    );
+    ));
 
-    const shiftEnd = new Date(
+    const shiftEnd = transformToSlotUTCFormat(new Date(
         endDate.getFullYear(),
         endDate.getMonth(),
         endDate.getDate(),
         endTime.getHours(),
         endTime.getMinutes()
-    );
+    ));
 
-    // Format the shift times in the required format
-    const formattedShiftStart = `${formatDate(shiftStart)} ${formatTime(shiftStart)}`;
-    const formattedShiftEnd = `${formatDate(shiftEnd)} ${formatTime(shiftEnd)}`;
+    // Call RPC function to add to shifts table
+    const result = await addShift({
+      shift_name: positionValue,
+      assigned_user_id: 3,
+      startTime: shiftStart,
+      endTime: shiftEnd,
+      department_id: 1,
+      supervisor_id: 1
+    });
 
-    // Log the shift details in the requested format
-    console.log("==== Creating New Shift ====");
-    console.log(`Shift added: { '${formattedShiftStart}', '${formattedShiftEnd}' }`);
-    console.log("Duration (hours):", (shiftEnd.getTime() - shiftStart.getTime()) / (1000 * 60 * 60));
-    console.log("========================");
+    if (result.success) {
+      Alert.alert(
+          "Success", JSON.stringify(result.data),
+          [{ text: "OK" }]
+      );
 
-    /* Here you would typically call an API or dispatch an action to save the shift
-    For now, we're just logging to terminal */
+    } else {
 
-    // Show confirmation to user
-    Alert.alert(
-        "Success",
-        "Shift added successfully!",
-        [{ text: "OK" }]
-    );
-  };
-
+      Alert.alert(
+          'Error',
+          JSON.stringify(result.error),
+          [{ text: "OK" }]
+      );
+    }
+}
   // Android requires a different approach for the date picker
   const renderDateTimePicker = () => {
+
     if (!showPicker) return null;
 
     const pickerMode = currentPickerType?.includes("Date") ? "date" : "time";
@@ -238,6 +262,7 @@ const AddShift: React.FC = () => {
                         is24Hour={false}
                         display="spinner"
                         onChange={onChange}
+                        minuteInterval={timePickerMinuteInterval}
                     />
                     <TouchableOpacity
                         onPress={() => {
@@ -261,6 +286,15 @@ const AddShift: React.FC = () => {
           behavior={Platform.OS === "ios" ? "padding" : undefined}
           style={styles.container}
       >
+        {/* Position Drop down*/}
+        <DropDownPicker
+            open={open}
+            value={positionValue}
+            items={positions}
+            setOpen={setOpen}
+            setValue={setPositionValue}
+            setItems={setPositions}
+            placeholder="Select a Position"/>
         <ScrollView contentContainerStyle={styles.scrollContainer}>
           <View style={styles.innerContainer}>
             <Text style={styles.title}>Add Shift</Text>
@@ -331,7 +365,7 @@ const AddShift: React.FC = () => {
 
 const styles = StyleSheet.create({
   container: { flex: 1, padding: 20 },
-  scrollContainer: { flexGrow: 1, alignItems: "center", justifyContent: "center" },
+  scrollContainer: { flexGrow: 1, alignItems: "center", marginTop: 20 },
   innerContainer: {
     width: "100%",
     padding: 24,
