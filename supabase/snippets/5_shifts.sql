@@ -19,38 +19,45 @@ DROP TABLE IF EXISTS shifts;
 */
 
 CREATE
-EXTENSION IF NOT EXISTS btree_gist;
+    EXTENSION IF NOT EXISTS btree_gist;
 
 CREATE TABLE shifts
 (
-    shift_id         SERIAL PRIMARY KEY,
-    assigned_user_id INT REFERENCES profiles (profile_int_id),
-    department_id    INT REFERENCES departments (department_id),
-    supervisor_id    INT REFERENCES supervisors (supervisor_id),
-    shift_name       TEXT,
-    slot             TSTZRANGE NOT NULL CHECK (
-        LOWER(slot) > now()
+    shift_id           SERIAL PRIMARY KEY,
+    assigned_user_id   INT REFERENCES profiles (profile_int_id),
+    department_id      INT REFERENCES departments (department_id),
+    supervisor_id      INT REFERENCES supervisors (supervisor_id),
+    shift_name         TEXT,
+    slot               TSTZRANGE NOT NULL CHECK (
+        LOWER(slot) > NOW()
         ),
-    duration         INT GENERATED ALWAYS AS (
+    duration           INT GENERATED ALWAYS AS (
         EXTRACT(EPOCH FROM UPPER(slot) - LOWER(slot)) / 60
-        ) stored,
-    needs_coverage   BOOLEAN     DEFAULT FALSE,
-    coverage_reason  TEXT,
-    notes            TEXT,
-    created_on       TIMESTAMPTZ DEFAULT now(),
-    exclude USING gist (assigned_user_id WITH =,slot WITH &&)
-);
+        ) STORED,
 
+    needs_coverage     BOOLEAN     DEFAULT FALSE,
+    shift_claimed      BOOLEAN     DEFAULT FALSE,
+    coverage_reason    TEXT,
+    notes              TEXT,
+    shift_change_id    INT,
+    created_on         TIMESTAMPTZ DEFAULT NOW(),
+    updated_on         TIMESTAMPTZ,
+    EXCLUDE USING gist (assigned_user_id WITH =,slot WITH &&)
+);
+/*
 -- Dummy data
+
 INSERT INTO shifts (shift_name, assigned_user_id, slot, department_id, supervisor_id)
-VALUES ('Morning shift A', 3, tstzrange('2025-07-10 08:00:00+00', '2025-07-10 12:00:00+00', '[)'), 1, 1),
-       ('Morning shift B', 4, tstzrange('2025-07-10 08:00:00+00', '2025-07-10 12:00:00+00', '[)'), 1, 1),
-       ('Afternoon shift A', 3, tstzrange('2025-07-10 13:00:00+00', '2025-07-10 17:00:00+00', '[)'), 1, 1),
-       ('Afternoon shift B', 4, tstzrange('2025-07-10 13:00:00+00', '2025-07-10 17:00:00+00', '[)'), 1, 1),
-       ('Evening shift A', 3, tstzrange('2025-07-10 18:00:00+00', '2025-07-10 22:00:00+00', '[)'), 1, 1),
-       ('Evening shift B', 4, tstzrange('2025-07-10 18:00:00+00', '2025-07-10 22:00:00+00', '[)'), 1, 1),
-       ('Night shift A', 3, tstzrange('2025-07-10 23:00:00+00', '2025-07-11 07:00:00+00', '[)'), 1, 2),
-       ('Night shift B', 4, tstzrange('2025-07-10 23:00:00+00', '2025-07-11 07:00:00+00', '[)'), 1, 2);
+VALUES ('Morning shift A', 3, TSTZRANGE('2025-07-11 08:00:00+00', '2025-07-11 12:00:00+00', '[)'), 1, 1),
+       ('Morning shift B', 4, TSTZRANGE('2025-07-11 08:00:00+00', '2025-07-11 12:00:00+00', '[)'), 1, 1),
+       ('Afternoon shift A', 3, TSTZRANGE('2025-07-12 13:00:00+00', '2025-07-12 17:00:00+00', '[)'), 1, 1),
+       ('Afternoon shift B', 4, TSTZRANGE('2025-07-12 13:00:00+00', '2025-07-12 17:00:00+00', '[)'), 1, 1),
+       ('Evening shift A', 3, TSTZRANGE('2025-07-13 18:00:00+00', '2025-07-13 22:00:00+00', '[)'), 1, 1),
+       ('Evening shift B', 4, TSTZRANGE('2025-07-13 18:00:00+00', '2025-07-13 22:00:00+00', '[)'), 1, 1),
+       ('Night shift A', 3, TSTZRANGE('2025-07-14 23:00:00+00', '2025-07-15 07:00:00+00', '[)'), 1, 2),
+       ('Night shift B', 4, TSTZRANGE('2025-07-14 23:00:00+00', '2025-07-15 07:00:00+00', '[)'), 1, 2);
+
+*/
 
 /*
 -- Query

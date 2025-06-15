@@ -142,7 +142,7 @@ const AddShift: React.FC = () => {
     // Validate times before adding shift
     if (!validateShiftTimes()) {
       setError("Error: Start time cannot be after end time");
-      console.error("Validation error: Start time is after end time");
+      //console.error("Validation error: Start time is after end time");
       Alert.alert(
           "Invalid Shift Times",
           "Start time cannot be after end time",
