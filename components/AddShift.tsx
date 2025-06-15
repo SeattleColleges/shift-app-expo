@@ -15,6 +15,7 @@ import {
 import DateTimePicker, { type DateTimePickerEvent } from "@react-native-community/datetimepicker";
 import DropDownPicker from 'react-native-dropdown-picker';
 import {transformToSlotUTCFormat} from "@/data/utils";
+import { useAddShift } from '@/hooks/addShift';
 
 
 const primaryColor = "#0056b3";
@@ -54,10 +55,11 @@ const AddShift: React.FC = () => {
   const [error, setError] = useState<string | null>(null);
   // Drop down picker states
   const [open, setOpen] = useState(false);
-  const [value, setValue] = useState(null);
-  const [items, setItems] = useState([
+  const [positions, setPositions] = useState([
     {label: 'AD Tutor', value: 'AD Tutor'},
+    //{label: 'Tutor', value: 'Tutor'}
   ]);
+  const [positionValue, setPositionValue] = useState(positions.length === 1 ? positions[0].value : null)
 
 
   // Format date to human readable format (e.g., "Monday, January 1, 2025")
@@ -111,14 +113,18 @@ const AddShift: React.FC = () => {
       (event: DateTimePickerEvent, selectedDate?: Date) => {
         // Always close the picker first to prevent re-opening issues
         setShowPicker(false);
-        setCurrentPickerType(null);
-
-        // On Android, canceling returns undefined
         if (!selectedDate) {
+          setCurrentPickerType(null);
           return;
         }
 
-        // For times, round to nearest quarter-hour
+        // On Android, canceling returns undefined
+        if (!selectedDate) {
+          setCurrentPickerType(null);
+          return;
+        }
+
+        // For times, round to nearest interval minute
         let adjustedDate = selectedDate;
 
         if (currentPickerType === "startTime" || currentPickerType === "endTime") {
@@ -141,12 +147,15 @@ const AddShift: React.FC = () => {
           setEndTime(adjustedDate);
           console.log("End time changed:", formatTime(adjustedDate));
         }
+        setCurrentPickerType(null);
       },
       [currentPickerType]
   );
 
+  const { addShift, loading, error: addShiftError } = useAddShift();
+
   // Function to handle adding a shift
-  const handleAddShift = () => {
+  const handleAddShift = async() => {
     console.log("Add Shift button pressed");
 
     // Validate times before adding shift
@@ -165,31 +174,47 @@ const AddShift: React.FC = () => {
     setError(null);
 
     // Create full date-time objects for the shift
-    const shiftStart = new Date(
+    const shiftStart = transformToSlotUTCFormat(new Date(
         startDate.getFullYear(),
         startDate.getMonth(),
         startDate.getDate(),
         startTime.getHours(),
         startTime.getMinutes()
-    );
+    ));
 
-    const shiftEnd = new Date(
+    const shiftEnd = transformToSlotUTCFormat(new Date(
         endDate.getFullYear(),
         endDate.getMonth(),
         endDate.getDate(),
         endTime.getHours(),
         endTime.getMinutes()
-    );
+    ));
 
+    // Call RPC function to add to shifts table
+    const result = await addShift({
+      shift_name: positionValue,
+      assigned_user_id: 3,
+      startTime: shiftStart,
+      endTime: shiftEnd,
+      department_id: 1,
+      supervisor_id: 1
+    });
 
-    // Show confirmation to user
-    Alert.alert(
-        "Success",
-        `Shift added successfully! Start: ${transformToSlotUTCFormat(shiftStart)}, End: ${transformToSlotUTCFormat(shiftEnd)}`,
-        [{ text: "OK" }]
-    );
-  };
+    if (result.success) {
+      Alert.alert(
+          "Success", JSON.stringify(result.data),
+          [{ text: "OK" }]
+      );
 
+    } else {
+
+      Alert.alert(
+          'Error',
+          JSON.stringify(result.error),
+          [{ text: "OK" }]
+      );
+    }
+}
   // Android requires a different approach for the date picker
   const renderDateTimePicker = () => {
 
@@ -264,11 +289,11 @@ const AddShift: React.FC = () => {
         {/* Position Drop down*/}
         <DropDownPicker
             open={open}
-            value={value}
-            items={items}
+            value={positionValue}
+            items={positions}
             setOpen={setOpen}
-            setValue={setValue}
-            setItems={setItems}
+            setValue={setPositionValue}
+            setItems={setPositions}
             placeholder="Select a Position"/>
         <ScrollView contentContainerStyle={styles.scrollContainer}>
           <View style={styles.innerContainer}>
