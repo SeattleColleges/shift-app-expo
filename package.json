@@ -35,7 +35,7 @@
     "@react-native-community/datetimepicker": "8.2.0",
     "@react-native-picker/picker": "2.9.0",
     "@react-navigation/bottom-tabs": "7.2.0",
-    "@react-navigation/native": "^7.0.15",
+    "@react-navigation/native": "7.1.x",
     "@react-navigation/stack": "7.1.2",
     "@supabase/supabase-js": "^2.49.8",
     "expo": "^52.0.46",
