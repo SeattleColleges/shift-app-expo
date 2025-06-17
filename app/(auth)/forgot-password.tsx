@@ -1,6 +1,4 @@
 import * as React from 'react';
-
-
 import {
   View,
   Text,
@@ -10,6 +8,7 @@ import {
   Dimensions,
 } from 'react-native';
 import { Link } from 'expo-router';
+import { supabase } from '@/lib/supabaseClient';
 
 const { width } = Dimensions.get('window');
 
@@ -24,7 +23,7 @@ export default function ForgotPasswordPage() {
   const [message, setMessage] = React.useState('');
   const [emailError, setEmailError] = React.useState('');
 
-  const handlePasswordReset = () => {
+  const handlePasswordReset = async () => {
     if (!isValidEmail(email)) {
       setEmailError('Invalid email address');
       return;
@@ -34,10 +33,23 @@ export default function ForgotPasswordPage() {
     setIsSubmitting(true);
     setMessage('');
 
-    setTimeout(() => {
-      setIsSubmitting(false);
+    try {
+      if (!supabase) {
+        throw new Error('Supabase client is not initialized');
+      }
+
+      const { error } = await supabase.auth.resetPasswordForEmail(email);
+
+      if (error) {
+        throw error;
+      }
+
       setMessage('If this email is registered, you will receive a reset link.');
-    }, 2000);
+    } catch (error: any) {
+      setMessage(error.message || 'Failed to send reset password email');
+    } finally {
+      setIsSubmitting(false);
+    }
   };
 
   return (
@@ -71,7 +83,11 @@ export default function ForgotPasswordPage() {
         </Text>
       </TouchableOpacity>
 
-      {message !== '' && <Text style={styles.feedback}>{message}</Text>}
+      {message !== '' && (
+        <Text style={[styles.feedback, message.includes('Failed') ? styles.errorText : null]}>
+          {message}
+        </Text>
+      )}
 
       <Link href="/(auth)" style={styles.link}>
         <Text style={{ textDecorationLine: 'none', color: '#007BFF' }}>Back to Login</Text>
