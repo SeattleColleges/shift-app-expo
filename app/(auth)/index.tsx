@@ -10,7 +10,7 @@ import {
 } from 'react-native';
 import {useRouter} from "expo-router";
 import {supabase} from "@/lib/supabaseClient";
-import * as SecureStore from 'expo-secure-store';
+import { ExpoSecureStoreAdapter } from '@/lib/expoSecureStoreAdapter';
 
 const { width } = Dimensions.get('window'); // Get the current screen width
 
@@ -60,7 +60,7 @@ export default function LoginPage() {
           console.error('Error fetching role:', roleError);
         } else {
           console.log('User role:', roleData);
-          await SecureStore.setItemAsync('role', roleData.role?.toLowerCase());
+          await ExpoSecureStoreAdapter.setItem('role', roleData.role?.toLowerCase());
         }
 
         // Navigate after everything is ready
