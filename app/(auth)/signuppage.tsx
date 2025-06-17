@@ -97,7 +97,6 @@ export default function SignUpPage() {
         }
 
         try {
-            // Sign up with Supabase
             const { data: authData, error: authError } = await supabase.auth.signUp({
                 email: formData.email,
                 password: formData.password,
@@ -116,16 +115,21 @@ export default function SignUpPage() {
             }
 
             if (authData.user) {
-                Alert.alert(
-                    'Success',
-                    'Account created successfully! Please check your email for verification.',
-                    [
-                        {
-                            text: 'OK',
-                            onPress: () => router.replace('/(auth)'),
-                        },
-                    ]
-                );
+                if (Platform.OS === 'web') {
+                    window.alert('Account created successfully! Please check your email for verification.');
+                    router.replace('/(auth)');
+                } else {
+                    Alert.alert(
+                        'Success',
+                        'Account created successfully! Please check your email for verification.',
+                        [
+                            {
+                                text: 'OK',
+                                onPress: () => router.replace('/(auth)'),
+                            },
+                        ]
+                    );
+                }
             }
         } catch (error) {
             console.error('Sign up error:', error);
@@ -216,11 +220,10 @@ export default function SignUpPage() {
                 {renderInput('Supervisor', 'supervisor', formData.supervisor, handleInputChange)}
 
                 <TouchableOpacity
-                    style={[styles.signUpButton, !isFormValid && { backgroundColor: '#ccc' }]}
+                    style={styles.button}
                     onPress={handleSignUp}
-                    disabled={!isFormValid}
                 >
-                    <Text style={styles.signUpButtonText}>Sign Up</Text>
+                    <Text style={styles.buttonText}>Sign Up</Text>
                 </TouchableOpacity>
 
                 <View style={styles.signInContainer}>
@@ -272,7 +275,7 @@ const styles = StyleSheet.create({
         fontSize: 14,
         marginTop: 5,
     },
-    signUpButton: {
+    button: {
         width: '85%',
         maxWidth: 400,
         height: width > 400 ? 50 : 45,
@@ -282,7 +285,7 @@ const styles = StyleSheet.create({
         borderRadius: 8,
         marginBottom: 15,
     },
-    signUpButtonText: {
+    buttonText: {
         color: '#fff',
         fontSize: 16,
         fontWeight: 'bold',

@@ -16,11 +16,7 @@ export const useShiftNavigation = (currentShiftId: number) => {
   };
   
   const showAlert = (title: string, message: string): void => {
-    if (Platform.OS === 'web') {
-      window.alert(`${title}\n${message}`);
-    } else {
-      Alert.alert(title, message);
-    }
+    Alert.alert(title, message);
   };
   
   const goToPreviousShift = () => {

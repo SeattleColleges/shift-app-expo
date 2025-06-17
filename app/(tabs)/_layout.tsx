@@ -1,14 +1,14 @@
 import FontAwesome from '@expo/vector-icons/FontAwesome';
 import { Tabs } from 'expo-router';
 import {useEffect, useState} from "react";
-import * as SecureStore from "expo-secure-store";
+import { ExpoSecureStoreAdapter } from "@/lib/expoSecureStoreAdapter";
 
 export default function TabLayout() {
     const [role, setRole] = useState<string | null>(null);
 
     useEffect(() => {
         const fetchRole = async () => {
-            const storedRole = await SecureStore.getItemAsync('role');
+            const storedRole = await ExpoSecureStoreAdapter.getItem('role');
             setRole(storedRole);
         };
 
