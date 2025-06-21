@@ -46,8 +46,21 @@ export const ExpoSecureStoreAdapter = {
             }
             
             if (value) {
-                const { access_token, refresh_token } = JSON.parse(value);
-                return JSON.stringify({access_token, refresh_token, token_type: 'bearer', user: null})
+                // Try to parse as JSON first (for session data)
+                try {
+                    const parsed = JSON.parse(value);
+                    if (parsed.access_token && parsed.refresh_token) {
+                        // This is session data
+                        const { access_token, refresh_token } = parsed;
+                        return JSON.stringify({access_token, refresh_token, token_type: 'bearer', user: null})
+                    } else {
+                        // This is not session data, return as simple string
+                        return value;
+                    }
+                } catch {
+                    // Not valid JSON, return as simple string
+                    return value;
+                }
             }
             return null;
         } catch (error) {
@@ -57,9 +70,23 @@ export const ExpoSecureStoreAdapter = {
     },
     setItem: async (key: string, value: string): Promise<void> => {
         try {
-            const session = JSON.parse(value);
-            const { access_token, refresh_token } = session;
-            const storageValue = JSON.stringify({ access_token, refresh_token });
+            let storageValue;
+            
+            // Try to parse as JSON first (for session data)
+            try {
+                const session = JSON.parse(value);
+                if (session.access_token && session.refresh_token) {
+                    // This is session data
+                    const { access_token, refresh_token } = session;
+                    storageValue = JSON.stringify({ access_token, refresh_token });
+                } else {
+                    // This is not session data, store as simple string
+                    storageValue = value;
+                }
+            } catch {
+                // Not valid JSON, store as simple string
+                storageValue = value;
+            }
             
             if (isWeb) {
                 if (isBrowser) {

@@ -1,38 +1,76 @@
 import { Stack } from 'expo-router';
+import { View, TouchableOpacity, Text, StyleSheet } from 'react-native';
+import { useRouter, usePathname } from 'expo-router';
+import FontAwesome from '@expo/vector-icons/FontAwesome';
 
 export default function TabLayout() {
+    const router = useRouter();
+    const pathname = usePathname();
+
+    const tabs = [
+        { name: 'index', title: 'Schedule', icon: 'calendar-check-o' },
+        { name: 'add-shift', title: 'Add Shift', icon: 'calendar-plus-o' },
+        { name: 'coworkers', title: 'Coworkers', icon: 'users' },
+        { name: 'notifications', title: 'Notifications', icon: 'bell' },
+        { name: 'profileView', title: 'Profile', icon: 'user' },
+    ];
+
     return (
-        <Stack>
-            <Stack.Screen
-                name="index"
-                options={{
-                    title: 'Schedule',
-                }}
-            />
-            <Stack.Screen
-                name="add-shift"
-                options={{
-                    title: 'Add Shift',
-                }}
-            />
-            <Stack.Screen
-                name="coworkers"
-                options={{
-                    title: 'Coworkers',
-                }}
-            />
-            <Stack.Screen
-                name="notifications"
-                options={{
-                    title: 'Notifications',
-                }}
-            />
-            <Stack.Screen
-                name="profileView"
-                options={{
-                    title: 'Profile',
-                }}
-            />
-        </Stack>
+        <View style={{ flex: 1 }}>
+            <Stack screenOptions={{ headerShown: false }}>
+                <Stack.Screen name="index" />
+                <Stack.Screen name="add-shift" />
+                <Stack.Screen name="coworkers" />
+                <Stack.Screen name="notifications" />
+                <Stack.Screen name="profileView" />
+            </Stack>
+            
+            {/* Custom Bottom Tab Bar */}
+            <View style={styles.tabBar}>
+                {tabs.map((tab) => {
+                    const isActive = pathname === `/(tabs)/${tab.name}`;
+                    return (
+                        <TouchableOpacity
+                            key={tab.name}
+                            style={styles.tab}
+                            onPress={() => router.push(`/(tabs)/${tab.name}`)}
+                        >
+                            <FontAwesome 
+                                size={24} 
+                                name={tab.icon} 
+                                color={isActive ? '#007AFF' : '#8E8E93'} 
+                            />
+                            <Text style={[styles.tabText, isActive && styles.activeTabText]}>
+                                {tab.title}
+                            </Text>
+                        </TouchableOpacity>
+                    );
+                })}
+            </View>
+        </View>
     );
 }
+
+const styles = StyleSheet.create({
+    tabBar: {
+        flexDirection: 'row',
+        backgroundColor: '#fff',
+        borderTopWidth: 1,
+        borderTopColor: '#E5E5EA',
+        paddingBottom: 20,
+        paddingTop: 10,
+    },
+    tab: {
+        flex: 1,
+        alignItems: 'center',
+        paddingVertical: 8,
+    },
+    tabText: {
+        fontSize: 12,
+        marginTop: 4,
+        color: '#8E8E93',
+    },
+    activeTabText: {
+        color: '#007AFF',
+    },
+});
