@@ -10,7 +10,6 @@ import {
 } from 'react-native';
 import {useRouter} from "expo-router";
 import {supabase} from "@/lib/supabaseClient";
-import { ExpoSecureStoreAdapter } from '@/lib/expoSecureStoreAdapter';
 
 const { width } = Dimensions.get('window'); // Get the current screen width
 
@@ -44,30 +43,12 @@ export default function LoginPage() {
 
       if (data?.user) {
         console.log("Signed in user:", data.user);
+        console.log("Session data:", data.session);
 
-        // Fetch role using the user ID directly
-        if (!supabase) {
-          Alert.alert("Error", "Supabase client is not initialized.");
-          return;
-        }
-        const { data: roleData, error: roleError } = await supabase
-            .from('profiles')
-            .select('role')
-            .eq('profile_id', data.user.id)
-            .single();
-
-        if (roleError) {
-          console.error('Error fetching role:', roleError);
-        } else {
-          console.log('User role:', roleData);
-          await ExpoSecureStoreAdapter.setItem('role', roleData.role?.toLowerCase());
-        }
-
-        // Navigate after everything is ready
+        // Navigate after successful login
         router.replace('/(tabs)');
       }
     }
-
 
     await signInWithEmail()
   }

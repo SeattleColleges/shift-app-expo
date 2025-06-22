@@ -15,6 +15,21 @@ export default function TabLayout() {
         { name: 'profileView', title: 'Profile', icon: 'user' },
     ];
 
+    const handleTabPress = (tabName: string) => {
+        if (tabName === 'index') {
+            router.push('/(tabs)' as any);
+        } else {
+            router.push(`/(tabs)/${tabName}` as any);
+        }
+    };
+
+    const isTabActive = (tabName: string) => {
+        if (tabName === 'index') {
+            return pathname === '/(tabs)/' || pathname === '/(tabs)/index';
+        }
+        return pathname === `/(tabs)/${tabName}`;
+    };
+
     return (
         <View style={{ flex: 1 }}>
             <Stack screenOptions={{ headerShown: false }}>
@@ -28,16 +43,16 @@ export default function TabLayout() {
             {/* Custom Bottom Tab Bar */}
             <View style={styles.tabBar}>
                 {tabs.map((tab) => {
-                    const isActive = pathname === `/(tabs)/${tab.name}`;
+                    const isActive = isTabActive(tab.name);
                     return (
                         <TouchableOpacity
                             key={tab.name}
                             style={styles.tab}
-                            onPress={() => router.push(`/(tabs)/${tab.name}`)}
+                            onPress={() => handleTabPress(tab.name)}
                         >
                             <FontAwesome 
                                 size={24} 
-                                name={tab.icon} 
+                                name={tab.icon as any} 
                                 color={isActive ? '#007AFF' : '#8E8E93'} 
                             />
                             <Text style={[styles.tabText, isActive && styles.activeTabText]}>

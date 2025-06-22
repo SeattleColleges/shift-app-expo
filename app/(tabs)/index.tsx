@@ -101,9 +101,15 @@ export default function UserDashboard() {
   useEffect(() => {
     const fetchShiftData = async () => {
       if (supabase != null) {
-        const shifts = await getAll(supabase, 'shifts');
-        if (shifts)
-          setShiftData(shifts as Shift[]);
+        // Check if user is authenticated
+        const { data: { session } } = await supabase.auth.getSession();
+        if (session && session.user) {
+          const shifts = await getAll(supabase, 'shifts');
+          if (shifts)
+            setShiftData(shifts as Shift[]);
+        } else {
+          console.log('No authenticated session found');
+        }
       }
     }
     fetchShiftData();
