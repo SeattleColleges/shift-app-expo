@@ -94,4 +94,4 @@ const styles = StyleSheet.create({
     textAlign: "left",
     marginTop: 20,
   },
-});
+}); 
