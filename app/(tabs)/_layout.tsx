@@ -2,14 +2,40 @@ import { Stack } from 'expo-router';
 import { View, TouchableOpacity, Text, StyleSheet } from 'react-native';
 import { useRouter, usePathname } from 'expo-router';
 import FontAwesome from '@expo/vector-icons/FontAwesome';
+import { useEffect, useState } from 'react';
+import { supabase } from '@/lib/supabaseClient';
 
 export default function TabLayout() {
     const router = useRouter();
     const pathname = usePathname();
+    const [role, setRole] = useState<string | null>(null);
+
+    useEffect(() => {
+        const fetchRole = async () => {
+            if (supabase) {
+                const { data: { session } } = await supabase.auth.getSession();
+                if (session?.user) {
+                    const { data: roleData } = await supabase
+                        .from('profiles')
+                        .select('role')
+                        .eq('profile_id', session.user.id)
+                        .single();
+                    
+                    if (roleData?.role) {
+                        setRole(roleData.role.toLowerCase());
+                    }
+                }
+            }
+        };
+
+        fetchRole();
+    }, []);
+
+    const isAdmin = role === 'administrator' || role === 'supervisor';
 
     const tabs = [
         { name: 'index', title: 'Schedule', icon: 'calendar-check-o' },
-        { name: 'add-shift', title: 'Add Shift', icon: 'calendar-plus-o' },
+        ...(isAdmin ? [{ name: 'add-shift', title: 'Add Shift', icon: 'calendar-plus-o' }] : []),
         { name: 'coworkers', title: 'Coworkers', icon: 'users' },
         { name: 'notifications', title: 'Notifications', icon: 'bell' },
         { name: 'profileView', title: 'Profile', icon: 'user' },

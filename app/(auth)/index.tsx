@@ -6,7 +6,7 @@ import {
   TouchableOpacity,
   StyleSheet,
   Dimensions,
-  Alert,
+  Alert, Platform,
 } from 'react-native';
 import {useRouter} from "expo-router";
 import {supabase} from "@/lib/supabaseClient";

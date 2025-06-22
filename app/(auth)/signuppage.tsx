@@ -220,10 +220,10 @@ export default function SignUpPage() {
                 {renderInput('Supervisor', 'supervisor', formData.supervisor, handleInputChange)}
 
                 <TouchableOpacity
-                    style={styles.button}
+                    style={[styles.signUpButton, !isFormValid && { backgroundColor: '#ccc' }]}
                     onPress={handleSignUp}
                 >
-                    <Text style={styles.buttonText}>Sign Up</Text>
+                    <Text style={styles.signUpButtonText}>Sign Up</Text>
                 </TouchableOpacity>
 
                 <View style={styles.signInContainer}>
@@ -275,7 +275,7 @@ const styles = StyleSheet.create({
         fontSize: 14,
         marginTop: 5,
     },
-    button: {
+    signUpButton: {
         width: '85%',
         maxWidth: 400,
         height: width > 400 ? 50 : 45,
@@ -285,7 +285,7 @@ const styles = StyleSheet.create({
         borderRadius: 8,
         marginBottom: 15,
     },
-    buttonText: {
+    signUpButtonText: {
         color: '#fff',
         fontSize: 16,
         fontWeight: 'bold',
