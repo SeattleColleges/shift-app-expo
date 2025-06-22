@@ -31,7 +31,7 @@ export default function TabLayout() {
         fetchRole();
     }, []);
 
-    const isAdmin = role === 'administrator' || role === 'supervisor';
+    const isAdmin = role === 'admin';
 
     const tabs = [
         { name: 'index', title: 'Schedule', icon: 'calendar-check-o' },
