@@ -23,19 +23,31 @@ const ProfileView = () => {
   const [error, setError] = useState<string | null>(null);
   const router = useRouter();
 
-  // Using the profile_int_id provided
-  const profileIntId = 5;
-
   const fetchProfileById = useCallback(async () => {
     setLoading(true);
     setError(null);
 
     try {
       if (supabase) {
+        // Get the current session
+        const { data: { session }, error: sessionError } = await supabase.auth.getSession();
+        
+        if (sessionError) {
+          console.error('Error getting session:', sessionError);
+          setError(sessionError.message);
+          return;
+        }
+
+        if (!session || !session.user) {
+          setError('No active session found. Please log in again.');
+          return;
+        }
+
+        // Fetch profile using the user's ID from the session
         const { data, error } = await supabase
           .from('profiles')
           .select('*')
-          .eq('profile_int_id', profileIntId)
+          .eq('profile_id', session.user.id)
           .single();
 
         if (error) {
@@ -59,9 +71,23 @@ const ProfileView = () => {
     fetchProfileById();
   }, [fetchProfileById]);
 
-  const handleLogout = () => {
-    router.replace('/(auth)'); // Navigate to the login page
-    console.log('Logout pressed');
+  const handleLogout = async () => {
+    try {
+      if (supabase) {
+        const { error } = await supabase.auth.signOut();
+        if (error) {
+          console.error('Error signing out:', error);
+        } else {
+          console.log('Successfully signed out');
+          router.replace('/(auth)');
+        }
+      } else {
+        router.replace('/(auth)');
+      }
+    } catch (error) {
+      console.error('Error during logout:', error);
+      router.replace('/(auth)');
+    }
   };
 
   const handleEditProfile = () => {

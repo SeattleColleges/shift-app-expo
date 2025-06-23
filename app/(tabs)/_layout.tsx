@@ -1,86 +1,117 @@
+import { Stack } from 'expo-router';
+import { View, TouchableOpacity, Text, StyleSheet } from 'react-native';
+import { useRouter, usePathname } from 'expo-router';
 import FontAwesome from '@expo/vector-icons/FontAwesome';
-import { Tabs } from 'expo-router';
-import {useEffect, useState} from "react";
-import * as SecureStore from "expo-secure-store";
+import { useEffect, useState } from 'react';
+import { supabase } from '@/lib/supabaseClient';
 
 export default function TabLayout() {
+    const router = useRouter();
+    const pathname = usePathname();
     const [role, setRole] = useState<string | null>(null);
 
     useEffect(() => {
         const fetchRole = async () => {
-            const storedRole = await SecureStore.getItemAsync('role');
-            setRole(storedRole);
+            if (supabase) {
+                const { data: { session } } = await supabase.auth.getSession();
+                if (session?.user) {
+                    const { data: roleData } = await supabase
+                        .from('profiles')
+                        .select('role')
+                        .eq('profile_id', session.user.id)
+                        .single();
+                    
+                    if (roleData?.role) {
+                        setRole(roleData.role.toLowerCase());
+                    }
+                }
+            }
         };
 
         fetchRole();
     }, []);
-    const isAdmin = role === 'administrator' || role === 'supervisor';
+
+    const isAdmin = role === 'admin';
+
+    const tabs = [
+        { name: 'index', title: 'Schedule', icon: 'calendar-check-o' },
+        ...(isAdmin ? [{ name: 'add-shift', title: 'Add Shift', icon: 'calendar-plus-o' }] : []),
+        { name: 'coworkers', title: 'Coworkers', icon: 'users' },
+        { name: 'notifications', title: 'Notifications', icon: 'bell' },
+        { name: 'profileView', title: 'Profile', icon: 'user' },
+    ];
+
+    const handleTabPress = (tabName: string) => {
+        if (tabName === 'index') {
+            router.push('/(tabs)' as any);
+        } else {
+            router.push(`/(tabs)/${tabName}` as any);
+        }
+    };
+
+    const isTabActive = (tabName: string) => {
+        if (tabName === 'index') {
+            return pathname === '/(tabs)/' || pathname === '/(tabs)/index';
+        }
+        return pathname === `/(tabs)/${tabName}`;
+    };
+
     return (
-        <Tabs screenOptions={{ tabBarActiveTintColor: 'blue', tabBarStyle: { display: 'flex' },  }}>
-            <Tabs.Screen
-                name="index"
-                options={{
-                    title: 'Schedule',
-                    tabBarIcon: ({ color }) => <FontAwesome size={28} name="calendar-check-o" color={color} />,
-                }}
-            />
-            <Tabs.Screen
-                name="add-shift"
-                options={{
-                    title: 'Add Shift',
-                    tabBarIcon: ({color}) => <FontAwesome size={28} name="calendar-plus-o" color={color}/>,
-                    href: isAdmin ? null : '/(tabs)/add-shift'
-                }}
-            />
-            <Tabs.Screen
-                name="coworkers"
-                options={{
-                    title: 'Coworkers',
-                    tabBarIcon: ({ color }) => <FontAwesome size={28} name="users" color={color} />,
-                }}
-            />
-            <Tabs.Screen
-                name="notifications"
-                options={{
-                    title: 'Notifications',
-                    tabBarIcon: ({ color }) => <FontAwesome size={28} name="bell" color={color} />,
-                }}
-            />
-            <Tabs.Screen
-                name="profileView"
-                options={{
-                    title: 'Profile',
-                    tabBarIcon: ({ color }) => <FontAwesome size={28} name="user" color={color} />,
-                }}
-            />
-            {/* These screens are not direct tabs and are handled by file-system routing or other navigation methods */}
-            {/* Remove the explicit definition for shift-details-page/[id] */}
-            {/*
-            <Tabs.Screen
-                name="department-org"
-                options={{
-                    href: null
-                }}
-            />
-            <Tabs.Screen
-                name="help"
-                options={{
-                    href: null
-                }}
-            />
-            <Tabs.Screen
-                name="shift-details-page/[id]"
-                options={{
-                    href: null
-                }}
-            />
-            <Tabs.Screen
-                name="editProfile"
-                options={{
-                    href: null
-                }}
-            />
-            */}
-        </Tabs>
+        <View style={{ flex: 1 }}>
+            <Stack screenOptions={{ headerShown: false }}>
+                <Stack.Screen name="index" />
+                <Stack.Screen name="add-shift" />
+                <Stack.Screen name="coworkers" />
+                <Stack.Screen name="notifications" />
+                <Stack.Screen name="profileView" />
+            </Stack>
+            
+            {/* Custom Bottom Tab Bar */}
+            <View style={styles.tabBar}>
+                {tabs.map((tab) => {
+                    const isActive = isTabActive(tab.name);
+                    return (
+                        <TouchableOpacity
+                            key={tab.name}
+                            style={styles.tab}
+                            onPress={() => handleTabPress(tab.name)}
+                        >
+                            <FontAwesome 
+                                size={24} 
+                                name={tab.icon as any} 
+                                color={isActive ? '#007AFF' : '#8E8E93'} 
+                            />
+                            <Text style={[styles.tabText, isActive && styles.activeTabText]}>
+                                {tab.title}
+                            </Text>
+                        </TouchableOpacity>
+                    );
+                })}
+            </View>
+        </View>
     );
 }
+
+const styles = StyleSheet.create({
+    tabBar: {
+        flexDirection: 'row',
+        backgroundColor: '#fff',
+        borderTopWidth: 1,
+        borderTopColor: '#E5E5EA',
+        paddingBottom: 20,
+        paddingTop: 10,
+    },
+    tab: {
+        flex: 1,
+        alignItems: 'center',
+        paddingVertical: 8,
+    },
+    tabText: {
+        fontSize: 12,
+        marginTop: 4,
+        color: '#8E8E93',
+    },
+    activeTabText: {
+        color: '#007AFF',
+    },
+});

@@ -13,11 +13,27 @@ import {
   Platform,
 } from "react-native";
 import DateTimePicker, { type DateTimePickerEvent } from "@react-native-community/datetimepicker";
+import { Picker } from "@react-native-picker/picker";
+import { supabase } from "@/lib/supabaseClient";
 
 const primaryColor = "#0056b3";
 const cardBackgroundColor = "#fff";
 
 type PickerType = "startTime" | "endTime" | "startDate" | "endDate" | null;
+
+interface User {
+  profile_int_id: number;
+  name: string;
+  email: string;
+}
+
+interface Supervisor {
+  supervisor_id: number;
+  profiles: {
+    name: string;
+    email: string;
+  };
+}
 
 // Helper function to round time to nearest quarter-hour
 const roundToNearestQuarter = (date: Date): Date => {
@@ -45,6 +61,77 @@ const AddShift: React.FC = () => {
   const [showPicker, setShowPicker] = useState<boolean>(false);
   const [currentPickerType, setCurrentPickerType] = useState<PickerType>(null);
   const [error, setError] = useState<string | null>(null);
+  const [users, setUsers] = useState<User[]>([]);
+  const [selectedUserId, setSelectedUserId] = useState<number | null>(null);
+  const [supervisors, setSupervisors] = useState<Supervisor[]>([]);
+  const [selectedSupervisorId, setSelectedSupervisorId] = useState<number | null>(null);
+
+  // Fetch users and supervisors
+  useEffect(() => {
+    fetchUsers();
+    fetchSupervisors();
+  }, []);
+
+  const fetchUsers = async () => {
+    if (!supabase) return;
+    
+    try {
+      const { data, error } = await supabase
+        .from('profiles')
+        .select('profile_int_id, name, email')
+        .order('name');
+      
+      if (error) {
+        console.error('Error fetching users:', error);
+        return;
+      }
+      
+      if (data) {
+        setUsers(data);
+        // Set first user as default if available
+        if (data.length > 0 && !selectedUserId) {
+          setSelectedUserId(data[0].profile_int_id);
+        }
+      }
+    } catch (error) {
+      console.error('Error fetching users:', error);
+    }
+  };
+  
+  const fetchSupervisors = async () => {
+    if (!supabase) return;
+
+    try {
+      const { data, error } = await supabase
+        .from('profiles')
+        .select('profile_int_id, name, email')
+        .eq('role', 'supervisor')
+        .order('name');
+
+      if (error) {
+        console.error('Error fetching supervisors:', error);
+        return;
+      }
+
+      if (data) {
+        const supervisorsData = data.map(profile => ({
+          supervisor_id: profile.profile_int_id,
+          profiles: {
+            name: profile.name,
+            email: profile.email,
+          },
+        }));
+
+        setSupervisors(supervisorsData as Supervisor[]);
+        
+        if (supervisorsData.length > 0 && !selectedSupervisorId) {
+          setSelectedSupervisorId(supervisorsData[0].supervisor_id);
+        }
+      }
+    } catch (error) {
+      console.error('Error fetching supervisors:', error);
+    }
+  };
 
   // Format date to human readable format (e.g., "Monday, January 1, 2025")
   const formatDate = (date: Date): string => {
@@ -136,7 +223,7 @@ const AddShift: React.FC = () => {
   );
 
   // Function to handle adding a shift
-  const handleAddShift = () => {
+  const handleAddShift = async () => {
     console.log("Add Shift button pressed");
 
     // Validate times before adding shift
@@ -146,6 +233,28 @@ const AddShift: React.FC = () => {
       Alert.alert(
           "Invalid Shift Times",
           "Start time cannot be after end time",
+          [{ text: "OK" }]
+      );
+      return;
+    }
+
+    // Validate user selection
+    if (!selectedUserId) {
+      setError("Error: Please select a user");
+      Alert.alert(
+          "No User Selected",
+          "Please select a user to assign the shift to.",
+          [{ text: "OK" }]
+      );
+      return;
+    }
+
+    // Validate supervisor selection
+    if (!selectedSupervisorId) {
+      setError("Error: Please select a supervisor");
+      Alert.alert(
+          "No Supervisor Selected",
+          "Please select a supervisor for the shift.",
           [{ text: "OK" }]
       );
       return;
@@ -171,25 +280,56 @@ const AddShift: React.FC = () => {
         endTime.getMinutes()
     );
 
-    // Format the shift times in the required format
-    const formattedShiftStart = `${formatDate(shiftStart)} ${formatTime(shiftStart)}`;
-    const formattedShiftEnd = `${formatDate(shiftEnd)} ${formatTime(shiftEnd)}`;
+    try {
+      if (!supabase) {
+        throw new Error('Supabase client is not available');
+      }
 
-    // Log the shift details in the requested format
-    console.log("==== Creating New Shift ====");
-    console.log(`Shift added: { '${formattedShiftStart}', '${formattedShiftEnd}' }`);
-    console.log("Duration (hours):", (shiftEnd.getTime() - shiftStart.getTime()) / (1000 * 60 * 60));
-    console.log("========================");
+      const slotStart = shiftStart.toISOString();
+      const slotEnd = shiftEnd.toISOString();
+      const slot = `[${slotStart},${slotEnd})`;
 
-    /* Here you would typically call an API or dispatch an action to save the shift
-    For now, we're just logging to terminal */
+      // Save shift
+      const { data, error } = await supabase
+        .from('shifts')
+        .insert({
+          shift_name: `Shift ${shiftStart.toLocaleDateString()}`,
+          assigned_user_id: selectedUserId,
+          department_id: 1, // TODO: Change default later. Maybe only have option on form if multiple exist
+          supervisor_id: selectedSupervisorId,
+          slot: slot,
+          needs_coverage: false,
+          notes: ''
+        })
+        .select();
 
-    // Show confirmation to user
-    Alert.alert(
-        "Success",
-        "Shift added successfully!",
-        [{ text: "OK" }]
-    );
+      if (error) {
+        console.error('Error adding shift:', error);
+        Alert.alert(
+            "Error",
+            "Failed to add shift. Please try again.",
+            [{ text: "OK" }]
+        );
+        return;
+      }
+
+      console.log("Shift added successfully:", data);
+
+      // Show confirmation to user
+      Alert.alert(
+          "Success",
+          "Shift added successfully!",
+          [{ text: "OK" }]
+      );
+
+    } catch (error) {
+      console.error('Error adding shift:', error);
+      Alert.alert(
+          "Error",
+          "Failed to add shift. Please try again.",
+          [{ text: "OK" }]
+      );
+    }
   };
 
   // Android requires a different approach for the date picker
@@ -267,6 +407,42 @@ const AddShift: React.FC = () => {
 
             {/* Display error message if present */}
             {error && <Text style={styles.errorText}>{error}</Text>}
+
+            {/* Employee selector */}
+            <Text style={styles.label}>Assign to User</Text>
+            <View style={styles.pickerContainer}>
+              <Picker
+                selectedValue={selectedUserId}
+                onValueChange={(itemValue) => setSelectedUserId(itemValue)}
+                style={styles.picker}
+              >
+                {users.map((user) => (
+                  <Picker.Item
+                    key={user.profile_int_id}
+                    label={user.name || user.email}
+                    value={user.profile_int_id}
+                  />
+                ))}
+              </Picker>
+            </View>
+
+            {/* Supervisor selector */}
+            <Text style={styles.label}>Assign to Supervisor</Text>
+            <View style={styles.pickerContainer}>
+              <Picker
+                selectedValue={selectedSupervisorId}
+                onValueChange={(itemValue) => setSelectedSupervisorId(itemValue)}
+                style={styles.picker}
+              >
+                {supervisors.map((supervisor) => (
+                  <Picker.Item
+                    key={supervisor.supervisor_id}
+                    label={supervisor.profiles.name || supervisor.profiles.email}
+                    value={supervisor.supervisor_id}
+                  />
+                ))}
+              </Picker>
+            </View>
 
             {/* Start Date */}
             <Text style={styles.label}>Start Date</Text>
@@ -359,6 +535,15 @@ const styles = StyleSheet.create({
     marginBottom: 16,
   },
   inputText: { fontSize: 16 },
+  pickerContainer: {
+    borderWidth: 1,
+    borderColor: "#ccc",
+    borderRadius: 8,
+    marginBottom: 16,
+  },
+  picker: {
+    height: 50,
+  },
   primaryButton: {
     backgroundColor: primaryColor,
     padding: 16,
