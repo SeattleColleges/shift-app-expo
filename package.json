@@ -23,7 +23,8 @@
     "db:delete:docker": "echo 'Checking Supabase status...' && (docker ps -q --filter \"name=supabase_*_shift-app-expo\" > /dev/null && echo 'Stopping running Supabase containers...' && supabase stop --no-backup || echo 'No running Supabase containers found') && echo 'Removing any existing Supabase containers...' && (docker ps -a -q --filter \"name=supabase_*_shift-app-expo\" | xargs -r docker rm -f || echo 'No containers to remove') && echo 'Removing any existing Supabase volumes...' && (docker volume ls -q --filter \"label=com.supabase.cli.project=shift-app-expo\" | xargs -r docker volume rm || echo 'No volumes to remove') && echo 'Cleanup completed successfully'",
     "db:stop": "npx supabase stop",
     "db:status": "npx supabase status",
-    "db:reset": "npx supabase db reset"
+    "db:reset": "npx supabase db reset",
+    "db:types": "npx supabase gen types typescript --local > types/database.ts"
   },
   "jest": {
     "preset": "jest-expo"
@@ -35,9 +36,10 @@
     "@react-native-community/datetimepicker": "8.2.0",
     "@react-native-picker/picker": "2.9.0",
     "@react-navigation/bottom-tabs": "7.2.0",
-    "@react-navigation/native": "7.0.15",
-    "@react-navigation/stack": "7.1.2",
+    "@react-navigation/stack": "7.1.0",
     "@supabase/supabase-js": "^2.49.8",
+    "babel-jest": "^30.0.2",
+    "babel-preset-expo": "^13.2.1",
     "expo": "^52.0.46",
     "expo-blur": "~14.0.2",
     "expo-constants": "^17.0.8",

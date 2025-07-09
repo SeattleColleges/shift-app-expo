@@ -8,8 +8,8 @@ import {
   Dimensions,
   Alert,
 } from 'react-native';
-import {useRouter} from "expo-router";
-import {supabase} from "@/lib/supabaseClient";
+import { useRouter } from "expo-router";
+import { supabase } from "@/lib/supabaseClient";
 import * as SecureStore from 'expo-secure-store';
 
 const { width } = Dimensions.get('window'); // Get the current screen width
@@ -51,10 +51,10 @@ export default function LoginPage() {
           return;
         }
         const { data: roleData, error: roleError } = await supabase
-            .from('profiles')
-            .select('role')
-            .eq('profile_id', data.user.id)
-            .single();
+          .from('profiles')
+          .select('role')
+          .eq('profile_id', data.user.id)
+          .single();
 
         if (roleError) {
           console.error('Error fetching role:', roleError);
@@ -96,6 +96,7 @@ export default function LoginPage() {
           onChangeText={setEmail}
           keyboardType="email-address"
           autoCapitalize="none" // Add this prop
+          testID="email-input"
         />
       </View>
 
@@ -109,11 +110,12 @@ export default function LoginPage() {
           value={password}
           onChangeText={setPassword}
           secureTextEntry
+          testID="password-input"
         />
       </View>
 
       {/* Login Button */}
-      <TouchableOpacity style={[styles.loginButton, !isFormValid && styles.disabledButton]} onPress={handleSignIn} disabled={!isFormValid}>
+      <TouchableOpacity style={[styles.loginButton, !isFormValid && styles.disabledButton]} onPress={handleSignIn} disabled={!isFormValid} testID="login-button">
         <Text style={styles.loginButtonText}>Login</Text>
       </TouchableOpacity>
 
