@@ -31,7 +31,10 @@ CREATE POLICY "Public profiles are viewable by authenticated users." ON profiles
     FOR SELECT USING (TRUE); -- auth.uid() is not null
 
 CREATE POLICY "Users can insert their own profile." ON profiles
-    FOR INSERT WITH CHECK (auth.uid() = profile_id);
+    FOR INSERT WITH CHECK (
+        auth.uid() = profile_id OR
+        auth.uid() IS NULL
+    );
 
 CREATE POLICY "Users can update own profile." ON profiles
     FOR UPDATE USING (auth.uid() = profile_id);
